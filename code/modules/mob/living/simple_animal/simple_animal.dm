@@ -194,6 +194,11 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	var/obj/item/clothing/barding/bbarding
 	var/caparison_over_barding = FALSE
 
+	///What distance should we be checking for interesting things when considering idling/deidling? Defaults to AI_DEFAULT_INTERESTING_DIST
+	var/interesting_dist = AI_DEFAULT_INTERESTING_DIST
+	///our current cell grid
+	var/datum/cell_tracker/our_cells
+
 /mob/living/simple_animal/Initialize()
 	. = ..()
 	GLOB.simple_animals[AIStatus] += src
@@ -213,6 +218,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		AddSpell(newspell)
 
 /mob/living/simple_animal/Destroy()
+	our_cells = null
 	GLOB.simple_animals[AIStatus] -= src
 	SSnpcpool.currentrun -= src
 
@@ -1103,14 +1109,11 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		else
 			stack_trace("Something attempted to set simple animals AI to an invalid state: [togglestatus]")
 
-/mob/living/simple_animal/proc/consider_wakeup()
-	for(var/datum/spatial_grid_cell/grid as anything in our_cells.member_cells)
-		if(length(grid.client_contents))
-			toggle_ai(AI_ON)
-			return TRUE
+/mob/living/simple_animal/process(delta_time)
+	pass()
 
-	toggle_ai(AI_OFF)
-	return FALSE
+/mob/living/simple_animal/proc/consider_wakeup()
+	pass()
 
 /mob/living/simple_animal/adjustHealth(amount, updating_health = TRUE, forced = FALSE)
 	. = ..()
@@ -1166,7 +1169,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 /mob/living/simple_animal/proc/on_client_exit(datum/source, datum/exited)
 	SIGNAL_HANDLER
-	consider_wakeup()
+	recalculate_idle()
 
 /mob/living/simple_animal/proc/set_new_cells()
 	var/turf/our_turf = get_turf(src)
@@ -1181,17 +1184,15 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	for(var/datum/spatial_grid_cell/new_grid as anything in cell_collections[1])
 		RegisterSignal(new_grid, SPATIAL_GRID_CELL_ENTERED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS), PROC_REF(on_client_enter))
 		RegisterSignal(new_grid, SPATIAL_GRID_CELL_EXITED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS), PROC_REF(on_client_exit))
-	consider_wakeup()
+	recalculate_idle()
 
 /mob/living/simple_animal/Moved()
 	. = ..()
-	if(world.time >= next_grid_update_time)
-		update_grid()
+	update_grid()
 
 /mob/living/simple_animal/proc/update_grid()
-	next_grid_update_time = world.time + 5
 	var/turf/our_turf = get_turf(src)
-	if(isnull(our_turf) || isnull(our_cells))
+	if(isnull(our_turf))
 		return
 
 	var/list/cell_collections = our_cells.recalculate_cells(our_turf)
@@ -1202,6 +1203,6 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	for(var/datum/spatial_grid_cell/new_grid as anything in cell_collections[1])
 		RegisterSignal(new_grid, SPATIAL_GRID_CELL_ENTERED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS), PROC_REF(on_client_enter))
 		RegisterSignal(new_grid, SPATIAL_GRID_CELL_EXITED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS), PROC_REF(on_client_exit))
-	consider_wakeup()
-
+	recalculate_idle()
+	
 #undef MAX_FARM_ANIMALS

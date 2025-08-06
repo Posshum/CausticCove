@@ -195,17 +195,8 @@
 		if(M.doing)
 			M.doing = FALSE
 		if(!supress_message)
-			M.visible_message("<span class='warning'>[src] [M.cmode ? "<b>clings</b> onto" : "grabs"] [M].</span>", \
-				"<span class='danger'>[src] grabs onto you.</span>")
-		if(isliving(src))
-			var/mob/living/L = src
-			if(M.cmode || L.cmode)	//We're in combat, so we apply clickcds
-				var/clickcd = CLICK_CD_TRACKING
-				var/spdbonus = (10 - L.get_stat(STATKEY_SPD)) * 2
-				clickcd -= spdbonus
-				if(M.mind)	//No clickcd if we're grabbing a mindless mob, just frag the stupid AI
-					L.changeNext_move(clickcd)
-				M.changeNext_move(CLICK_CD_HEAVY)
+			M.visible_message("<span class='warning'>[src] grabs [M].</span>", \
+				"<span class='danger'>[src] grabs you.</span>")
 	if(istype(AM, /mob/living/simple_animal))
 		var/mob/living/simple_animal/simple_animal = AM
 		simple_animal.toggle_ai(AI_ON)
