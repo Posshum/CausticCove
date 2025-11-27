@@ -36052,7 +36052,7 @@
 "iZs" = (
 /obj/structure/mannequin,
 /obj/item/clothing/mask/rogue/facemask/goldmask,
-/obj/item/clothing/suit/roguetown/armor/plate/half/fluted{
+/obj/item/clothing/suit/roguetown/armor/plate/fluted{
 	color = "#FFD700"
 	},
 /turf/open/floor/rogue/cobble,
@@ -71785,7 +71785,7 @@
 /obj/structure/closet/crate/roguecloset,
 /obj/item/scomstone,
 /obj/item/clothing/mask/rogue/facemask/psydonmask,
-/obj/item/clothing/suit/roguetown/armor/plate/half/fluted/ornate,
+/obj/item/clothing/suit/roguetown/armor/plate/fluted/ornate,
 /obj/item/clothing/gloves/roguetown/chain/psydon,
 /obj/item/clothing/gloves/roguetown/otavan/inqgloves,
 /obj/item/clothing/mask/rogue/sack/psy,
