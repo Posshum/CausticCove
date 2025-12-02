@@ -28,8 +28,10 @@ GLOBAL_LIST_INIT(character_flaws, list(
 	"Asundered Mind"=/datum/charflaw/mind_broken,
 	//Caustic edit end
 	"Hunted"=/datum/charflaw/hunted,
+	/datum/charflaw/mind_broken::name = /datum/charflaw/mind_broken,
 	"Random or No Flaw"=/datum/charflaw/randflaw,
-	"No Flaw (4 TRIUMPHS)"=/datum/charflaw/noflaw, // Caustic Cove Edit start - Our rounds are now 4 hours long, so this has to cost a tiny bit more!
+	"No Flaw (-3 TRIUMPHS)"=/datum/charflaw/noflaw,
+	"Leper (+1 TRIUMPHS)"=/datum/charflaw/leprosy,
 	))
 
 /datum/charflaw

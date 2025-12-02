@@ -40,6 +40,7 @@
 /datum/outfit/job/roguetown/mercenary/atgervi/pre_equip(mob/living/carbon/human/H) //CC Edit: Gives Varangians more weapon options.
 	..()
 	to_chat(H, span_warning("You are a Varangian of the Gronn Highlands. Warrior-Traders whose exploits into the Raneshen Empire will be forever remembered by historians."))
+	H.mind?.current.faction += "[H.name]_faction"
 	//CC EDIT
 	if (H.mind)
 		var/weapons = list("Greataxe", "Bearded Axe & Kite Shield", "Shortsword & Kite Shield")
