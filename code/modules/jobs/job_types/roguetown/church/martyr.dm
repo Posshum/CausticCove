@@ -708,7 +708,7 @@
 	boobed = TRUE
 	slot_flags = ITEM_SLOT_ARMOR|ITEM_SLOT_CLOAK
 	flags_inv = HIDECROTCH|HIDEBOOB
-	var/overarmor = TRUE
+	storage = TRUE
 	sellprice = 300
 
 
