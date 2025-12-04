@@ -19,6 +19,7 @@
 	id = "acid_fight"
 	width = 20
 	height = 20
+	rarity = 50
 
 	north_offset = 9
 	south_offset = 9
@@ -167,7 +168,8 @@
 	id = "Bathhouse_Dungeon"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 14
 	east_offset = 14
 	north_offset = 15
@@ -211,7 +213,8 @@
 	id = "DarkCorridors"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 14
 	east_offset = 14
 	north_offset = 14
@@ -222,7 +225,8 @@
 	id = "GoblinInfestedJoint"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 14
 	east_offset = 14
 	north_offset = 14
@@ -233,7 +237,8 @@
 	id = "SmallChurch"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 14
 	east_offset = 14
 	north_offset = 14
@@ -244,7 +249,8 @@
 	id = "TheatherOfSadism"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 14
 	east_offset = 14
 	north_offset = 14
@@ -255,7 +261,8 @@
 	id = "TownRuins"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 14
 	east_offset = 14
 	north_offset = 14
@@ -266,7 +273,8 @@
 	id = "hctomb1"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 15
 	east_offset = 15
 	north_offset = 14
@@ -277,7 +285,8 @@
 	id = "hctomb2"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 15
 	east_offset = 15
 	north_offset = 15
@@ -288,7 +297,8 @@
 	id = "hctomb3"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 15
 	east_offset = 15
 	north_offset = 15
@@ -299,7 +309,8 @@
 	id = "hctomb4"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 12
 	east_offset = 14
 	north_offset = 15
@@ -320,7 +331,8 @@
 	id = "goblincamp"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 15
 	east_offset = 15
 	north_offset = 13
@@ -331,7 +343,8 @@
 	id = "rousecamp"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 14
 	east_offset = 14
 	north_offset = 15
@@ -342,7 +355,8 @@
 	id = "queensretreat"
 	width = 30
 	height = 30
-
+	rarity = 66 //Medium map, mid rarity.
+	
 	west_offset = 15
 	east_offset = 15
 	north_offset = 14
@@ -353,6 +367,7 @@
 	id = "lavafort"
 	width = 30
 	height = 30
+	rarity = 66 //Medium map, mid rarity.
 
 	west_offset = 15
 	east_offset = 15
@@ -377,11 +392,13 @@
 	id = "Thelastbreath"
 	width = 45
 	height = 45
+	rarity = 66 //Medium map, mid rarity.
 
 	west_offset = 22
 	east_offset = 22
 	north_offset = 22
 	south_offset = 22
+
 
 /datum/map_template/dungeon/room/AcidMageTower
 	mappath = "_maps/dungeon_generator/room/AcidMageTower.dmm"
@@ -404,23 +421,14 @@
 	east_offset = 20
 	north_offset = 30
 	south_offset = 30
-
-/datum/map_template/dungeon/room/SmithRest
-	mappath = "_maps/dungeon_generator/room/SmithRest.dmm"
-	id = "SmithRest"
-	width = 30
-	height = 30
-
-	west_offset = 14
-	east_offset = 14
-	north_offset = 14
-	south_offset = 14
+	rarity = 25 //Big map, low rarity.
 
 /datum/map_template/dungeon/room/SteamCastle
 	mappath = "_maps/dungeon_generator/room/SteamCastle.dmm"
 	id = "SteamCastle"
 	width = 50
 	height = 70
+	rarity = 25 //Big map, low rarity.
 
 	west_offset = 18
 	east_offset = 18

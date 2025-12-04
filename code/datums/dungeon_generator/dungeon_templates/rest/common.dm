@@ -56,3 +56,16 @@
 	east_offset = 4
 	south_offset = 7
 	west_offset = 9
+
+/datum/map_template/dungeon/rest/SmithRest
+	mappath = "_maps/dungeon_generator/room/SmithRest.dmm"
+	id = "SmithRest"
+	width = 30
+	height = 30
+	rarity = 66 //Medium map, mid rarity.
+	
+
+	west_offset = 14
+	east_offset = 14
+	north_offset = 14
+	south_offset = 14
