@@ -62,6 +62,17 @@
 	//If we utilize our intents further outside of strong intent.
 	var/smart_combatant = FALSE
 
+	/// Handle Ranged Vars
+
+	//Determines if we are ranged or not.
+	var/ranged_combatant = FALSE
+
+	//Determines the distance at which we can attack.
+	var/ranged_distance = 7 //Default 7 tiles.
+
+	//Helper internal to verify the bow was loaded.
+	var/ranged_loaded = FALSE 
+
 /mob/living/carbon/human/Initialize()
 	. = ..()
 	our_cells = new(interesting_dist, interesting_dist, 1)
@@ -615,7 +626,7 @@
 								next_passive_detect = world.time + STAPER SECONDS
 
 		if(NPC_AI_HUNT)		// hunting for attacker
-			// basic behavior chain: targeting > fleeing > picking up a weapon > attacking
+			// basic behavior chain: targeting > fleeing > picking up a weapon > check distance > attacking
 			// VALIDATE TARGET
 			if(target)
 				if(!should_target(target))
@@ -660,6 +671,10 @@
 				back_to_idle()
 				return TRUE
 
+			if(ranged_combatant && (get_dist(src, target) > abs(ranged_distance / 3)))
+				mode = NPC_AI_RANGED
+				handle_combat() //Try and swap back to ranged mode if we are ranged to begin with first and foremost.
+
 			// if we COULD attack, check rection time
 			var/should_frustrate = TRUE
 			if(Adjacent(target) && isturf(target.loc))	// if right next to perp
@@ -673,6 +688,37 @@
 					return
 			else if(should_frustrate) // not next to perp, and we didn't fail due to reaction time
 				frustration++
+
+		if(NPC_AI_RANGED)
+			//Behaviour Chain: targeting, check for ranged weapon,
+			if(!should_target(target))
+				if (target.alpha == 0 && target.rogue_sneaking) // attempt one detect since we were just fighting them and have lost them
+					if (npc_detect_sneak(target))
+						retaliate(target)
+					else
+						back_to_idle()
+						return TRUE
+			m_intent = MOVE_INTENT_WALK
+			start_pathing_to(target)
+
+			if(!istype(get_active_held_item(), /obj/item/gun/ballistic/revolver/grenadelauncher/))
+				equip_to_slot_if_possible(get_active_held_item(), pick(SLOT_BELT_R, SLOT_BELT_L), TRUE, redraw_mob = TRUE) //Equip to belt slots... 
+
+			//Like seriously what. Why aren't we standing up, we shouldn't be crawling.
+			if((resting && (get_dist(src, target) >= 3)))
+				npc_stand()
+
+			// if can't reach target for long enough, or target has been dead for long enough, go idle
+			if(frustration >= 5)
+				back_to_idle()
+				return TRUE
+
+			handle_ranged_attack()
+			
+			if(!handle_ranged_attack())// not in view of the perp, or no bow equipped. Just swap and add frustration because that is indeed, annoying.
+				swap_hand()
+				frustration++
+
 
 		if(NPC_AI_FLEE)
 			var/const/NPC_FLEE_DISTANCE = 8
@@ -1060,6 +1106,61 @@
 	. = ..()
 	if(mode != NPC_AI_OFF)
 		update_grid()
+
+/mob/living/carbon/human/proc/handle_ranged_attack()
+	//This handles the actual attack code for the ranged carbon mobs.
+	// Flee before trying to fight back.
+	if(flee_in_pain && target && (target.stat == CONSCIOUS))
+		var/paine = get_complex_pain()
+		if(paine >= ((STAWIL * 10)*0.9)) 
+			NPC_THINK("Ouch! Entering flee mode!")
+			mode = NPC_AI_FLEE
+			m_intent = MOVE_INTENT_RUN
+			clear_path()
+			return TRUE
+
+	var/obj/item/gun/ballistic/revolver/grenadelauncher/RangedWeapon = get_active_held_item()
+	if(!(RangedWeapon == null))
+		if(!istype(RangedWeapon, /obj/item/gun/ballistic/revolver/grenadelauncher/))
+			mode = NPC_AI_HUNT
+			handle_combat() //try and head back into melee mode and do combat all over again as a sort of fail safe in case you don't have a bow.
+			return TRUE
+
+		if(ranged_distance >= get_dist(src, target) && isturf(target.loc) && (target.stat <= UNCONSCIOUS) && RangedWeapon.chambered)
+			frustration = 0
+			face_atom(target)
+
+			if(used_intent.can_charge())
+				rog_intent_change(1) //Just shoot straight for accuracy and extra chance of landing the shot.
+				for(var/mob/living/M in view(ranged_distance, src))
+					if(M.faction == faction)
+						rog_intent_change(2) //will instead "arc" the shots if there's a friendly faction mob in the way.
+						break
+				used_intent.prewarning()
+
+				if(do_after(src, used_intent.get_chargetime(src))) //I think this would make them 100% accurate but whatever this works for now until we start runtiming ok?
+					RangedWeapon.process_fire(target, src)
+					ranged_loaded = FALSE
+					return TRUE
+
+				else 
+					mode = NPC_AI_HUNT //If our charge was cancelled, go right into melee mode.
+					ranged_loaded = FALSE //Always assume by default we aren't loaded neither.
+					emote("scream")
+			return TRUE
+		else if(!ranged_loaded)
+			var/list/inv_slots = list(beltl, beltr, backl, backr)
+			for(var/obj/item/quiver/Q in inv_slots) 
+				//Human delay randomizer for balance for other ranged characters who are fighting. Just so that it isn't... Y'know, too impossible to fight them.
+				if(do_after(src, rand(10,20))) //So we can get cancelled during combat...
+					if(istype(get_active_held_item(), /obj/item/gun/ballistic/revolver/grenadelauncher/)) //This should automatically load the bow.
+						Q.attackby(get_active_held_item(), src)
+						ranged_loaded = TRUE
+					else if(istype(get_inactive_held_item(), /obj/item/gun/ballistic/revolver/grenadelauncher/))
+						swap_hand()
+						Q.attackby(get_active_held_item(), src)
+						ranged_loaded = TRUE
+				return TRUE
 
 //NPC SPECIFIC DEBUFF FOR INTENT HANDLING, DO NOT USE ANYWHERE ELSE.
 /datum/status_effect/debuff/swapped_intent_npc
