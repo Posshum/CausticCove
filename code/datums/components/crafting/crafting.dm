@@ -28,6 +28,16 @@
 	var/display_compact = TRUE
 	var/showonlycraftable = TRUE
 
+	var/list/fail_sounds = list('modular_causticcove/sound/misc/fail_craft_1.ogg',
+	'modular_causticcove/sound/misc/fail_craft_2.ogg',
+	'modular_causticcove/sound/misc/fail_craft_3.ogg',
+	'modular_causticcove/sound/misc/fail_craft_4.ogg',
+	'modular_causticcove/sound/misc/fail_craft_5.ogg',
+	'modular_causticcove/sound/misc/fail_craft_6.ogg',
+	'modular_causticcove/sound/misc/fail_craft_8.ogg',
+	'modular_causticcove/sound/misc/fail_craft_9.ogg',
+	'modular_causticcove/sound/misc/fail_craft_10.ogg')
+
 
 
 /*	This is what procs do:
@@ -288,6 +298,7 @@
 							prob2craft += ((10-L.STAINT)*-1)*2
 					prob2craft = CLAMP(prob2craft, 0, 99)
 					if(!prob(prob2craft))
+						playsound(user, pick(fail_sounds), 28, TRUE, -1) 
 						if(user.client?.prefs.showrolls)
 							to_chat(user, span_danger("I've failed to craft \the [R.name]... [prob2craft]%"))
 							continue

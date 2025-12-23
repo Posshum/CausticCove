@@ -11,14 +11,14 @@ PROCESSING_SUBSYSTEM_DEF(roguemachine)
 	var/list/stock_machines = list()
 	var/list/noticeboards = list()
 	var/hermailermaster
-	var/list/death_queue = list()
-	var/last_death_report
+	//var/list/death_queue = list()
+	//var/last_death_report //Unused for now.
 	var/obj/item/clothing/head/roguetown/crown/serpcrown/crown
 	var/obj/item/key
 
 /datum/controller/subsystem/processing/roguemachine/fire(resumed = 0)
 	. = ..()
-	if(death_queue.len)
+/* 	if(death_queue.len)
 		if(world.time > last_death_report + 3 SECONDS)
 			last_death_report = world.time
 			if(SSroguemachine.hermailermaster)
@@ -42,7 +42,7 @@ PROCESSING_SUBSYSTEM_DEF(roguemachine)
 				for(var/mob/M in GLOB.player_list)
 					if(is_in_roguetown(M))
 						M.playsound_local(M.loc, the_track, 100, FALSE)
-				death_queue.Cut()
+				death_queue.Cut() */
 
 /proc/is_in_roguetown(atom/A)
 	if(!A)
