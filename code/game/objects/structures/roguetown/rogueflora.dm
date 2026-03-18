@@ -244,7 +244,9 @@
 	destroy_sound = "plantcross"
 	max_integrity = 2
 	blade_dulling = DULLING_CUT
-	debris = list(/obj/item/natural/fibers = 1)
+	//CC Edit Begin
+	//debris = list(/obj/item/natural/fibers = 1)
+	//CC Edit End
 
 
 /obj/structure/flora/roguegrass/spark_act()
@@ -689,7 +691,9 @@
 	max_integrity = 1
 	climbable = FALSE
 	dir = SOUTH
-	debris = list(/obj/item/natural/fibers = 2)
+	//CC Edit Begin
+	debris = list(/obj/item/natural/fibers = 1)
+	//CC Edit End
 	var/list/looty = list(/obj/item/natural/shellplant/pumpkin, /obj/item/natural/fibers)
 
 /obj/structure/flora/roguegrass/pumpkin/Initialize()
