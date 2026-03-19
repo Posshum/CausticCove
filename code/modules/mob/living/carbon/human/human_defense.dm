@@ -893,6 +893,8 @@
 	//CC Edit Begin - Layered Armor Integrity
 	var/new_val = 0 //We are the newest armor rating value.
 	var/old_val = 0 //We are the HIGHEST armor rating value.
+	//Everything but pockets. Pockets are l_store and r_store. (if pockets were allowed, putting something armored, gloves or hats for example, would consider it as armor)
+	var/list/body_parts = list(skin_armor, head, wear_mask, wear_wrists, gloves, wear_neck, cloak, wear_armor, wear_shirt, shoes, wear_pants, backr, backl, belt, s_store, glasses, ears, wear_ring)
 	//CC Edit End 0 - Layered Armor Integrity
 	if(def_zone == BODY_ZONE_TAUR)
 		def_zone = pick(BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)
@@ -903,7 +905,6 @@
 			if(BODY_ZONE_PRECISE_R_FOOT)
 				def_zone = BODY_ZONE_R_LEG
 				
-	var/list/body_parts = list(skin_armor, head, wear_mask, wear_wrists, gloves, wear_neck, cloak, wear_armor, wear_shirt, shoes, wear_pants, backr, backl, belt, s_store, glasses, ears, wear_ring) //Everything but pockets. Pockets are l_store and r_store. (if pockets were allowed, putting something armored, gloves or hats for example, would double up on the armor)
 	for(var/bp in body_parts)
 		if(!bp)
 			continue
