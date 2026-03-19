@@ -16,7 +16,7 @@
 	var/invoker_desc = "a basic rune with no function."
 
 	/// This is said by those when the rune is invoked.
-	var/invocation = "Aiy ele-mayo!"
+	var/invocation = "Invoco!"
 	/// The amount of invokers required around the rune to invoke it.
 	var/req_invokers = 1
 
@@ -213,13 +213,16 @@ GLOBAL_LIST(teleport_runes)
 				if(isblood(invoker))
 					invokers += invoker
 
-
 	return invokers
 
 /obj/effect/decal/cleanable/roguerune/proc/invoke(list/invokers, datum/runeritual/ritual)		//Generic invoke proc. This will be defined on every rune, along with effects.If you want to make an object, or provide a buff, do so through this proc., have both here.
 	rune_in_use = FALSE
 	atoms_in_range = list()
 	for(var/atom/close_atom as anything in range(runesize, src))
+		if(iswallturf(close_atom))
+			to_chat(usr, span_hierophant_warning("Ritual failed, [src] is blocked by [close_atom]!"))
+			fail_invoke()
+			return
 		if(!ismovable(close_atom))
 			continue
 		if(isitem(close_atom))
@@ -324,20 +327,20 @@ GLOBAL_LIST(teleport_runes)
 	name = "Knowledge rune"
 	desc = "arcane symbols pulse upon the ground..."
 	icon_state = "6"
-	invocation = "Thal’ un’vethar!"
+	invocation = "Scientia Patefiat!"
 	color = "#3A0B61"
 	spellbonus = 15
 	scribe_damage = 10
 	can_be_scribed = TRUE
 	rituals = list(/datum/runeritual/knowledge::name = /datum/runeritual/knowledge)
 	var/buffed = FALSE
- 
+
 /obj/effect/decal/cleanable/roguerune/arcyne/knowledge/invoke(list/invokers, datum/runeritual/runeritual)
 	if(!..())	//VERY important. Calls parent and checks if it fails. parent/invoke has all the checks for ingredients
 		return
 //	if(!buffed)
 	var/mob/living/user = usr
-	user.apply_status_effect(/datum/status_effect/buff/magicknowledge)
+	user.apply_status_effect(/datum/status_effect/buff/magic/knowledge)
 	buffed = TRUE
 	if(ritual_result)
 		pickritual.cleanup_atoms(selected_atoms)
@@ -354,44 +357,6 @@ GLOBAL_LIST(teleport_runes)
 	do_invoke_glow()
 
 
-/obj/effect/decal/cleanable/roguerune/arcyne/empowerment
-	name = "Empowerment Array"
-	desc = "arcane symbols pulse upon the ground..."
-	icon = 'icons/effects/96x96.dmi'
-	icon_state = "empowerment"
-	tier = 2
-	runesize = 1
-	pixel_x = -32 //So the big ol' 96x96 sprite shows up right
-	pixel_y = -32
-	invocation = "Thal’miren vek’laris un’vethar!"
-	layer = SIGIL_LAYER
-	can_be_scribed = TRUE
-
-/obj/effect/decal/cleanable/roguerune/arcyne/empowerment/New()
-	. = ..()
-	rituals += GLOB.t2buffrunerituallist
-
-/obj/effect/decal/cleanable/roguerune/arcyne/empowerment/invoke(list/invokers, datum/runeritual/buff/runeritual)
-	if(!..())	//VERY important. Calls parent and checks if it fails. parent/invoke has all the checks for ingredients
-		return
-
-	var/buffedstat = runeritual.buff
-	for(var/mob/living/invoker in range(runesize, src))
-		invoker.apply_status_effect(buffedstat)
-	if(ritual_result)
-		pickritual.cleanup_atoms(selected_atoms)
-
-	for(var/atom/invoker in invokers)
-		if(!isliving(invoker))
-			continue
-		var/mob/living/living_invoker = invoker
-		if(invocation)
-			living_invoker.say(invocation, language = /datum/language/common, ignore_spam = TRUE, forced = "cult invocation")
-		if(invoke_damage)
-			living_invoker.apply_damage(invoke_damage, BRUTE)
-			to_chat(living_invoker,  span_italics("[src] saps your strength!"))
-	do_invoke_glow()
-
 /obj/effect/decal/cleanable/roguerune/arcyne/enchantment
 	name = "Imbuement Array"
 	desc = "arcane symbols pulse upon the ground..."
@@ -401,7 +366,7 @@ GLOBAL_LIST(teleport_runes)
 	runesize = 1
 	pixel_x = -32 //So the big ol' 96x96 sprite shows up right
 	pixel_y = -32
-	invocation = "Ral’kor vek’varun eyn’torath!"
+	invocation = "Virtutem Infunde!"
 	layer = SIGIL_LAYER
 	can_be_scribed = TRUE
 
@@ -435,7 +400,7 @@ GLOBAL_LIST(teleport_runes)
 	runesize = 2
 	pixel_x = -64 //So the big ol' 96x96 sprite shows up right
 	pixel_y = -64
-	invocation = "Zar’kalthra ul’norak ven’thelis!"
+	invocation = "Magnam Virtutem Infunde!"
 
 /obj/effect/decal/cleanable/roguerune/arcyne/enchantment/greater/New()
 	. = ..()
@@ -446,7 +411,7 @@ GLOBAL_LIST(teleport_runes)
 	desc = "arcane symbols litter the ground- is that a wall of some sort?"
 	icon_state = "wall"
 	tier = 2
-	invocation = "Fren’aleth ar’quor!"
+	invocation = "Murus Surgat!"
 	can_be_scribed = TRUE
 	color = "#184075"
 	var/list/barriers = list()
@@ -558,7 +523,7 @@ GLOBAL_LIST(teleport_runes)
 	icon = 'icons/effects/160x160.dmi'
 	icon_state = "wall"
 	tier = 3
-	invocation = "Thar’morak dul’vorr keth’alor!"
+	invocation = "Arx Firma Surgat!"
 	runesize = 2
 	pixel_x = -64 //So the big ol' 96x96 sprite shows up right
 	pixel_y = -64
@@ -613,9 +578,9 @@ GLOBAL_LIST(teleport_runes)
 	desc = "A large spiraling sigil that seems to thrum with power."
 	icon = 'icons/effects/160x160.dmi'
 	icon_state = "portal"
-	tier = 2
+	tier = 3 //Caustic Cove Edit - bump the tier to 3 so it's actually usable in regular play
 	req_invokers = 2
-	invocation = "Xel’tharr un’korel!"
+	invocation = "Plana Convergant!"
 	req_keyword = TRUE
 	runesize = 2
 	pixel_x = -64 //So the big ol' 96x96 sprite shows up right
@@ -718,7 +683,7 @@ GLOBAL_LIST(teleport_runes)
 	name = "confinement matrix"
 	desc = "A relatively basic confinement matrix used to hold small things when summoned."
 	icon_state = "summon"
-	invocation = "Rhegal vex'ultraa!"
+	invocation = "Evoca et Constringe!"
 	max_integrity = 0
 	resistance_flags = INDESTRUCTIBLE | FIRE_PROOF | UNACIDABLE | ACID_PROOF
 	tier = 1
@@ -789,11 +754,10 @@ GLOBAL_LIST(teleport_runes)
 	do_invoke_glow()
 
 /obj/effect/decal/cleanable/roguerune/arcyne/summoning/proc/clear_obstacles(mob/living/user)
-	for(var/turf/closed/wall/mineral/rogue/anticheese in view(7, src))
-		if(anticheese.type == /turf/closed/wall/mineral/rogue/wood/window || anticheese.type == /turf/closed/wall/mineral/rogue/stone/window)
-			anticheese.visible_message(span_warning("[anticheese] crumbles under the force of the releasing wards."))
-			anticheese.ChangeTurf(/turf/open/floor/rogue/blocks)
-			continue
+	for(var/turf/closed/wall/anticheese in range(loc, runesize))
+		anticheese.visible_message(span_warning("[anticheese] crumbles under the force of the releasing wards."))
+		anticheese.ChangeTurf(/turf/open/floor/rogue/blocks)
+		continue
 
 /obj/effect/decal/cleanable/roguerune/arcyne/summoning/mid// 96x96 rune t2(3x3 tile)
 	name = "sealate confinement matrix"
@@ -813,7 +777,8 @@ GLOBAL_LIST(teleport_runes)
 
 /obj/effect/decal/cleanable/roguerune/arcyne/summoning/adv	//160x160 rune t2(5x5 tile)
 	name = "warded sealate confinement matrix"
-	desc = "An thoroughly warded confinement matrix improved with the addition of a sealate matrix; used to hold larger, dangerous things when summoned."
+	desc = "A thoroughly warded confinement matrix improved with the addition of a sealate matrix; \
+	used to hold larger, dangerous things when summoned."
 	icon = 'icons/effects/160x160.dmi'
 	icon_state = "warded"
 	runesize = 2
@@ -829,7 +794,8 @@ GLOBAL_LIST(teleport_runes)
 
 /obj/effect/decal/cleanable/roguerune/arcyne/summoning/max	//224x224 rune t3(7x7 tile)
 	name = "noc's eye warded sealate confinement matrix"
-	desc = "An thoroughly warded confinement matrix improved with a Noc's eye sealing measure and the addition of a sealate matrix; used to hold the largest, most dangerous things summonable."
+	desc = "A thoroughly warded confinement matrix improved with a Noc's eye sealing measure \
+	and the addition of a sealate matrix; used to hold the largest, most dangerous things summonable."
 	icon = 'icons/effects/224x224.dmi'
 	icon_state = "huge_runeblued"
 	runesize = 3

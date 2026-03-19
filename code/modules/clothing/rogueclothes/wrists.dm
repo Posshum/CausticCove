@@ -11,6 +11,7 @@
 	grid_width = 32
 	grid_height = 64
 	var/overarmor
+	sellprice = 6
 
 /obj/item/clothing/wrists/roguetown/MiddleClick(mob/user, params)
 	. = ..()
@@ -27,12 +28,11 @@
 
 /obj/item/clothing/wrists/roguetown/bracers
 	name = "bracers"
-	desc = "Steel bracers that protect the arms."
+	desc = "A pair of steel vambraces, protecting the arms from blows-most-foul."
 	body_parts_covered = ARMS
 	icon_state = "bracers"
 	item_state = "bracers"
 	armor = ARMOR_PLATE
-	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT, BCLASS_TWIST)
 	blocksound = PLATEHIT
 	resistance_flags = FIRE_PROOF
 	max_integrity = ARMOR_INT_SIDE_STEEL
@@ -41,6 +41,40 @@
 	anvilrepair = /datum/skill/craft/armorsmithing
 	sewrepair = FALSE
 	smeltresult = /obj/item/ingot/steel
+	sellprice = 13
+
+/obj/item/clothing/wrists/roguetown/bracers/ComponentInitialize()
+	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FENCERDEXTERITY)
+	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+
+/obj/item/clothing/wrists/roguetown/bracers/gold
+	name = "golden bracers"
+	desc = "A resplendant pair of golden vambraces, further padded with besilked sleeves. Each halve is marked with a holy sigil, sloped upwards to help catch-and-reflect sunlight into the eyes of unsuspecting assailants."
+	icon_state = "goldbracers"
+	item_state = "goldbracers"
+	body_parts_covered = ARMS | HANDS //Experimental, but should compliment the cost. Let all handhitters fear your presence.. for exactly five strikes.
+	armor_class = ARMOR_CLASS_HEAVY //Ceremonial. Heavy is the head that bares the burden.
+	armor = ARMOR_GOLD //Renders its wearer completely invulnerable to damage. The caveat is, however..
+	max_integrity = ARMOR_INT_SIDE_GOLD // ..is that it's extraordinarily fragile. To note, this is lower than even Decrepit-tier armor.
+	anvilrepair = null
+	smeltresult = /obj/item/ingot/gold
+	smelt_bar_num = 1
+	grid_height = 96
+	grid_width = 96
+	sellprice = 200
+	unenchantable = TRUE
+
+/obj/item/clothing/wrists/roguetown/bracers/gold/king
+	name = "royal golden bracers"
+	max_integrity = ARMOR_INT_SIDE_GOLDPLUS // Doubled integrity.
+	sellprice = 300
+	unenchantable = TRUE
+
+/obj/item/clothing/wrists/roguetown/bracers/lirvas
+	name = "lirvasi pauldrons"
+	desc = "Oversized gold pauldrons that protect the forearms and upper-arms. Surprisingly protective and flashy, but heavy...!"
+	icon_state = "goldpauldron"
+	sellprice = 20
 
 /obj/item/clothing/wrists/roguetown/bracers/psythorns
 	name = "psydonic thorns"
@@ -49,13 +83,13 @@
 	icon_state = "psybarbs"
 	item_state = "psybarbs"
 	armor = ARMOR_PLATE_BSTEEL
-	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT, BCLASS_SMASH, BCLASS_TWIST, BCLASS_PICK)
 	blocksound = PLATEHIT
 	resistance_flags = FIRE_PROOF
 	max_integrity = ARMOR_INT_SIDE_BLACKSTEEL
 	anvilrepair = /datum/skill/craft/armorsmithing
 	sewrepair = FALSE
 	alternate_worn_layer = WRISTS_LAYER
+	sellprice = 15
 
 /obj/item/clothing/wrists/roguetown/bracers/psythorns/equipped(mob/user, slot)
 	. = ..()
@@ -73,7 +107,7 @@
 			user.dropItemToGround(src)
 			user.put_in_hands(P)
 		P.obj_integrity = src.obj_integrity
-		user.adjustBruteLoss(25)	
+		user.adjustBruteLoss(25)
 		qdel(src)
 	else
 		user.visible_message(span_warning("[user] stops reshaping [src]."))
@@ -85,22 +119,37 @@
 	max_integrity = ARMOR_INT_SIDE_DECREPIT
 	icon_state = "ancientbracers"
 	color = "#bb9696"
+	chunkcolor = "#532e25"
+	material_category = ARMOR_MAT_PLATE
 	smeltresult = /obj/item/ingot/aaslag
 	anvilrepair = null
+	prevent_crits = PREVENT_CRITS_NONE
+	sellprice = 10 //Ew... AAslag...
 
 /obj/item/clothing/wrists/roguetown/bracers/paalloy
 	name = "ancient bracers"
 	desc = "Polished gilbranze cuffings, clasped around the wrists. Through ascension, the chains of mortality are broken; and only through death will the spirit be ready to embrace divinity."
 	icon_state = "ancientbracers"
 	smeltresult = /obj/item/ingot/aaslag
+	sellprice = 10
+
+/obj/item/clothing/wrists/roguetown/bracers/bronze
+	name = "bronze wristguards"
+	desc = "Padded with hide and cuffed to comfort the joints, these bronze plates fit perfectly around both forearms. Your fingers tingle with an unspoken purpose, as the bracers clasp into place; primordial, yet everclear."
+	icon_state = "bronzebracers"
+	body_parts_covered = ARMS | HANDS //Experimental, but should play well with the increased durability.
+	smeltresult = /obj/item/ingot/bronze
+	armor = ARMOR_PLATE_BRONZE
+	max_integrity = ARMOR_INT_SIDE_BRONZE
+	prevent_crits = PREVENT_CRITS_ALL
 
 /obj/item/clothing/wrists/roguetown/bracers/leather
 	name = "leather bracers"
-	desc = "Standard leather bracers that offer some meager protection for the arms."
+	desc = "A pair of leather wristguards, which can protect one's arms from both bludgeons and bites."
 	icon_state = "lbracers"
 	item_state = "lbracers"
 	armor = ARMOR_PADDED_GOOD
-	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_BLUNT, BCLASS_TWIST)
+	max_integrity = ARMOR_INT_SIDE_HARDLEATHER
 	blocksound = SOFTHIT
 	blade_dulling = DULLING_BASHCHOP
 	break_sound = 'sound/foley/cloth_rip.ogg'
@@ -111,27 +160,32 @@
 	smeltresult = null
 	salvage_amount = 0 // sry
 	salvage_result = /obj/item/natural/hide/cured
-	color = "#684338"
+	color = "#b76f61"
+	sellprice = 7 // CC Edit
+
+/obj/item/clothing/wrists/roguetown/bracers/leather/ComponentInitialize()
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_HONORBOUND)
 
 /obj/item/clothing/wrists/roguetown/bracers/leather/heavy
 	name = "hardened leather bracers"
-	desc = "Hardened leather braces that will keep your wrists safe from bludgeoning."
+	desc = "A pair of heavy leather wristguards, deliciously darkened for deterring dangers."
 	icon_state = "albracers"
 	armor = ARMOR_LEATHER_GOOD
-	prevent_crits = list(BCLASS_CUT, BCLASS_BLUNT, BCLASS_TWIST, BCLASS_CHOP, BCLASS_SMASH)
-	max_integrity = ARMOR_INT_SIDE_HARDLEATHER
+	max_integrity = ARMOR_INT_SIDE_STEEL
 	sellprice = 10
 	salvage_amount = 1
 	salvage_result = /obj/item/natural/hide/cured
-	color = "#4d4d4d"
+	color = "#7f829d"
 
 /obj/item/clothing/wrists/roguetown/bracers/copper
 	name = "copper bracers"
-	desc = "Copper forearm guards that offer some protection while looking rather stylish"
+	desc = "Crude vambraces of copper, claspable around the wrists; stylish, if nothing else."
 	icon_state = "copperarm"
 	item_state = "copperarm"
 	smeltresult = /obj/item/ingot/copper
 	armor = ARMOR_PLATE_BAD
+	sellprice = 10
 
 /obj/item/clothing/wrists/roguetown/wrappings
 	name = "solar wrappings"
@@ -139,6 +193,7 @@
 	icon_state = "wrappings"
 	item_state = "wrappings"
 	sewrepair = TRUE
+	sellprice = 4
 
 /obj/item/clothing/wrists/roguetown/nocwrappings
 	name = "moon wrappings"
@@ -146,6 +201,7 @@
 	icon_state = "nocwrappings"
 	item_state = "nocwrappings"
 	sewrepair = TRUE
+	sellprice = 4
 
 /obj/item/clothing/wrists/roguetown/allwrappings
 	name = "wrappings"
@@ -154,6 +210,10 @@
 	icon_state = "nocwrappings" //Greyscale. Accessable in the loadout.
 	item_state = "nocwrappings"
 	sewrepair = TRUE
+	sellprice = 4
+
+/obj/item/clothing/wrists/roguetown/allwrappings/scarlet
+	color = CLOTHING_SCARLET
 
 /obj/item/clothing/wrists/roguetown/bracers/cloth
 	name = "cloth bracers"
@@ -164,10 +224,10 @@
 	icon_state = "nocwrappings"
 	item_state = "nocwrappings"
 	max_integrity = ARMOR_INT_SIDE_STEEL //Heavy leather-tier protection and critical resistances, steel-tier integrity. Integrity boost encourages hand-to-hand parrying. Weaker than the Psydonic Thorns. Uncraftable.
-	prevent_crits = list(BCLASS_CUT, BCLASS_CHOP, BCLASS_STAB, BCLASS_BLUNT, BCLASS_TWIST)
 	blocksound = SOFTHIT
 	anvilrepair = null
 	sewrepair = TRUE
+	sellprice = 7
 
 /obj/item/clothing/wrists/roguetown/bracers/cloth/monk
 	name = "monk's wrappings"
@@ -188,6 +248,7 @@
 	item_state = "royalsleeves"
 	detail_tag = "_detail"
 	detail_color = CLOTHING_BLACK
+	sellprice = 25
 
 /obj/item/clothing/wrists/roguetown/royalsleeves/update_icon()
 	cut_overlays()
@@ -200,43 +261,50 @@
 
 /obj/item/clothing/wrists/roguetown/royalsleeves/lordcolor(primary,secondary)
 	detail_color = primary
+	color = secondary
 	update_icon()
+
+	if(ishuman(loc))
+		var/mob/living/carbon/human/H = loc
+		H.update_inv_wrists()
 
 /obj/item/clothing/wrists/roguetown/royalsleeves/Initialize()
 	. = ..()
+	GLOB.lordcolor += src
 	if(GLOB.lordprimary)
-		lordcolor(GLOB.lordprimary,GLOB.lordsecondary)
-	else
-		GLOB.lordcolor += src
+		lordcolor(GLOB.lordprimary, GLOB.lordsecondary)
 
 /obj/item/clothing/wrists/roguetown/royalsleeves/Destroy()
 	GLOB.lordcolor -= src
 	return ..()
 
-/obj/item/clothing/wrists/roguetown/splintarms
+/obj/item/clothing/wrists/roguetown/bracers/brigandine
 	name = "brigandine rerebraces"
 	desc = "Brigandine bracers, pauldrons and a set of metal couters, designed to protect the arms while still providing almost complete free range of movement."
 	body_parts_covered = ARMS
 	icon_state = "splintarms"
 	item_state = "splintarms"
-	armor = ARMOR_PLATE
-	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT)
+	armor = ARMOR_LEATHER_STUDDED
 	blocksound = SOFTHIT
-	max_integrity = ARMOR_INT_SIDE_IRON
+	max_integrity = ARMOR_INT_SIDE_STEEL
 	anvilrepair = /datum/skill/craft/armorsmithing
 	smeltresult = /obj/item/ingot/steel
 	w_class = WEIGHT_CLASS_NORMAL
 	resistance_flags = FIRE_PROOF
 	sewrepair = FALSE
+	sellprice = 15
 
-/obj/item/clothing/wrists/roguetown/splintarms/iron
+/obj/item/clothing/wrists/roguetown/bracers/brigandine/ComponentInitialize()
+	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FENCERDEXTERITY)
+	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+
+/obj/item/clothing/wrists/roguetown/bracers/splint
 	name = "splint bracers"
 	desc = "A pair of leather sleeves backed with iron splints, couters, and shoulderpieces that protect your arms and remain decently light."
 	body_parts_covered = ARMS
 	icon_state = "ironsplintarms"
 	item_state = "ironsplintarms"
 	armor = ARMOR_LEATHER_STUDDED //not plate armor, is leather + iron bits
-	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT)
 	blocksound = SOFTHIT
 	max_integrity = ARMOR_INT_SIDE_LEATHER
 	anvilrepair = /datum/skill/craft/armorsmithing
@@ -244,15 +312,17 @@
 	w_class = WEIGHT_CLASS_NORMAL
 	resistance_flags = FIRE_PROOF
 	sewrepair = FALSE
+	sellprice = 10
 
 /obj/item/clothing/wrists/roguetown/bracers/iron
 	name = "iron bracers"
-	desc = "Iron bracers that protect the arms."
+	desc = "A pair of iron vambrace, pounded together from segmented plates and kept firm with leather straps."
 	body_parts_covered = ARMS
 	icon_state = "ibracers"
 	item_state = "ibracers"
 	max_integrity = ARMOR_INT_SIDE_IRON
 	smeltresult = /obj/item/ingot/iron
+	sellprice = 10
 
 /obj/item/clothing/wrists/roguetown/bracers/jackchain
 	name = "jack chains"
@@ -265,3 +335,109 @@
 	pickup_sound = 'sound/foley/equip/equip_armor_chain.ogg'
 	equip_sound = 'sound/foley/equip/equip_armor_chain.ogg'
 	smeltresult = null
+
+/obj/item/clothing/wrists/roguetown/bracers/jackchain/ComponentInitialize()
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_HONORBOUND)
+
+/obj/item/clothing/wrists/roguetown/gem
+	name = "gem bracelet base"
+	desc = "You shouldn't be seeing this."
+	slot_flags = ITEM_SLOT_WRISTS
+	icon = 'icons/roguetown/clothing/wrists.dmi'
+	mob_overlay_icon = 'icons/roguetown/clothing/onmob/gembracelet.dmi'
+	sleeved = 'icons/roguetown/clothing/onmob/helpers/sleeves_gembracelet.dmi'
+	salvage_result = null
+
+/obj/item/clothing/wrists/roguetown/gem/jadebracelet
+	name = "jade bracelets"
+	desc = "A set of bracelets carved out of jade."
+	icon_state = "br_jade"
+	sellprice = 65
+
+/obj/item/clothing/wrists/roguetown/gem/turqbracelet
+	name = "cerulite bracelets"
+	desc = "A set of bracelets carved out of cerulite."
+	icon_state = "br_turq"
+	sellprice = 90
+
+/obj/item/clothing/wrists/roguetown/gem/onyxabracelet
+	name = "onyxa bracelets"
+	desc = "A set of bracelets carved out of onyxa."
+	icon_state = "br_onyxa"
+	sellprice = 45
+
+/obj/item/clothing/wrists/roguetown/gem/coralbracelet
+	name = "heartstone bracelets"
+	desc = "A set of bracelets carved out of heartstone."
+	icon_state = "br_coral"
+	sellprice = 75
+
+/obj/item/clothing/wrists/roguetown/gem/amberbracelet
+	name = "amber bracelets"
+	desc = "A set of bracelets carved out of amber."
+	icon_state = "br_amber"
+	sellprice = 65
+
+/obj/item/clothing/wrists/roguetown/gem/shellbracelet
+	name = "shell bracelets"
+	desc = "A set of bracelets carved out of shell."
+	icon_state = "br_shell"
+	sellprice = 25
+
+/obj/item/clothing/wrists/roguetown/gem/rosebracelet
+	name = "rosestone bracelets"
+	desc = "A set of bracelets carved out of rosestone."
+	icon_state = "br_rose"
+	sellprice = 30
+
+/obj/item/clothing/wrists/roguetown/gem/opalbracelet
+	name = "opal bracelets"
+	desc = "A set of bracelets carved out of opal."
+	icon_state = "br_opal"
+	sellprice = 95
+//
+
+/obj/item/clothing/wrists/roguetown/bracers/matthios
+	name = "gilded bracers"
+	desc = "Away with you, vile beggar!"
+	color = "#ffc960"
+
+/obj/item/clothing/wrists/roguetown/bracers/matthios/Initialize()
+	. = ..()
+	AddComponent(/datum/component/cursed_item, TRAIT_COMMIE, "ARMOR")
+
+//
+
+/obj/item/clothing/wrists/roguetown/bracers/zizo
+	name = "avantyne bracers"
+	desc = "Clasped, yet unburdening. The pursuit of knowledge has led you to this very moment; there is no going back."
+	color = "#c1b18d"
+	chunkcolor = "#363030"
+	material_category = ARMOR_MAT_PLATE
+
+/obj/item/clothing/wrists/roguetown/bracers/zizo/Initialize()
+	. = ..()
+	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "ARMOR")
+//
+
+/obj/item/clothing/wrists/roguetown/bracers/graggar
+	name = "vicious bracers"
+	desc = "Oh, to plunge hands into cold water; to play a melody upon an ivory-keyed piano; to watch steam rise from boiling, twisting entrails.."
+	color = "#ddc0a7"
+
+/obj/item/clothing/wrists/roguetown/bracers/graggar/Initialize()
+	. = ..()
+	AddComponent(/datum/component/cursed_item, TRAIT_HORDE, "ARMOR", "RENDERED ASUNDER")
+
+/obj/item/clothing/wrists/roguetown/bracers/leather/heavy/hand
+	name = "hand's bracers"
+	desc = "Discretion had always been the better part of valour, and nobody understands that better than the one holding an ace up their sleeve."
+	color = null
+	sellprice = 250
+	icon = 'icons/roguetown/clothing/special/hand.dmi'
+	icon_state = "bracersheath"
+
+/obj/item/clothing/wrists/roguetown/bracers/leather/heavy/hand/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/holster, /obj/item/rogueweapon/huntingknife, null, list(/obj/item/rogueweapon/huntingknife/idagger/stake, /obj/item/rogueweapon/huntingknife/idagger/silver/stake))

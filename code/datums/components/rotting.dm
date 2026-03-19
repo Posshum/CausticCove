@@ -49,8 +49,9 @@
 	..()
 	if(has_world_trait(/datum/world_trait/pestra_mercy))
 		amount -= 5 * time_elapsed
-	
+
 	var/mob/living/carbon/C = parent
+
 	var/is_zombie
 	if(HAS_TRAIT(C, TRAIT_DNR))
 		return
@@ -65,11 +66,17 @@
 	var/area/A = get_area(C)
 	if (istype(A, /area/rogue/indoors/town))	//Stops rotting inside town buildings; will stop your zombification such as at church or appothocary.
 		return
+	if (istype(A, /area/rogue/indoors/deathsedge))	//Stops rotting inside Death's Edge (Death's Door spell area)
+		return
+	//Caustic Edit - If in Belly, don't rot
+	if(isbelly(C.loc))
+		return
+	//Caustic Edit End
 
 	if(!(C.mob_biotypes & (MOB_ORGANIC|MOB_UNDEAD)))
 		qdel(src)
 		return
-	
+
 	if(amount > DEAD_TO_ZOMBIE_TIME)
 		if(is_zombie)
 			var/datum/antagonist/zombie/Z = C.mind.has_antag_datum(/datum/antagonist/zombie)
@@ -129,12 +136,22 @@
 				soundloop.start()
 		C.update_body()
 
+	// Sanity check: if we're a human and we've been buried, we kill the sound.
+	if(ishuman(C))
+		var/mob/living/carbon/human/H = C
+		if(H.buried)
+			soundloop.stop()
+
 /datum/component/rot/simple/process()
 	..()
 	var/mob/living/L = parent
 	if(L.stat != DEAD)
 		qdel(src)
 		return
+	//Caustic Edit - If in Belly, don't rot
+	if(isbelly(L.loc))
+		return
+	//Caustic Edit End
 	if(amount > 15 MINUTES)
 		if(soundloop && soundloop.stopped)
 			soundloop.start()

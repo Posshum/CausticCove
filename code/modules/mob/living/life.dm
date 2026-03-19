@@ -50,7 +50,7 @@
 		//passively heal wounds, when you're in trouble..
 		if(blood_volume > BLOOD_VOLUME_SURVIVE)
 			for(var/datum/wound/wound as anything in get_wounds())
-				if(wound.severity <= WOUND_SEVERITY_MODERATE)
+				if(wound?.severity <= WOUND_SEVERITY_MODERATE)
 					wound.heal_wound(0.4)
 
 	if(!stat && HAS_TRAIT(src, TRAIT_LYCANRESILENCE) && !HAS_TRAIT(src, TRAIT_PARALYSIS))
@@ -80,6 +80,19 @@
 	check_drowning()
 
 	if(stat != DEAD)
+		//Caustic Edit - Adding in a basic implementation of the AFK system, minus the status indicator (for now?)
+		if(client)
+			var/idle_limit = 10 MINUTES //Caustic - Getting rid of the toggle auto-afk preference, since this is just going to mainly be used to mark people in examine and prevent AFK noms.
+			if(client.inactivity >= idle_limit && !away_from_keyboard /*&& client.prefs?.read_preference(/datum/preference/toggle/auto_afk)*/)	//if we're not already afk and we've been idle too long, and we have automarking enabled... then automark it
+				//add_status_indicator("afk")
+				to_chat(src, span_notice("You have been idle for too long, and automatically marked as AFK."))
+				away_from_keyboard = TRUE
+			else if(away_from_keyboard && client.inactivity < idle_limit && !manual_afk) //if we're afk but we do something AND we weren't manually flagged as afk, unmark it
+				//remove_status_indicator("afk")
+				to_chat(src, span_notice("You have been automatically un-marked as AFK."))
+				away_from_keyboard = FALSE
+		//Caustic Edit End
+
 		return 1
 
 /mob/living/proc/check_drowning()
@@ -134,22 +147,24 @@
 					Knockdown(110)
 
 /mob/living/proc/handle_environment()
+	
 	return
 
 /mob/living/proc/handle_wounds()
 	for(var/datum/wound/wound as anything in get_wounds())
-		if(istype(wound, /datum/wound))
-			if (stat != DEAD)
-				wound.on_life()
-			else
-				wound.on_death()
+		if(!wound)
+			continue
 
+		if(stat != DEAD)
+			wound.on_life()
+		else
+			wound.on_death()
 
 /obj/item/proc/on_embed_life(mob/living/user, obj/item/bodypart/bodypart)
 	return
 
 /mob/living/proc/handle_embedded_objects()
-	for(var/obj/item/embedded in simple_embedded_objects)
+	for(var/obj/item/embedded as anything in simple_embedded_objects)
 		if(embedded.on_embed_life(src))
 			continue
 

@@ -324,7 +324,7 @@
 
 /obj/structure/bars
 	name = "bars"
-	desc = ""
+	desc = "Rigid metal bars, intended to impair access to somewhere."
 	icon = 'icons/roguetown/misc/structure.dmi'
 	icon_state = "bars"
 	density = TRUE
@@ -389,6 +389,7 @@
 
 /obj/structure/bars/passage
 	icon_state = "passage0"
+	desc = "This looks like it can open and close!"
 	density = TRUE
 	max_integrity = 1500
 	redstone_structure = TRUE
@@ -520,7 +521,7 @@
 
 /obj/structure/bars/pipe
 	name = "bronze pipe"
-	desc = ""
+	desc = "Bronze pipework. Plumbing was once a more ubiquitous technology than it is now."
 	icon_state = "pipe"
 	density = FALSE
 	layer = TABLE_LAYER
@@ -533,7 +534,6 @@
 
 /obj/structure/bars/pipe/left
 	name = "bronze pipe"
-	desc = ""
 	icon_state = "pipe2"
 	dir = WEST
 	pixel_x = 19
@@ -542,7 +542,7 @@
 
 /obj/structure/fluff/clock
 	name = "clock"
-	desc = ""
+	desc = "A large grandfather clock; the cutting edge of modern technology."
 	icon = 'icons/roguetown/misc/tallstructure.dmi'
 	icon_state = "clock"
 	density = FALSE
@@ -586,22 +586,7 @@
 	. = ..()
 	if(obj_broken)
 		return
-	var/day = "... actually, WHAT dae is it?"
-	switch(GLOB.dayspassed)
-		if(1)
-			day = "Moon's dae."
-		if(2)
-			day = "Tiw's dae."
-		if(3)
-			day = "Wedding's dae."
-		if(4)
-			day = "Thule's dae."
-		if(5)
-			day = "Freyja's dae."
-		if(6)
-			day = "Saturn's dae."
-		if(7)
-			day = "Sun's dae."
+	var/day = lowertext(get_current_day_of_week_name())
 	. += "Oh no, it's [station_time_timestamp("hh:mm")] on a [day]"
 //		if(SSshuttle.emergency.mode == SHUTTLE_DOCKED)
 //			if(SSshuttle.emergency.timeLeft() < 30 MINUTES)
@@ -625,7 +610,7 @@
 
 /obj/structure/fluff/wallclock
 	name = "clock"
-	desc = ""
+	desc = "Second greatest of all tyrants."
 	icon = 'icons/roguetown/misc/structure.dmi'
 	icon_state = "wallclock"
 	density = FALSE
@@ -641,17 +626,8 @@
 	pixel_y = 32
 
 /obj/structure/fluff/wallclock/attack_right(mob/user)
-	if(user.mind && isliving(user))
-		if(user.mind.special_items && user.mind.special_items.len)
-			var/item = input(user, "What will I take?", "STASH") as null|anything in user.mind.special_items
-			if(item)
-				if(user.Adjacent(src))
-					if(user.mind.special_items[item])
-						var/path2item = user.mind.special_items[item]
-						user.mind.special_items -= item
-						var/obj/item/I = new path2item(user.loc)
-						user.put_in_hands(I)
-			return
+	handle_special_items_retrieval(user, src)
+	return
 
 /obj/structure/fluff/wallclock/Destroy()
 	if(soundloop)
@@ -662,22 +638,7 @@
 	. = ..()
 	if(obj_broken)
 		return
-	var/day = "... actually, WHAT dae is it?"
-	switch(GLOB.dayspassed)
-		if(1)
-			day = "Moon's dae."
-		if(2)
-			day = "Tiw's dae."
-		if(3)
-			day = "Wedding's dae."
-		if(4)
-			day = "Thule's dae."
-		if(5)
-			day = "Freyja's dae."
-		if(6)
-			day = "Saturn's dae."
-		if(7)
-			day = "Sun's dae."
+	var/day = lowertext(get_current_day_of_week_name())
 	. += "Oh no, it's [station_time_timestamp("hh:mm")] on a [day]"
 
 /obj/structure/fluff/wallclock/Initialize()
@@ -803,7 +764,8 @@
 
 /obj/structure/fluff/alch
 	name = "alchemical lab"
-	desc = ""
+	desc = "A stout workstation arrayed with alchemical parahenalia and equipment. Some say the truest heights of the \
+	Art were reached in times immemorial, and shall never be again."
 	icon = 'icons/roguetown/misc/structure.dmi'
 	icon_state = "alch"
 	density = TRUE
@@ -837,7 +799,7 @@
 
 /obj/structure/fluff/statue
 	name = "statue"
-	desc = ""
+	desc = "Dead stone designed to compel living minds."
 	icon = 'icons/roguetown/misc/tallstructure.dmi'
 	icon_state = "bstatue"
 	density = FALSE
@@ -877,9 +839,14 @@
 		return COMPONENT_ATOM_BLOCK_EXIT
 
 /obj/structure/fluff/statue/gargoyle
+	name = "gargoyle"
+	desc = "Designed to make the common-folk feel watched, even when they are not."
 	icon_state = "gargoyle"
 
 /obj/structure/fluff/statue/aasimar
+	name = "aasimar statue"
+	desc = "Stone wrought to resemble an Aasimar, the living artifice of the Gods. No life inhabits its eyes, nor \
+	strength in its limbs; mortal hands may only imitate divine crafts."
 	icon_state = "aasimar"
 
 /obj/structure/fluff/statue/gargoyle/candles
@@ -892,6 +859,8 @@
 	icon_state = "mgargoyle_candles"
 
 /obj/structure/fluff/statue/knight
+	name = "knightly statue"
+	desc = "No eyes are visible behind its visor."
 	icon_state = "knightstatue_l"
 
 /obj/structure/fluff/statue/astrata
@@ -908,14 +877,16 @@
 //Why are all of these in one giant file.
 /obj/structure/fluff/statue/abyssor
 	name = "abyssor statue"
-	desc = "A slate statue of the ancient god abyssor. One of many depictions drawn from a dream no doubt. This particular one is horrifying to look at."
+	desc = "A slate statue of the ancient god Abyssor. One of many depictions drawn from a dream no doubt. This particular one is horrifying to look at."
 	icon_state = "abyssor"
 	icon = 'icons/roguetown/misc/tallandwide.dmi'
 	pixel_x = -16
 
 /obj/structure/fluff/statue/abyssor/dolomite
 	name = "abyssor statue"
-	desc = "A rare dolomite statue of the ancient god abyssor. Hewn from bleached rock as if the shimmer makes his faceless gaze any less terrifying."
+	desc = "A rare dolomite statue of the ancient god Abyssor, the Dreamer, He Who Slumbers, \
+	patron of the seas and all those that travel by them. He is asleep, and his followers pray \
+	fervently that he remains so for a very long time yet."
 	icon_state = "abyssor_dolomite"
 
 /obj/structure/fluff/statue/knight/r
@@ -931,6 +902,8 @@
 	color = "#ff9c1a"
 
 /obj/structure/fluff/statue/knightalt
+	name = "knightly statue"
+	desc = "Ever-watchful, faceless, and without independent will. An ideal of chivalry."
 	icon_state = "knightstatue2_l"
 
 /obj/structure/fluff/statue/knightalt/r
@@ -939,10 +912,13 @@
 
 /obj/structure/fluff/statue/myth
 	icon_state = "myth"
+	desc = "A statue with wildly exaggerated proportions."
 	density = TRUE
 
 /obj/structure/fluff/statue/psy
 	icon_state = "psy"
+	desc = "A statue styled in the manner of an ancient Legionnaire of times long past. One assumes, anyway - \
+	such things are no longer seen in the flesh."
 	icon = 'icons/roguetown/misc/96x96.dmi'
 	pixel_x = -32
 
@@ -953,6 +929,7 @@
 
 
 /obj/structure/fluff/statue/small
+	desc = "A small statue depicting an elven woman bearing a harp."
 	icon = 'icons/roguetown/misc/structure.dmi'
 	icon_state = "elfs"
 
@@ -962,34 +939,41 @@
 
 /obj/structure/fluff/statue/femalestatue
 	icon = 'icons/roguetown/misc/ay.dmi'
+	desc = "Beauty fades in all but stone."
 	icon_state = "1"
 	pixel_x = -32
 	pixel_y = -16
 
 /obj/structure/fluff/statue/femalestatue1
 	icon = 'icons/roguetown/misc/ay.dmi'
+	desc = "Beauty fades in all but stone."
 	icon_state = "2"
 	pixel_x = -32
 	pixel_y = -16
 
 /obj/structure/fluff/statue/femalestatue2
 	icon = 'icons/roguetown/misc/ay.dmi'
+	desc = "Beauty fades in all but stone."
 	icon_state = "5"
 	pixel_x = -32
 	pixel_y = -16
 
 /obj/structure/fluff/statue/femalestatue/zizo
 	icon = 'icons/roguetown/misc/ay.dmi'
+	desc = "An ancient statue depicting an elven woman."
 	icon_state = "4"
 	pixel_x = -32
 	pixel_y = -16
 
 /obj/structure/fluff/statue/scare
+	desc = "An imitation of life to avert famine."
 	name = "scarecrow"
 	icon_state = "td"
 
 /obj/structure/fluff/statue/tdummy
 	name = "practice dummy"
+	desc = "Rough fabric wrapped around an interior of plant fibre. Used for practice, or for when one just has some \
+	feelings to vent out."
 	icon_state = "p_dummy"
 	icon = 'icons/roguetown/misc/structure.dmi'
 
@@ -1085,6 +1069,21 @@
 		/obj/item/clothing/head/roguetown/crown/serpcrown,
 		/obj/item/clothing/head/roguetown/vampire,
 		/obj/item/scomstone,
+		/obj/item/rogueweapon/greatsword/psygsword,
+		/obj/item/clothing/head/roguetown/circlet,
+		/obj/item/carvedgem,  //Some of these aren't particularly worth much, but it'd be REALLY unintuitive for "valuables" to not actually be offerings
+		/obj/item/rogueweapon/huntingknife/stoneknife/kukri,
+		/obj/item/rogueweapon/huntingknife/stoneknife/opalknife,
+		/obj/item/rogueweapon/mace/cudgel/shellrungu,
+		/obj/item/clothing/mask/rogue/facemask/carved,
+		/obj/item/clothing/neck/roguetown/carved,
+		/obj/item/kitchen/fork/carved,
+		/obj/item/kitchen/spoon/carved,
+		/obj/item/clothing/wrists/roguetown/gem,
+		/obj/item/reagent_containers/glass/bowl/carved,
+		/obj/item/reagent_containers/glass/bucket/pot/carved,
+		/obj/item/clothing/mask/rogue/facemask/carved,
+		/obj/item/cooking/platter/carved,
 		/obj/item/reagent_containers/lux
 	)
 
@@ -1107,6 +1106,7 @@
 					break
 			if(proceed_with_offer)
 				playsound(loc,'sound/items/carvty.ogg', 50, TRUE)
+				log_admin("[user] ([user?.ckey]) submitted [W] ([W.type]) to the Idol, worth [W.get_real_price()]")
 				qdel(W)
 				for(var/mob/player in GLOB.player_list)
 					if(player.mind)
@@ -1124,6 +1124,7 @@
 
 /obj/structure/fluff/psycross
 	name = "pantheon cross"
+	desc = "Symbol of the Divine Pantheon, the religion of ten - formerly eleven - deities which reigns throughout most of the known world. Their divine order must be maintained."
 	icon_state = "psycross"
 	icon = 'icons/roguetown/misc/tallstructure.dmi'
 	break_sound = 'sound/combat/hits/onwood/destroyfurniture.ogg'
@@ -1181,6 +1182,50 @@
 		leaving.Bump(src)
 		return COMPONENT_ATOM_BLOCK_EXIT
 
+/obj/structure/fluff/psycross/attack_hand(mob/user)
+	. = ..()
+	var/mob/living/carbon/H = user
+	if(user.mind?.antag_datums)
+		if(living_player_count() <= 25) //Only works if less than 25 people in a round. Otherwise good fucking luck lol
+			for(var/datum/antagonist/D in user.mind?.antag_datums)
+				if(istype(D, /datum/antagonist/zombie))
+					to_chat(H, span_warning("I press my palm to the cross and focus..."))
+					if(do_after(H, 1 MINUTES, TRUE, src))
+						self_revive(H)
+					return
+		else
+			to_chat(H, span_warning("I can't use this... The god's refuse, I must seek aid from someone else..."))
+	else if(do_after(H, 5 SECONDS, TRUE, src)) //Fluff interaction for RP purposes and a tiny mood boost as an alternative to praying and spamming admin chats. Works anywhere.
+		if(H.has_flaw(/datum/charflaw/addiction/godfearing))
+			H.sate_addiction() //For the especially devout...
+		H.visible_message(span_notice("[H] sends a silent prayer."), span_green("May the Ten forever grace us with their benevolent gaze..."))
+		H.add_stress(/datum/stressevent/psyprayer)
+
+//Most of this comes from Astrata, as she is benevolent enough to at least help bring those back to the light from the darkness they came...
+/obj/structure/fluff/psycross/proc/self_revive(mob/living/carbon/H)
+
+	//This proc works under assumption the target is already dead. In no way should this be called by dragging the already dead corpse under it to touch the cross.
+
+		//REMINDER! IT was NOT intended for people to get a FULL HEAL OUT OF THIS WITH A REVIVE PROC! I may add healing in the future or remove the fire burn!
+		//BUT YOU NEED TO SLEEP AFTERWARDS TO HEAL OR DRINK A POTION, this allows the church to still do their job if none of them can heal you!
+	if(istype(get_area(H), /area/rogue/indoors/town/church)) //Church check!
+		for(var/obj/structure/fluff/psycross/S in oview(5, H))
+			S.AOE_flash(H, range = 8)
+		H.adjustOxyLoss(-H.getOxyLoss()) //Ye Olde CPR
+		H.emote("breathgasp")
+		H.Jitter(100)
+		H.Paralyze(40) //Take some minor burn damage you vile fiend!
+		H.adjust_fire_stacks(2)
+		playsound(src, 'sound/magic/revive.ogg', 33, 0, 4)
+		playsound(src, 'sound/magic/woundheal.ogg', 100, 0, 6) //Fancy, weaker revive.
+		H.visible_message(span_notice("[H] is revived by holy light! Flames purge their rot!"), span_red("I awake from the void with a blistering pain!"))
+		H.mind.remove_antag_datum(/datum/antagonist/zombie)
+		H.remove_status_effect(/datum/status_effect/debuff/rotted_zombie) //Removes the rotted-zombie debuff if they have it - Failsafe for it.
+		H.apply_status_effect(/datum/status_effect/debuff/self_revived)	//Longer debuff for self revival. Hurts like a fuckin' TRUCK.
+		H.update_body()
+	else
+		H.visible_message(span_notice("[H] hopelessly clutches the cross, sorrow filling their cold, dead eyes..."), span_red("The Ten cannot help me here... I must find a church..."))
+
 /obj/structure/fluff/psycross/copper
 	name = "pantheon cross"
 	icon_state = "psycrosschurch"
@@ -1229,6 +1274,9 @@
 				if(!istype(get_area(user), /area/rogue/indoors/town/church/chapel))
 					to_chat(user, span_warning("I need to do this in the chapel."))
 					return FALSE
+				///Caustic edit
+				var/name_placement = 1 //this is here as we want it to reset ONLY on a NEW marriage attempt, not mid marraige. Thank you breakpoints
+				///Caustic edit end
 				var/marriage
 				var/obj/item/reagent_containers/food/snacks/grown/apple/A = W
 				//The MARRIAGE TEST BEGINS
@@ -1251,7 +1299,6 @@
 							* second. This seems to be the best way
 							* to use the least amount of variables.
 							*/
-							var/name_placement = 1
 							for(var/X in A.bitten_names)
 								//I think that guy is dead.
 								if(C.stat == DEAD)
@@ -1313,6 +1360,7 @@
 						thebride.adjust_triumphs(1)
 						//Bite the apple first if you want to be the groom.
 						priority_announce("[thegroom.real_name] has married [bridefirst]!", title = "Holy Union!", sound = 'sound/misc/bell.ogg')
+						record_round_statistic(STATS_MARRIAGES_MADE)
 						marriage = TRUE
 						qdel(A)
 
@@ -1352,6 +1400,56 @@
 	if(M.flash_act())
 		var/diff = power - M.confused
 		M.confused += min(power, diff)
+
+/obj/structure/fluff/psycross/proc/summon_martyr_weapon_tgui(mob/user)
+	if(!user.mind)
+		return
+
+	var/list/weapon_choices = list(
+		"Sword" = CALLBACK(src, PROC_REF(summon_and_equip), user, /obj/item/rogueweapon/sword/long/martyr),
+		"Axe" = CALLBACK(src, PROC_REF(summon_and_equip), user, /obj/item/rogueweapon/greataxe/steel/doublehead/martyr),
+		"Mace" = CALLBACK(src, PROC_REF(summon_and_equip), user, /obj/item/rogueweapon/mace/goden/martyr),
+		"Trident" = CALLBACK(src, PROC_REF(summon_and_equip), user, /obj/item/rogueweapon/spear/partizan/martyr)
+	)
+
+	var/result = tgui_input_list(user, "Choose a martyr weapon to summon:", "Martyr Weapon", weapon_choices)
+
+	if(result && weapon_choices[result])
+		var/datum/callback/selected_callback = weapon_choices[result]
+		selected_callback.Invoke()
+	else
+		to_chat(user, span_warning("No weapon was chosen."))
+
+/obj/structure/fluff/psycross/proc/summon_and_equip(mob/user, var/obj/item/rogueweapon/weapontype)
+	var/obj/item/rogueweapon/old_weapon = SSroguemachine.martyrweapon
+	var/integrity
+
+	if(old_weapon)
+		integrity = old_weapon.obj_integrity
+		old_weapon.visible_message(span_danger("[old_weapon] dissolves into mere dust, and flitters away - unbound."))
+		SSroguemachine.martyrweapon = null
+		qdel(old_weapon)
+
+	var/obj/item/rogueweapon/new_weapon = new weapontype(src.loc)
+	new_weapon.obj_integrity = integrity
+	SSroguemachine.martyrweapon = new_weapon
+
+	if(user.put_in_hands(new_weapon))
+		to_chat(user, span_notice("[new_weapon] appears in your hand."))
+	else
+		to_chat(user, span_warning("Your hands are full! [new_weapon] falls to your feet."))
+
+	return new_weapon
+
+/obj/structure/fluff/psycross/attack_hand(mob/user)
+	. = ..()
+	if(.)
+		return
+	if(user.job != "Martyr")
+		return
+	if((HAS_TRAIT(user, TRAIT_NOPAIN) && HAS_TRAIT(user, TRAIT_STRENGTH_UNCAPPED) && HAS_TRAIT(user, TRAIT_BLOODLOSS_IMMUNE))) // So that the martyr could not change weapons during his special ability... I do not know how to make it smarter.
+		return
+	summon_martyr_weapon_tgui(user)
 
 /obj/structure/fluff/beach_umbrella/security
 	icon_state = "hos_brella"

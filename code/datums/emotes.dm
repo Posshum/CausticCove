@@ -29,7 +29,12 @@
 	var/runechat_msg = null
 	// If this is true, we skip setting the base runechat message and instead use whatever our at-emote-runtime message is. Useful for things like kiss/lick which change message based on conditions.
 	var/use_params_for_runechat = FALSE
+
+	/// Whether this emote is filtered by our "hear animal noises" preference.
 	var/is_animal = FALSE
+
+	/// Whether this emote will ONLY go through a few walls on the same z-level.
+	var/is_quiet = FALSE
 
 /datum/emote/New()
 	if(!runechat_msg && !use_params_for_runechat)
@@ -116,7 +121,7 @@
 			else// if(!vision.viewing_head)
 				emotelocation = user
 
-		playsound(emotelocation, tmp_sound, snd_vol, FALSE, snd_range, soundping = soundping, animal_pref = animal)
+		playsound(emotelocation, tmp_sound, snd_vol, FALSE, snd_range, soundping = soundping, animal_pref = animal, quiet = is_quiet)
 	if(!nomsg)
 		user.log_message(msg, LOG_EMOTE)
 		var/pre_color_msg = msg
@@ -185,20 +190,23 @@
 				modifier = "old"
 			if((!ignore_silent && (H.silent)) || (!ignore_silent && !is_emote_muffled(H)) || (!ignore_silent && HAS_TRAIT(H, TRAIT_MUTE)) ||  (!ignore_silent && HAS_TRAIT(H, TRAIT_BAGGED)))
 				modifier = "silenced"
-			if(user.gender == FEMALE && H.dna.species.soundpack_f)
-				possible_sounds = H.dna.species.soundpack_f.get_sound(key,modifier)
-			else if(H.dna.species.soundpack_m)
-				possible_sounds = H.dna.species.soundpack_m.get_sound(key,modifier)
-			 // LETHALSTONE ADDITION BEGIN: use preference-set voice types where possible
-			if(H.voice_type)
-				switch (H.voice_type)
-					if (VOICE_TYPE_MASC)
-						possible_sounds = H.dna.species.soundpack_m.get_sound(key, modifier)
-					else
-						if (H.dna.species.soundpack_f)
-							possible_sounds = H.dna.species.soundpack_f.get_sound(key, modifier)
-						else
+			//Caustic Edit - Add in exception for Belch Sounds.
+			if(key != "burp" || H.client.prefs.belch_noises)
+				if(user.gender == FEMALE && H.dna.species.soundpack_f)
+					possible_sounds = H.dna.species.soundpack_f.get_sound(key,modifier)
+				else if(H.dna.species.soundpack_m)
+					possible_sounds = H.dna.species.soundpack_m.get_sound(key,modifier)
+				// LETHALSTONE ADDITION BEGIN: use preference-set voice types where possible
+				if(H.voice_type)
+					switch (H.voice_type)
+						if (VOICE_TYPE_MASC)
 							possible_sounds = H.dna.species.soundpack_m.get_sound(key, modifier)
+						else
+							if (H.dna.species.soundpack_f)
+								possible_sounds = H.dna.species.soundpack_f.get_sound(key, modifier)
+							else
+								possible_sounds = H.dna.species.soundpack_m.get_sound(key, modifier)
+			//Caustic Edit End
 			// LETHALSTONE ADDITION END
 			if(possible_sounds)
 				if(islist(possible_sounds))
@@ -214,7 +222,8 @@
 				H.last_sound = used_sound
 				return used_sound
 		else
-			return user.get_sound(key)
+			if(key != "burp" || user.client.prefs.belch_noises)
+				return user.get_sound(key)
 
 /mob/living/proc/get_sound(input)
 	return

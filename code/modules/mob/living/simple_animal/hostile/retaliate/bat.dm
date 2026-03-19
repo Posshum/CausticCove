@@ -27,13 +27,15 @@
 	obj_damage = 0
 	environment_smash = ENVIRONMENT_SMASH_NONE
 	ventcrawler = VENTCRAWLER_ALWAYS
-	mob_size = MOB_SIZE_TINY
+	mob_size = MOB_TINY
 	movement_type = FLYING
 	speak_emote = list("squeaks")
 	base_intents = list(/datum/intent/bite)
 	sight = (SEE_TURFS|SEE_MOBS|SEE_OBJS|SEE_SELF)
 	see_in_dark = 8
 	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	STASTR = 1 // You are not charging or bumping anyone down
+	STACON = 1 // No charging!
 
 	var/fly_time = 5 //5 ticks because vampire bats are agile
 
@@ -96,6 +98,7 @@
 	melee_damage_upper = 0
 	remains_type = /obj/effect/decal/remains/crow
 	fly_time = 3 SECONDS // slowing down crow for witches
+	sight = 0
 
 /obj/effect/decal/remains/crow
 	name = "zad remains"

@@ -60,8 +60,6 @@
 			appearance.pixel_y += offset_list[2]
 
 /datum/sprite_accessory/proc/validate_color_keys_for_owner(mob/living/carbon/owner, colors)
-	if(!color_keys)
-		return colors
 	var/list/color_list = color_string_to_list(colors)
 	if(color_list && color_list.len == color_keys)
 		return colors
@@ -180,6 +178,10 @@
 		if(BODY_FRONT_LAYER)
 			return "FRONT"
 		//Caustic Edit
+		if(BODY_ASS_LAYER)
+			return "ASS"
+		if(BODY_NOTSOFRONT_LAYER)
+			return "NSFRONT"
 		if(BODY_FRONTER_LAYER)
 			return "FRONT"
 		if(BODY_FRONTEST_LAYER)

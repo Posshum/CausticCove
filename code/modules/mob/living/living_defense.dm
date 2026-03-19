@@ -46,6 +46,26 @@
 /mob/living/proc/on_hit(obj/projectile/P)
 	return BULLET_ACT_HIT
 
+/// Checks if our Guard (clash) or parry buffer can deflect this projectile.
+/// Returns TRUE if deflected (caller should return early), FALSE otherwise.
+// Reactive spell defense - guard will deflect magical projectiles to add a measure of counterplay. It doesn't care whether it is a low value or a high value projectiles.
+// If deflectable, the guard is consumed cleanly and apply a 1 second buffer for multi-projectile spells (or extremely tightly timed barrage)
+// Non deflectable projectiles will fall through to disruption as normal, with the guard being consumed and applying a bad_guard penalty if applicable.
+/mob/living/proc/guard_deflect_projectile(obj/projectile/P)
+	if(!P.guard_deflectable)
+		return FALSE
+	var/datum/status_effect/buff/clash/guard = has_status_effect(/datum/status_effect/buff/clash)
+	if(guard)
+		if(P.on_guard_deflect(src))
+			apply_status_effect(/datum/status_effect/buff/spell_parry_buffer)
+			remove_status_effect(/datum/status_effect/buff/clash)
+			return TRUE
+		return FALSE
+	if(has_status_effect(/datum/status_effect/buff/spell_parry_buffer))
+		if(P.on_guard_deflect(src, silent = TRUE))
+			return TRUE
+	return FALSE
+
 /mob/living/bullet_act(obj/projectile/P, def_zone = BODY_ZONE_CHEST)
 	if(SEND_SIGNAL(src, COMSIG_ATOM_BULLET_ACT, P, def_zone) & COMPONENT_ATOM_BLOCK_BULLET)
 		return
@@ -60,7 +80,7 @@
 	if(!P.nodamage && on_hit_state != BULLET_ACT_BLOCK)
 		if(!apply_damage(P.damage, P.damage_type, def_zone, armor))
 			nodmg = TRUE
-			next_attack_msg += " <span class='warning'>Armor stops the damage.</span>"
+			next_attack_msg += VISMSG_ARMOR_BLOCKED
 		apply_effects(stun = P.stun, knockdown = P.knockdown, unconscious = P.unconscious, slur = P.slur, stutter = P.stutter, eyeblur = P.eyeblur, drowsy = P.drowsy, blocked = armor, stamina = P.stamina, jitter = P.jitter, paralyze = P.paralyze, immobilize = P.immobilize)
 		if(!nodmg)
 			if(P.dismemberment)
@@ -116,6 +136,14 @@
 		return 0
 
 /mob/living/hitby(atom/movable/AM, skipcatch, hitpush = TRUE, blocked = FALSE, datum/thrownthing/throwingdatum, damage_flag = "blunt")
+	//Caustic Edit - Add Spontaneous Vore from throwing things!
+	var/speed = throwingdatum?.speed
+	var/mob/living/thrower = throwingdatum?.thrower
+
+	if(SEND_SIGNAL(src, COMSIG_LIVING_HIT_BY_THROWN_ENTITY, AM, thrower, speed) & COMSIG_CANCEL_HITBY)
+		return FALSE
+	//Caustic Edit End
+	
 	if(istype(AM, /obj/item))
 		var/obj/item/I = AM
 		// Hit the selected zone, or else a random zone centered on the chest
@@ -130,7 +158,7 @@
 			var/nodmg = FALSE
 			if(!apply_damage(I.throwforce, I.damtype, zone, armor))
 				nodmg = TRUE
-				next_attack_msg += " <span class='warning'>Armor stops the damage.</span>"
+				next_attack_msg += VISMSG_ARMOR_BLOCKED
 			if(!nodmg)
 				if(iscarbon(src))
 					var/obj/item/bodypart/affecting = get_bodypart(zone)
@@ -196,7 +224,7 @@
 
 //proc to upgrade a simple pull into a more aggressive grab.
 /mob/living/proc/grippedby(mob/living/carbon/user, instant = FALSE)
-	user.changeNext_move(CLICK_CD_GRABBING * 2 - user.STASPD)
+	user.changeNext_move(CLICK_CD_TRACKING)
 	var/skill_diff = 0
 	var/combat_modifier = 1
 	if(user.mind)
@@ -245,9 +273,9 @@
 			to_chat(user, span_warning("I struggle with [src]!"))
 		playsound(src.loc, 'sound/foley/struggle.ogg', 100, FALSE, -1)
 		user.Immobilize(2 SECONDS)
-		user.changeNext_move(2 SECONDS)
+		user.changeNext_move(CLICK_CD_TRACKING)
 		src.Immobilize(1 SECONDS)
-		src.changeNext_move(1 SECONDS)
+		src.changeNext_move(CLICK_CD_GRABBING)
 		if(user.badluck(5))
 			badluckmessage(user)
 			user.stop_pulling()
@@ -347,28 +375,28 @@
 	playsound(get_turf(M), pick(M.attack_sound), 100, FALSE)
 
 	var/cached_intent = M.used_intent
+	if(cached_intent)
+		sleep(M.used_intent.swingdelay)
+		M.swinging = FALSE
+		if(M.a_intent != cached_intent)
+			return FALSE
+		if(QDELETED(src) || QDELETED(M))
+			return FALSE
+		if(!M.CanReach(src)) // Possible performance hit.
+			return FALSE
+		if(M.incapacitated())
+			return FALSE
 
-	sleep(M.used_intent.swingdelay)
-	M.swinging = FALSE
-	if(M.a_intent != cached_intent)
-		return FALSE
-	if(QDELETED(src) || QDELETED(M))
-		return FALSE
-	if(!M.CanReach(src)) // Possible performance hit.
-		return FALSE
-	if(M.incapacitated())
-		return FALSE
+		if(checkmiss(M))
+			return FALSE
 
-	if(checkmiss(M))
-		return FALSE
+		if(checkdefense(M.a_intent, M))
+			return FALSE
 
-	if(checkdefense(M.a_intent, M))
-		return FALSE
+		if(M.attack_sound)
+			playsound(loc, M.a_intent.hitsound, 100, FALSE)
 
-	if(M.attack_sound)
-		playsound(loc, M.a_intent.hitsound, 100, FALSE)
-
-	log_combat(M, src, "attacked")
+		log_combat(M, src, "attacked")
 
 	return TRUE
 

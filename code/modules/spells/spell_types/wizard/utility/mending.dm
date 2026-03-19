@@ -61,7 +61,7 @@
 
 			I.obj_integrity = min(I.obj_integrity + repair_percent, I.max_integrity)
 			user.visible_message(span_info("[I] glows in a faint mending light."))
-			playsound(I, 'sound/foley/sewflesh.ogg', 66, TRUE, -1)
+			playsound(I, 'sound/magic/mending.ogg', 35, TRUE, -2)
 
 			if(I.obj_integrity >= I.max_integrity)
 				if(I.obj_broken)
@@ -78,6 +78,9 @@
 			return
 	return //Finished the mending; Lets stop trying to repair.
 
+	deactivate(user)
+
+	return TRUE
 
 /obj/effect/proc_holder/spell/invoked/mending/lesser
 	name = "Lesser Mending"

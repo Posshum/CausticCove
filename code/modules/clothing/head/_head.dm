@@ -81,6 +81,11 @@
 			default_examine_name += " ([examine_strings.Join(", ")])"
 	return default_examine_name
 
+/obj/item/clothing/head/get_mechanics_examine(mob/user)
+	. = ..()
+	if(attachment_component)
+		. += span_info("Shift-right-click to open the headwear's storage. This can be used to wear cosmetics over it or store smaller items.")
+
 /obj/item/clothing/head/ShiftRightClick(mob/user)
 	if(attachment_component)
 		var/datum/component/storage/storage_component = GetComponent(attachment_component)
@@ -144,6 +149,9 @@
 		if(our_component && length(our_component.item_to_grid_coordinates))
 			for(var/obj/item/thing as anything in our_component.item_to_grid_coordinates)
 				var/mutable_appearance/thing_appearance = thing.build_worn_icon(default_layer, default_icon_file, isinhands, femaleuniform, override_state, female, customi, sleeveindex, boobed_overlay, clip_mask)
+				thing_appearance.appearance_flags = RESET_COLOR
+				thing_appearance.pixel_x = -standing.pixel_x
+				thing_appearance.pixel_y = -standing.pixel_y
 				standing.add_overlay(thing_appearance)
 	return standing
 

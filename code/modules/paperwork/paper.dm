@@ -45,6 +45,7 @@
 
 /obj/item/paper
 	name = "parchment"
+	desc = "Animal skin dried under tension to create a robust medium for writing."
 	gender = NEUTER
 	icon = 'icons/roguetown/items/misc.dmi'
 	icon_state = "paper"
@@ -85,6 +86,10 @@
 	. = ..()
 	. += span_info("Use a feather to write on it. You can create a two-page manuscript that can be turned into a book by writing on it and applying it to another piece of paper that also have something written on it.")
 
+/obj/item/paper/get_mechanics_examine(mob/user)
+	. = ..()
+	. += span_info("Use paper on an item to wrap it into a mailable package.")
+
 /obj/item/paper/get_real_price()
 	if(info)
 		return 0
@@ -123,9 +128,9 @@
 	update_icon_state()
 	updateinfolinks()
 	var/static/list/slapcraft_recipe_list = list(
-		/datum/crafting_recipe/roguetown/survival/sigsweet,
-		/datum/crafting_recipe/roguetown/survival/sigdry,
-		/datum/crafting_recipe/roguetown/survival/rocknutdry,
+		/datum/crafting_recipe/roguetown/cooking/sigsweet,
+		/datum/crafting_recipe/roguetown/cooking/sigdry,
+		/datum/crafting_recipe/roguetown/cooking/rocknutdry,
 		)
 
 	AddElement(

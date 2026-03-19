@@ -14,6 +14,10 @@
 	GLOB.mob_living_list += src
 	init_faith()
 
+	//Caustic Edit - Add Spontaneous Vore element
+	AddElement(/datum/element/spontaneous_vore)
+	//Caustic Edit End
+
 /mob/living/Destroy()
 	surgeries = null
 	if(LAZYLEN(status_effects))
@@ -201,6 +205,17 @@
 			if(L.dir == get_dir(src, L))
 				self_points += 2
 
+			// Shields matter
+			var/list/obj/item/user_inhand = get_held_items()
+			var/list/obj/item/target_inhand = L.get_held_items()
+
+			for(var/obj/I in user_inhand)
+				if(istype(I, /obj/item/rogueweapon/shield))
+					self_points += 2
+			for(var/obj/I in target_inhand)
+				if(istype(I, /obj/item/rogueweapon/shield))
+					target_points += 2
+
 			// Randomize con roll from -1 to +1 to make it less consistent
 			self_points += rand(-1, 1)
 
@@ -226,7 +241,7 @@
 			if(self_points == target_points)
 				L.Knockdown(1)
 				Knockdown(30)
-			Immobilize(10)
+			Immobilize(5)
 			var/playsound = FALSE
 			if(L.apply_damage(15, BRUTE, "chest", L.run_armor_check("chest", "blunt", damage = 10)))
 				playsound = TRUE
@@ -251,10 +266,18 @@
 	///Caustic edit
 	if(ishuman(M) && ishuman(src))
 		var/mob/living/carbon/human/srchuman = src
-		if(srchuman.handle_micro_bump_helping(M))
-			forceMove(M.loc)
-			now_pushing = FALSE
-			return TRUE
+		var/mob/living/target = M
+		if(!cmode && !target.cmode)
+			if(((istype(a_intent, INTENT_HELP) || get_active_held_item() || src.restrained()) && (istype(target.a_intent, INTENT_HELP) || target.get_active_held_item() || target.restrained())) && !target.IsImmobilized() && srchuman.handle_micro_bump_helping(target))
+				forceMove(target.loc)
+				now_pushing = FALSE
+				return TRUE
+			
+			if(!(istype(target.a_intent, INTENT_HELP) || target.get_active_held_item() || target.restrained()))
+				if(step_mechanics_pref && target.step_mechanics_pref)
+					if(handle_micro_bump_other(target)) return
+				else
+					if(handle_micro_bump_other(target,1)) return
 	///Caustic edit end
 	//okay, so we didn't switch. but should we push?
 	//not if he's not CANPUSH of course
@@ -298,7 +321,7 @@
 		return TRUE
 	if(moving_diagonally)// no pushing during diagonal moves.
 		return TRUE
-	if(!client && (mob_size < MOB_SIZE_SMALL))
+	if(!client && (mob_size < MOB_SMALL))
 		return
 	now_pushing = TRUE
 	var/t = get_dir(src, AM)
@@ -476,11 +499,11 @@
 			var/used_limb = C.find_used_grab_limb(src)
 			O.name = "[C]'s [parse_zone(used_limb)]"
 			var/obj/item/bodypart/BP = C.get_bodypart(check_zone(used_limb))
-			C.grabbedby += O
+			LAZYADD(C.grabbedby, O)
 			O.grabbed = C
 			O.grabbee = src
 			O.limb_grabbed = BP
-			BP.grabbedby += O
+			LAZYADD(BP.grabbedby, O)
 			if(item_override)
 				O.sublimb_grabbed = item_override
 			else
@@ -632,6 +655,8 @@
 	if(pulling)
 		if(ismob(pulling))
 			var/mob/living/M = pulling
+			if(pulledby && pulledby == pulling)
+				reset_offsets("pulledby")
 			M.reset_offsets("pulledby")
 			reset_pull_offsets(pulling)
 			if(HAS_TRAIT(M, TRAIT_GARROTED))
@@ -650,6 +675,7 @@
 				if(I.grabbed == pulling)
 					dropItemToGround(I, silent = FALSE)
 	reset_offsets("pulledby")
+	reset_pull_offsets(src)
 	. = ..()
 
 	update_pull_movespeed()
@@ -879,7 +905,7 @@
 /mob/living/proc/revive(full_heal = FALSE, admin_revive = FALSE)
 	SEND_SIGNAL(src, COMSIG_LIVING_REVIVE, full_heal, admin_revive)
 	if(full_heal)
-		fully_heal(admin_revive = admin_revive)
+		fully_heal(admin_revive = admin_revive, break_restraints = admin_revive)
 	if(stat == DEAD && (admin_revive || can_be_revived())) //in some cases you can't revive (e.g. no brain)
 		GLOB.dead_mob_list -= src  //If any more forms of revival are added, better to use a proc to do this - easier to search
 		GLOB.alive_mob_list += src
@@ -898,8 +924,7 @@
 		if(mind)
 			if(admin_revive)
 				mind.remove_antag_datum(/datum/antagonist/zombie)
-			for(var/S in mind.spell_list)
-				var/obj/effect/proc_holder/spell/spell = S
+			for(var/obj/effect/proc_holder/spell/spell as anything in mind.spell_list)
 				spell.updateButtonIcon()
 		qdel(GetComponent(/datum/component/rot))
 
@@ -916,15 +941,12 @@
 
 /mob/living/Crossed(atom/movable/AM)
 	. = ..()
-	for(var/i in get_equipped_items())
+	for(var/i as anything in get_equipped_items())
 		var/obj/item/item = i
 		SEND_SIGNAL(item, COMSIG_ITEM_WEARERCROSSED, AM, src)
 
-
-
-//proc used to completely heal a mob.
-//admin_revive = TRUE is used in other procs, for example mob/living/carbon/fully_heal()
-/mob/living/proc/fully_heal(admin_revive = FALSE)
+/// proc used to completely heal a mob. admin_revive = TRUE is used in other procs, for example mob/living/carbon/fully_heal()
+/mob/living/proc/fully_heal(admin_revive = FALSE, break_restraints = FALSE)
 	restore_blood()
 	setToxLoss(0, 0) //zero as second argument not automatically call updatehealth().
 	setOxyLoss(0, 0)
@@ -1147,6 +1169,11 @@
 			if(riding_datum)
 				for(var/mob/M in buckled_mobs)
 					riding_datum.force_dismount(M)
+	//Caustic Edit - Allow absorbed resistance
+	else if(absorbed && isbelly(loc))
+		var/obj/belly/B = loc
+		B.relay_absorbed_resist(src)
+	//Caustic Edit End
 
 /mob/living/proc/submit(instant = FALSE)
 	set name = "Yield"
@@ -1208,6 +1235,7 @@
 		client.chargedprog = 0
 		client.tcompare = null //so we don't shoot the attack off
 		client.mouse_pointer_icon = 'icons/effects/mousemice/human.dmi'
+		STOP_PROCESSING(SSmousecharge, client)
 	if(used_intent)
 		used_intent.on_mouse_up()
 	if(mmb_intent)
@@ -1697,7 +1725,13 @@
 	if(!istype(spread_to))
 		return
 
+	if(!(mobility_flags & MOBILITY_STAND))
+		return
+
 	if(HAS_TRAIT(spread_to, TRAIT_NOFIRE) || HAS_TRAIT(src, TRAIT_NOFIRE))
+		return
+
+	if(!prob(25))
 		return
 
 	var/datum/status_effect/fire_handler/fire_stacks/fire_status = has_status_effect(/datum/status_effect/fire_handler/fire_stacks)
@@ -2267,7 +2301,8 @@
 		if(ttime < 0)
 			ttime = 0
 
-	visible_message(span_info("[src] looks down through [T]."))
+	if(m_intent != MOVE_INTENT_SNEAK)
+		visible_message(span_info("[src] looks down through [T]."))
 
 	if(!do_after(src, ttime, target = src))
 		return

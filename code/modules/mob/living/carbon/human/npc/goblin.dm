@@ -147,6 +147,9 @@
 	H.update_transform()
 	return TRUE
 
+/mob/living/carbon/human/species/goblin/update_body_parts(redraw)
+	update_body()
+
 /mob/living/carbon/human/species/goblin/update_body()
 	remove_overlay(BODY_LAYER)
 	if(!dna || !dna.species)
@@ -234,8 +237,9 @@
 	eyes = new /obj/item/organ/eyes/night_vision/nightmare
 	eyes.Insert(src)
 	src.underwear = "Nude"
-	if(src.charflaw)
-		QDEL_NULL(src.charflaw)
+	for(var/datum/charflaw/cf in charflaws)
+		charflaws.Remove(cf)
+		QDEL_NULL(cf)
 	update_body()
 	faction = list("orcs")
 	name = "goblin"
@@ -371,11 +375,12 @@
 	H.adjust_skillrank(/datum/skill/combat/wrestling, 2, TRUE) // Trash mob
 	H.adjust_skillrank(/datum/skill/misc/swimming, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/misc/climbing, 2, TRUE)
-        
+
 //////////////////   INVADER ZIM	//////////////////
 
 /obj/structure/gob_portal
-	name = "Gob Portal"
+	name = "gob portal"
+	desc = "A bright portal torn through the fabric of the world. This can't be good."
 	icon = 'icons/roguetown/misc/structure.dmi'
 	icon_state = "shitportal"
 	max_integrity = 200
@@ -424,7 +429,7 @@
 	if(moon_goblins == 1)
 		new /mob/living/carbon/human/species/goblin/npc/moon(get_turf(src))
 	else
-		new /mob/living/carbon/human/species/goblin/npc(get_turf(src))
+		new /mob/living/carbon/human/species/goblin/npc/hell(get_turf(src))
 	gobs++
 	update_icon()
 	if(living_player_count() < 10)

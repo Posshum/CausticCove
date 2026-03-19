@@ -160,15 +160,13 @@ GLOBAL_LIST_EMPTY(species_list)
 		else
 			return "unknown"
 
-/proc/do_mob(mob/user , mob/target, time = 30, uninterruptible = 0, progress = 1, datum/callback/extra_checks = null, double_progress = 0)
+/proc/do_mob(mob/user , mob/target, time = 30, uninterruptible = 0, progress = 1, datum/callback/extra_checks = null, double_progress = 0, can_move = TRUE)
 	if(!user || !target)
 		return 0
 
 	if(user.doing)
 		return 0
 	user.doing = 1
-
-	var/target_loc = target.loc
 
 	var/holding = user.get_active_held_item()
 	var/datum/progressbar/progbar
@@ -198,7 +196,11 @@ GLOBAL_LIST_EMPTY(species_list)
 		if(uninterruptible)
 			continue
 
-		if((double_progress && target.loc != target_loc) || user.get_active_held_item() != holding || user.incapacitated() || (extra_checks && !extra_checks.Invoke()))
+		if(!can_move && (!user.Adjacent(target)))
+			. = 0
+			break
+			
+		if(user.get_active_held_item() != holding || user.incapacitated() || (extra_checks && !extra_checks.Invoke()))
 			. = 0
 			break
 	user.doing = 0
@@ -225,6 +227,8 @@ GLOBAL_LIST_EMPTY(species_list)
 /mob
 	var/doing = FALSE
 	var/pronouns = null // LETHALSTONE ADDITION: this is cheap so i'm doing it. preferences in human will set this appropriately
+	var/titles_pref = null
+	var/clothes_pref = CLOTHES_M
 	var/obscured_flags = NONE
 
 /**
@@ -255,6 +259,13 @@ GLOBAL_LIST_EMPTY(species_list)
 		if(no_interrupt)
 			return
 		return FALSE
+
+	//Caustic Edit - Disable the progress bar if you are currently sneaking, since that gives it away!
+	if(isliving(user))
+		var/mob/living/user_live = user
+		if(user_live.rogue_sneaking)
+			progress = FALSE
+	//Caustic Edit End
 
 	user.doing = TRUE
 

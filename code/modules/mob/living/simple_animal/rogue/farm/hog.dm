@@ -60,7 +60,7 @@
 
 /mob/living/simple_animal/hostile/retaliate/rogue/swine/piglet
 	name = "piglet"
-	desc = ""
+	desc = "An infant swine."
 	icon_state = "piggie_piglin"
 	icon_living = "piggie_piglin"
 	icon_dead = "piggie_piglin_dead"
@@ -69,7 +69,7 @@
 	base_intents = list(/datum/intent/simple/headbutt)
 	health = 20
 	pass_flags = PASSTABLE | PASSMOB
-	mob_size = MOB_SIZE_SMALL
+	mob_size = MOB_SMALL
 	maxHealth = 20
 	milkies = FALSE
 	melee_damage_lower = 1
@@ -209,7 +209,7 @@
 
 /mob/living/simple_animal/hostile/retaliate/rogue/swine/hog/piglet
 	name = "piglet"
-	desc = ""
+	desc = "An infant swine."
 	gender = MALE
 	icon_state = "piggie_piglin"
 	icon_living = "piggie_piglin"
@@ -220,7 +220,7 @@
 	health = 20
 	maxHealth = 20
 	pass_flags = PASSTABLE | PASSMOB
-	mob_size = MOB_SIZE_SMALL
+	mob_size = MOB_SMALL
 	can_buckle = FALSE
 	can_saddle = FALSE
 	melee_damage_lower = 1

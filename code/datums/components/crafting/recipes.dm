@@ -37,6 +37,8 @@
 	var/ignoredensity = FALSE //used on objects that we want to build into walls or atop other structures
  	// If TRUE, this recipe will be skipped by the nodupe tests
 	var/bypass_dupe_test = FALSE
+	//Hardcoded aliases, fill this in for things that have things like slang names. Real item alias names will be appended automatically during build_recipe_data
+	var/aliases = ""
 /*
 /datum/crafting_recipe/example
 	name = ""
@@ -120,13 +122,8 @@
 			for(var/zone in body_parts_covered2organ_names(body_parts_covered2organ_names(C.body_parts_covered)))
 				html += "<b>[capitalize(zone)]</b> | "
 			html += "<br>"
-		if(C.prevent_crits)
-			if(length(C.prevent_crits))
-				html += "\n<b>PREVENTS CRITS:</b>"
-				for(var/X in C.prevent_crits)
-					if(X == BCLASS_PICK)	//BCLASS_PICK is named "stab", and "stabbing" is its own damage class. Prevents confusion.
-						X = "pick"
-					html += ("\n<b>[capitalize(X)]</b><br>")
+		if(!C.prevent_crits)
+			html += "\n<b>CRIT SUSCEPTIBLE!</b>"
 		html += "INTEGRITY: [bookarmor.max_integrity]<br>"
 		if(bookarmor.armor_class == ARMOR_CLASS_HEAVY)
 			html += "<b>AC: </b>HEAVY<br>"

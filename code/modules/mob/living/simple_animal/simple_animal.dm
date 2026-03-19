@@ -39,6 +39,8 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	var/wander = 1
 	///When set to 1 this stops the animal from moving when someone is pulling it.
 	var/stop_automated_movement_when_pulled = 1
+	///Next time we can perform a grid update (throttled to avoid excessive updates)
+	var/next_grid_update_time = 0
 
 	var/obj/item/handcuffed = null //Whether or not the mob is handcuffed
 	var/obj/item/legcuffed = null  //Same as handcuffs but for legs. Bear traps use this.
@@ -137,7 +139,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 	///If the creature has, and can use, hands.
 	var/dextrous = FALSE
-	var/dextrous_hud_type = /datum/hud/dextrous
+	var/dextrous_hud_type = /datum/hud/human
 
 	///The Status of our AI, can be set to AI_ON (On, usual processing), AI_IDLE (Will not process, but will return to AI_ON if an enemy comes near), NPC_AI_OFF (Off, Not processing ever), AI_Z_OFF (Temporarily off due to nonpresence of players).
 	var/AIStatus = AI_ON
@@ -179,12 +181,18 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 	var/botched_butcher_results
 	var/perfect_butcher_results
+	/// Path of head to drop upon butchering. Guaranteed but value scales with butchering skill.
+	var/head_butcher
 	var/list/inherent_spells = list()
 
 	///What distance should we be checking for interesting things when considering idling/deidling? Defaults to AI_DEFAULT_INTERESTING_DIST
 	var/interesting_dist = AI_DEFAULT_INTERESTING_DIST
 	///our current cell grid
 	var/datum/cell_tracker/our_cells
+
+	var/obj/item/caparison/ccaparison
+	var/obj/item/clothing/barding/bbarding
+	var/caparison_over_barding = FALSE
 
 /mob/living/simple_animal/Initialize()
 	. = ..()
@@ -205,7 +213,6 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		AddSpell(newspell)
 
 /mob/living/simple_animal/Destroy()
-	our_cells = null
 	GLOB.simple_animals[AIStatus] -= src
 	SSnpcpool.currentrun -= src
 
@@ -217,11 +224,31 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		QDEL_NULL(ssaddle)
 		ssaddle = null
 
+	if(ccaparison)
+		QDEL_NULL(ccaparison)
+		ccaparison = null
+
+	if(bbarding)
+		QDEL_NULL(bbarding)
+		bbarding = null
+
 	var/turf/T = get_turf(src)
 	if (T && AIStatus == AI_Z_OFF)
 		SSidlenpcpool.idle_mobs_by_zlevel[T.z] -= src
 
-	return ..()
+	. = ..()
+	our_cells = null
+
+/mob/living/simple_animal/examine(mob/user)
+	. = ..()
+	if(tame)
+		. += span_notice("This animal appears to be tamed.")
+	if(ssaddle)
+		. += span_notice("This animal is saddled: ([ssaddle.name]).")
+	if(ccaparison)
+		. += span_notice("This animal is wearing a caparison: ([ccaparison.name]).")
+	if(bbarding)
+		. += span_notice("This animal is wearing a bard: ([bbarding.name]).")
 
 /mob/living/simple_animal/attackby(obj/item/O, mob/user, params)
 	if(!is_type_in_list(O, food_type))
@@ -240,9 +267,90 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 			if(realchance)
 				if(prob(realchance))
 					tamed(user)
+					record_round_statistic(STATS_ANIMALS_TAMED)
 				else
 					tame_chance += bonus_tame_chance
 
+/mob/living/simple_animal/attack_right(mob/user, params)
+	if(ccaparison)
+		user.visible_message(span_notice("[user] is removing the caparison from [src]..."), span_notice("I start removing the caparison from [src]..."))
+		if(!do_after(user, 10 SECONDS, TRUE, src))
+			return
+		playsound(loc, 'sound/foley/saddledismount.ogg', 100, FALSE)
+		user.visible_message(span_notice("[user] removes the caparison from [src]."), span_notice("I remove the caparison from [src]."))
+		var/obj/item/caparison/C = ccaparison
+		ccaparison = null
+		C.forceMove(get_turf(src))
+		user.put_in_hands(C)
+		update_icon()
+		return
+	else if(bbarding)
+		user.visible_message(span_notice("[user] is removing the bard from [src]..."), span_notice("I start removing the bard from [src]..."))
+		if(!do_after(user, 10 SECONDS, TRUE, src))
+			return
+		playsound(loc, 'sound/foley/saddledismount.ogg', 100, FALSE)
+		user.visible_message(span_notice("[user] removes the bard from [src]."), span_notice("I remove the bard from [src]."))
+		var/obj/item/clothing/barding/B = bbarding
+		bbarding = null
+		B.forceMove(get_turf(src))
+		user.put_in_hands(B)
+		update_icon()
+		return
+	else if(ssaddle)
+		user.visible_message(span_notice("[user] is removing the saddle from [src]..."), span_notice("I start removing the saddle from [src]..."))
+		if(!do_after(user, 5 SECONDS, TRUE, src))
+			return
+		playsound(loc, 'sound/foley/saddledismount.ogg', 100, FALSE)
+		user.visible_message(span_notice("[user] removes the saddle from [src]."), span_notice("I remove the saddle from [src]."))
+		var/obj/item/natural/saddle/S = ssaddle
+		ssaddle = null
+		S.forceMove(get_turf(src))
+		user.put_in_hands(S)
+		update_icon()
+		return
+	return ..()
+
+/mob/living/simple_animal/update_icon()
+	cut_overlays()
+	. = ..()
+	var/barding_layer = 6
+	var/caparison_layer = 5
+	if(caparison_over_barding)
+		caparison_layer = 6
+		barding_layer = 5
+
+	if(stat == CONSCIOUS && !resting)
+		if(ccaparison)
+			var/caparison_overlay_string = ccaparison.female_caparison_state && gender == FEMALE ? ccaparison.female_caparison_state : ccaparison.caparison_state
+
+			var/mutable_appearance/caparison_overlay = mutable_appearance(ccaparison.caparison_icon, caparison_overlay_string, caparison_layer)
+			caparison_overlay.color = ccaparison.color
+			caparison_overlay.appearance_flags = RESET_ALPHA|RESET_COLOR
+			add_overlay(caparison_overlay)
+			if(ccaparison.detail_state)
+				var/mutable_appearance/detail_overlay = mutable_appearance(ccaparison.caparison_icon, caparison_overlay_string + "_" + ccaparison.detail_state, caparison_layer)
+				detail_overlay.color = ccaparison.detail_color
+				detail_overlay.appearance_flags = RESET_ALPHA|RESET_COLOR
+				add_overlay(detail_overlay)
+
+			var/mutable_appearance/caparison_above_overlay = mutable_appearance(ccaparison.caparison_icon, caparison_overlay_string + "-above", caparison_layer - 0.69)
+			caparison_above_overlay.color = ccaparison.color
+			caparison_above_overlay.appearance_flags = RESET_ALPHA|RESET_COLOR
+			add_overlay(caparison_above_overlay)
+			if(ccaparison.detail_state)
+				var/mutable_appearance/detail_above_overlay = mutable_appearance(ccaparison.caparison_icon, caparison_overlay_string + "_" + ccaparison.detail_state + "-above", caparison_layer - 0.69)
+				detail_above_overlay.color = ccaparison.detail_color
+				detail_above_overlay.appearance_flags = RESET_ALPHA|RESET_COLOR
+				add_overlay(detail_above_overlay)
+
+		if(bbarding)
+			var/barding_overlay = bbarding.female_barding_state && gender == FEMALE ? bbarding.female_barding_state : bbarding.barding_state
+			var/mutable_appearance/barding_base_overlay = mutable_appearance(bbarding.barding_icon, barding_overlay, barding_layer)
+			barding_base_overlay.appearance_flags = RESET_ALPHA|RESET_COLOR
+			var/mutable_appearance/barding_above_overlay = mutable_appearance(bbarding.barding_icon, barding_overlay + "-above", barding_layer - 0.69)
+			barding_above_overlay.appearance_flags = RESET_ALPHA|RESET_COLOR
+			add_overlay(barding_base_overlay)
+			add_overlay(barding_above_overlay)
 
 ///Extra effects to add when the mob is tamed, such as adding a riding component
 /mob/living/simple_animal/proc/tamed(mob/user)
@@ -252,7 +360,6 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	if(user)
 		owner = user
 		SEND_SIGNAL(user, COMSIG_ANIMAL_TAMED, src)
-	return
 
 //mob/living/simple_animal/examine(mob/user)
 //	. = ..()
@@ -418,12 +525,32 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 				if(used_time <= 0 || do_after(user, used_time, target = src))
 					butcher(user, on_meathook)
 
+	else if (stat != DEAD && istype(ssaddle, /obj/item/natural/saddle) && bbarding && ccaparison)
+		var/pick = alert(user, "What would you like to do?", "[src.name]", "Adjust caparison", "Look through the saddle bags")
+		if(!pick)
+			pick = "Look through the saddle bags"
+		switch(pick)
+			if("Adjust caparison")
+				caparison_over_barding = !caparison_over_barding
+				to_chat(user, span_info("I [caparison_over_barding ? "adjust [ccaparison] to cover [bbarding]" : "adjust [ccaparison] to be under [bbarding]"]."))
+				update_icon()
+			if("Look through the saddle bags")
+				var/datum/component/storage/saddle_storage = ssaddle.GetComponent(/datum/component/storage)
+				var/access_time = (user in buckled_mobs) ? 10 : 30
+				if (do_after(user, access_time, target = src))
+					saddle_storage.show_to(user)
+	else if(bbarding && ccaparison)
+		caparison_over_barding = !caparison_over_barding
+		to_chat(user, span_info("I [caparison_over_barding ? "adjust [ccaparison] to cover [bbarding]" : "adjust [ccaparison] to be under [bbarding]"]."))
+		update_icon()
 	else if (stat != DEAD && istype(ssaddle, /obj/item/natural/saddle))		//Fallback saftey for saddles
 		var/datum/component/storage/saddle_storage = ssaddle.GetComponent(/datum/component/storage)
 		var/access_time = (user in buckled_mobs) ? 10 : 30
 		if (do_after(user, access_time, target = src))
 			saddle_storage.show_to(user)
 	..()
+
+// Caustic Edit - Keeping most of it the same, just changing how it handles failed butchers and spawn a gib on a neighboring tile instead of just exploding at the end.
 
 /mob/living/simple_animal/proc/butcher(mob/living/user, on_meathook = FALSE)
 	if(ssaddle)
@@ -461,6 +588,9 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	var/perfect_count = 0
 	var/normal_count = 0
 
+	var/list/dna_to_add // Copied over from the gibspawner.dm and trimmed down, so that gibs have a bloodtype? If it matters?
+	dna_to_add = list("Non-human DNA" = random_blood_type())
+
 	for(var/path in butcher_results)
 		var/amount = butcher_results[path]
 		if(!do_after(user, time_per_cut, target = src))
@@ -472,6 +602,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 		// Check for botch first
 		if(prob(botch_chance))
+			botched_gib(dna_to_add)
 			botch_count++
 			if(length(botched_butcher_results) && (path in botched_butcher_results))
 				amount = botched_butcher_results[path]
@@ -502,8 +633,73 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 			user.mind.add_sleep_experience(/datum/skill/labor/butchering, user.STAINT * 0.5)
 		playsound(src, 'sound/foley/gross.ogg', 100, FALSE)
 	if(isemptylist(butcher_results))
+		if(head_butcher)
+			var/obj/item/natural/head/head = new head_butcher(Tsec)
+			var/head_quality = 0
+			switch(butchery_skill_level)
+				if(SKILL_LEVEL_NONE to SKILL_LEVEL_NOVICE)
+					head_quality = 0
+				if(SKILL_LEVEL_APPRENTICE)
+					head_quality = 1
+					if(prob(user.STALUC))
+						head_quality = 2
+				if(SKILL_LEVEL_JOURNEYMAN)
+					head_quality = 2
+				if(SKILL_LEVEL_EXPERT to INFINITY)
+					head_quality = 3
+			if(rotstuff)
+				head_quality = -1
+			head.scale_butchering_quality(head_quality)
 		to_chat(user, "<span class='notice'>I finish butchering: [butcher_summary(botch_count, normal_count, perfect_count, botch_chance, perfect_chance)].</span>")
-		gib()
+		clean_gib(dna_to_add)
+
+// This will choose a random adjacent tile to spawn a gib on, and then edit it's offset accordingly so it's closer to the body
+/mob/living/simple_animal/proc/botched_gib(list/dna_to_add)
+	var/dir = pick(list(WEST, EAST, SOUTH, NORTH))
+
+	var/gibType = /obj/effect/decal/cleanable/blood/gibs
+	var/obj/effect/decal/cleanable/blood/gibs/gib = new gibType(src.loc)
+	gib.add_blood_DNA(dna_to_add)
+
+	if (step_to(gib, get_step(gib, dir), 0))
+		if (dir == NORTH)
+			gib.pixel_y = -11
+		if (dir == SOUTH)
+			gib.pixel_y = 11
+		if (dir == EAST)
+			gib.pixel_x = -11
+		if (dir == WEST)
+			gib.pixel_x = 11
+		gib.pixel_x += rand(-2,2)
+		gib.pixel_y += rand(-2,2)
+	else
+		if (dir == NORTH)
+			gib.pixel_y = 8
+		if (dir == SOUTH)
+			gib.pixel_y = -8
+		if (dir == EAST)
+			gib.pixel_x = 8
+		if (dir == WEST)
+			gib.pixel_x = -8
+		gib.pixel_x += rand(-2,2)
+		gib.pixel_y += rand(-2,2)
+
+// This proc is entirely new for the changes to butchery
+/mob/living/simple_animal/proc/clean_gib(list/dna_to_add)
+	if(stat != DEAD)
+		death(TRUE)
+	if(client)
+		SSdroning.kill_droning(client)
+	playsound(src.loc, pick('sound/combat/gib (1).ogg','sound/combat/gib (2).ogg'), 40, FALSE, 2)
+
+	spill_embedded_objects()
+
+	var/gibType = /obj/effect/decal/cleanable/blood/gibs/core
+	var/obj/effect/decal/cleanable/blood/gibs/gib = new gibType(src.loc)
+	gib.add_blood_DNA(dna_to_add)
+	qdel(src)
+
+// Caustic Edit End
 
 /mob/living/proc/butcher_summary(botch_count, normal_count, perfect_count, botch_chance, perfect_chance)
     var/list/parts = list()
@@ -552,9 +748,8 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	return //RTCHANGE
 
 /mob/living/simple_animal/proc/drop_loot()
-	if(loot.len)
-		for(var/i in loot)
-			new i(loc)
+	for(var/i in loot) // If someone puts a turf in this list I'm going to kill you.
+		new i(loc)
 
 /mob/living/simple_animal/death(gibbed)
 	movement_type &= ~FLYING
@@ -580,6 +775,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 			transform = transform.Turn(180)
 		density = FALSE
 		..()
+	update_icon()
 
 /mob/living/simple_animal/proc/CanAttack(atom/the_target)
 	if(binded)
@@ -989,9 +1185,11 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 /mob/living/simple_animal/Moved()
 	. = ..()
-	update_grid()
+	if(world.time >= next_grid_update_time)
+		update_grid()
 
 /mob/living/simple_animal/proc/update_grid()
+	next_grid_update_time = world.time + 5
 	var/turf/our_turf = get_turf(src)
 	if(isnull(our_turf) || isnull(our_cells))
 		return

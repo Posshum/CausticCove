@@ -31,6 +31,9 @@
 		TRAIT_GRABIMMUNE,
 		TRAIT_STRONGBITE,
 		TRAIT_LYCANRESILENCE,
+		TRAIT_CHUNKYFINGERS, //So they can no longer use weapons at all.
+		TRAIT_UNLYCKERABLE, //Literal archenemy
+		TRAIT_ZOMBIE_IMMUNE
 	)
 	confess_lines = list(
 		"THE BEAST INSIDE ME!",
@@ -42,6 +45,8 @@
 	var/transformed
 	var/transforming
 	var/untransforming
+	var/resisting_transformation = FALSE // Caustic Edit
+	var/ignore_transformation_resist = FALSE // Caustic Edit
 	var/wolfname = "Verewolf"
 
 /datum/antagonist/werewolf/lesser
@@ -56,10 +61,20 @@
 		return span_boldnotice("A young lupine kin.")
 	if(istype(examined_datum, /datum/antagonist/werewolf))
 		return span_boldnotice("An elder lupine kin.")
+	if(istype(examined_datum, /datum/antagonist/maniac))
+		return span_boldnotice("A fool.")
+	if(istype(examined_datum, /datum/antagonist/dreamwalker))
+		return span_boldnotice("The dreamer has this one in his grasp.")
+	if(istype(examined_datum, /datum/antagonist/gnoll))
+		return span_boldnotice("An abomination.")
 	if(examiner.Adjacent(examined))
+		if(istype(examined_datum, /datum/antagonist/lich))
+			return span_boldnotice("A deadite freek.")
 		if(istype(examined_datum, /datum/antagonist/vampire))
+			return span_boldnotice("A putrid vampyr, I should watch my back.")
+		if(istype(examined_datum, /datum/antagonist/vampire/lord))
 			if(transformed)
-				return span_boldwarning("An Ancient Vampire. I must be careful!")
+				return span_boldwarning("An ancient vampyr. I must be careful!")
 
 /datum/antagonist/werewolf/on_gain()
 	greet()
@@ -90,7 +105,7 @@
 		return
 
 /datum/antagonist/werewolf/greet()
-	to_chat(owner.current, span_userdanger("Since a bite long, long ago, Dendor's Madness has welled within me. Before the Moonlight, I will sate my hallowed Hunger."))
+	to_chat(owner.current, span_userdanger("I feel Dendor's madness welling within me. What was its cause... A bite? A curse? Perhaps a blessing? Regardless, the Moonlight calls to me like a siren's song. It promises to help me sate this excruciating Hunger...")) // Caustic Edit: Rewrote text to be a bit more ambiguous
 	return ..()
 
 /datum/antagonist/werewolf/lesser/greet()
@@ -105,6 +120,9 @@
 	if(mind.has_antag_datum(/datum/antagonist/werewolf))
 		return FALSE
 	if(mind.has_antag_datum(/datum/antagonist/skeleton))
+		return FALSE
+	//No cross species pollination!!!
+	if(mind.has_antag_datum(/datum/antagonist/gnoll))
 		return FALSE
 	if(HAS_TRAIT(src, TRAIT_SILVER_BLESSED))
 		return FALSE
@@ -159,7 +177,7 @@
 	body_parts_covered = FULL_BODY
 	body_parts_inherent = FULL_BODY
 	armor = ARMOR_WWOLF
-	prevent_crits = list(BCLASS_CUT, BCLASS_CHOP, BCLASS_STAB, BCLASS_BLUNT, BCLASS_TWIST, BCLASS_PICK, BCLASS_SMASH)
+	prevent_crits = PREVENT_CRITS_ALL
 	blocksound = SOFTHIT
 	blade_dulling = DULLING_BASHCHOP
 	sewrepair = FALSE
@@ -168,7 +186,6 @@
 	repair_time = 15 SECONDS
 	interrupt_damount = 35
 
-
 /datum/intent/simple/werewolf
 	name = "claw"
 	icon_state = "inchop"
@@ -176,13 +193,12 @@
 	attack_verb = list("claws", "mauls", "eviscerates")
 	animname = "chop"
 	hitsound = "genslash"
-	penfactor = 50
+	penfactor = 60
 	candodge = TRUE
 	canparry = TRUE
 	miss_text = "slashes the air!"
 	miss_sound = "bluntwooshlarge"
 	item_d_type = "slash"
-
 
 /datum/intent/mace/smash/werewolf
 	name = "thrash"
@@ -190,8 +206,7 @@
 	icon_state = "insmash"
 	maxrange = 5
 	chargetime = 1
-	penfactor = 50
-
+	penfactor = 60
 
 /obj/item/rogueweapon/werewolf_claw
 	name = "Verevolf Claw"
@@ -217,6 +232,7 @@
 	parrysound = list('sound/combat/parry/parrygen.ogg')
 	embedding = list("embedded_pain_multiplier" = 0, "embed_chance" = 0, "embedded_fall_chance" = 0)
 	item_flags = DROPDEL
+	special = /datum/special_intent/axe_swing	//Good pairing for area denial for WW's.
 
 /obj/item/rogueweapon/werewolf_claw/right
 	icon_state = "claw_r"

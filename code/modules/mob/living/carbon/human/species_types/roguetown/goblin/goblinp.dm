@@ -4,6 +4,10 @@
 /datum/species/goblinp
 	name = "Goblin"
 	id = "goblinp"
+	origin_default = /datum/virtue/origin/gronn
+	origin = "Gronn"
+	base_name = "Godtouched"
+	is_subrace = TRUE
 	desc = "<b>Goblin</b><br>\
 	Goblins are a short race of humanoids with large ears and typically green skin. \
 	Supposedly formed from the blood spilled by the savage War God Graggar’s conquest, \
@@ -22,11 +26,13 @@
 	Goblins are also known to have an instinctual form of tribalism, \
 	wherein a large group of Goblins in an area seem to universally act in more primitive ways, \
 	often resulting in mischief - and sometimes violence.<br>\
-	(+1 Speed)" 
+	<span style='color: #6a8cb7;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;'><b>+1 SPD</b></span><br>" 
 	species_traits = list(EYECOLOR,LIPS,STUBBLE)
 	possible_ages = ALL_AGES_LIST
 	use_skintones = TRUE
+	default_features = MANDATORY_FEATURE_LIST
 	skin_tone_wording = "Skin Color"
+	use_skin_tone_wording_for_examine = FALSE
 	limbs_icon_m = 'icons/mob/species/anthro_small_male.dmi'
 	limbs_icon_f = 'icons/roguetown/mob/bodies/f/fd.dmi'
 	dam_icon = 'icons/roguetown/mob/bodies/dam/dam_male.dmi'
@@ -79,6 +85,7 @@
 		/datum/customizer/bodypart_feature/face_detail,
 		/datum/customizer/bodypart_feature/underwear,
 		/datum/customizer/bodypart_feature/legwear,
+		/datum/customizer/bodypart_feature/piercing,
 		/datum/customizer/organ/testicles/anthro,
 		/datum/customizer/organ/penis/anthro,
 		/datum/customizer/organ/breasts/human,
@@ -97,6 +104,7 @@
 	stress_examine = TRUE
 	stress_desc = span_red("Horrid little goblin...")
 	descriptor_choices = list(
+		/datum/descriptor_choice/trait,
 		/datum/descriptor_choice/height,
 		/datum/descriptor_choice/body,
 		/datum/descriptor_choice/stature,
@@ -129,7 +137,8 @@
 		"Frost" = SKIN_COLOR_FROST,
 		"Abyss" = SKIN_COLOR_ABYSS,
 		"Teal" = SKIN_COLOR_TEAL,
-		"Hadal" = SKIN_COLOR_HADAL
+		"Hadal" = SKIN_COLOR_HADAL,
+		"Pea" = SKIN_COLOR_PEA,
 	)
 
 /datum/species/goblinp/on_species_gain(mob/living/carbon/C, datum/species/old_species)

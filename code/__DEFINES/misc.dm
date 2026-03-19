@@ -33,9 +33,9 @@
 #define LEG_PART_LAYER			40
 #define LEGWEAR_LAYER			39
 #define PANTS_LAYER				38
-#define SHOES_LAYER				37
-#define LEG_DAMAGE_LAYER		36
-#define LEGSLEEVE_LAYER			35
+#define LEG_DAMAGE_LAYER		37
+#define LEGSLEEVE_LAYER			36
+#define SHOES_LAYER				35
 #define SHOESLEEVE_LAYER		34
 #define SHIRT_LAYER				33
 #define WRISTS_LAYER			32
@@ -83,6 +83,8 @@
 //AND -1 MEANS "ABOVE", OK?, OK!?!
 #define ABOVE_SHOES_LAYER			(SHOES_LAYER-1)
 //Caustic Cove edit, just puts this on top of all the other new layers. Also defining in seperate file doesn't work, likely because it doesn't see the above in a seperate file.
+#define BODY_ASS_LAYER				(LEG_PART_LAYER-1)
+#define BODY_NOTSOFRONT_LAYER		(BODY_FRONT_LAYER+1)
 #define BODY_FRONTER_LAYER			(BODY_FRONT_LAYER-1) // Makes mini-layers on your layers without having to add any more actual layers! Used for proper organ layers
 #define BODY_FRONTEST_LAYER			(BODY_FRONT_LAYER-2)
 #define ABOVE_BODY_FRONT_LAYER		(BODY_FRONT_LAYER-3)

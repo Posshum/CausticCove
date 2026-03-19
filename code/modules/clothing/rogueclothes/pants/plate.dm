@@ -1,13 +1,12 @@
 /obj/item/clothing/under/roguetown/platelegs
 	name = "steel plate chausses"
-	desc = "Reinforced armor to protect the legs."
+	desc = "Armored leggings, covered in segmented plates of steel. The trouseres beneath are lined with quilted cloth, ensuring that neither pintle-nor-gudgeon shall succumb to the motions-of-war."
 	gender = PLURAL
 	icon_state = "plate_legs"
 	item_state = "plate_legs"
 //	adjustable = CAN_CADJUST
 	sewrepair = FALSE
 	armor = ARMOR_PLATE
-	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT)
 	blocksound = PLATEHIT
 	max_integrity = ARMOR_INT_LEG_STEEL_PLATE
 	drop_sound = 'sound/foley/dropsound/armor_drop.ogg'
@@ -20,41 +19,51 @@
 	smelt_bar_num = 2
 	resistance_flags = FIRE_PROOF
 	armor_class = ARMOR_CLASS_HEAVY
+	sellprice = 40
 
 /obj/item/clothing/under/roguetown/platelegs/Initialize(mapload)
 	. = ..()
-	AddComponent(/datum/component/item_equipped_movement_rustle, SFX_PLATE_STEP)
+	AddComponent(/datum/component/item_equipped_movement_rustle, SFX_PLATE_STEP, 8)
+	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FENCERDEXTERITY)
+	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
 
 /obj/item/clothing/under/roguetown/platelegs/iron
 	name = "iron plate chausses"
-	desc = "Reinforced armor to protect the legs."
+	desc = "Armored leggings, covered in segmented plates of iron. The leather trousers beneath do chafe under longer marches, but it's nothing that a smidge of smeared fat can't soothe."
 	icon_state = "iplate_legs"
 	item_state = "iplate_legs"
 	max_integrity = ARMOR_INT_LEG_IRON_PLATE
 	smeltresult = /obj/item/ingot/iron
+	sellprice = 20
 
 /obj/item/clothing/under/roguetown/platelegs/aalloy
 	name = "decrepit plate chausses"
 	desc = "Frayed bronze plates, shingled over chausses of rotting leather-and-maille. Voided bowels are all that remains of its former legionnaire."
-	icon_state = "ancientplate_legs"
+	icon_state = "ancientpants"
 	max_integrity = ARMOR_INT_LEG_DECREPIT_PLATE
 	color = "#bb9696"
+	chunkcolor = "#532e25"
+	material_category = ARMOR_MAT_PLATE
 	smeltresult = /obj/item/ingot/aaslag
 	anvilrepair = null
+	prevent_crits = PREVENT_CRITS_NONE
+	sellprice = 10
 
 /obj/item/clothing/under/roguetown/platelegs/paalloy
 	name = "ancient plate chausses"
 	desc = "Polished gilbranze plates, layered atop silken chausses. Only the few who had embraced undeath were spared from Zizo's ascension; now, they command the undying legionnaires who march forth to sunder creation in Her name."
-	icon_state = "ancientplate_legs"
+	icon_state = "ancientpants"
 	smeltresult = /obj/item/ingot/aaslag
+	sellprice = 10
 
 /obj/item/clothing/under/roguetown/platelegs/graggar
 	name = "vicious leggings"
-	desc = "Plate chausses which stir with the innate violence driving our world"
+	desc = "Fluted chausses, marinated in the afterbirth of disemboweled tyrants. Never kneel, again - never fall, again; cripple the ones who sought to keep you a slave, and force them to see the monster they've made of you."
 	icon_state = "graggarplatelegs"
 	armor = ARMOR_ASCENDANT
 	max_integrity = ARMOR_INT_LEG_STEEL_PLATE // Good good resistances, but less crit resist than the other ascendant armors. In trade, we can take off our pants to repair, and they are medium rather than heavy.
-	armor = ARMOR_CLASS_MEDIUM
+	armor_class = ARMOR_CLASS_MEDIUM
+	sellprice = 100 //Heretical~
 
 /obj/item/clothing/under/roguetown/platelegs/graggar/Initialize(mapload)
 	. = ..()
@@ -65,12 +74,14 @@
 	name = "gilded leggings"
 	desc = "But my outside to behold:"
 	icon_state = "matthioslegs"
-	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT, BCLASS_SMASH, BCLASS_PICK)
+	prevent_crits = PREVENT_CRITS_ALL
 	armor = ARMOR_ASCENDANT
-/*caustic edit start
+	sellprice = 100 //Heretical~
+
+/* //Caustic Edit - Allow dropping of Heretic Armors (so fun can happen :P)
 /obj/item/clothing/under/roguetown/platelegs/matthios/Initialize()
 	. = ..()
-	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
+	//ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT) //Casutic Edit - Allow dropping of Heretic Armors (so fun can happen :P)
 	AddComponent(/datum/component/cursed_item, TRAIT_COMMIE, "ARMOR")
 
 /obj/item/clothing/under/roguetown/platelegs/matthios/dropped(mob/living/carbon/human/user)
@@ -78,19 +89,21 @@
 	if(QDELETED(src))
 		return
 	qdel(src)
-*///caustic edit end
+*/ //Caustic Edit End
 
 /obj/item/clothing/under/roguetown/platelegs/zizo
 	max_integrity = ARMOR_INT_LEG_ANTAG
 	name = "avantyne garments"
-	desc = "Leg garments worn by true anointed of the Dame of Progress. In Her name."
+	desc = "An unstemmable cognitovirus, laminated into thrice-parted leggings worn by only the truest - those, anointed by the Dame of Progress. In Her name."
 	icon_state = "zizocloth"
 	armor = ARMOR_ASCENDANT
-	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT, BCLASS_SMASH, BCLASS_PICK)
-/*caustic edit start
+	prevent_crits = PREVENT_CRITS_ALL
+	sellprice = 100 //Heretical~
+
+/* //Caustic Edit - Allow dropping of Heretic Armors (so fun can happen :P)
 /obj/item/clothing/under/roguetown/platelegs/zizo/Initialize()
 	. = ..()
-	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
+	//ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT) //Caustic Edit - Allow dropping of Heretic Armors
 	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "ARMOR")
 
 /obj/item/clothing/under/roguetown/platelegs/zizo/dropped(mob/living/carbon/human/user)
@@ -98,10 +111,11 @@
 	if(QDELETED(src))
 		return
 	qdel(src)
-*///caustic edit end
+*/ //Caustic Edit End
+
 /obj/item/clothing/under/roguetown/platelegs/zizo/Initialize(mapload)
 	. = ..()
-	AddComponent(/datum/component/item_equipped_movement_rustle, SFX_PLATE_STEP)
+	AddComponent(/datum/component/item_equipped_movement_rustle, SFX_PLATE_STEP, 8)
 
 /obj/item/clothing/under/roguetown/platelegs/skirt
 	name = "steel plate tassets"
@@ -111,3 +125,4 @@
 	item_state = "plate_skirt"
 	body_parts_covered = GROIN
 	armor_class = ARMOR_CLASS_LIGHT
+	sellprice = 38

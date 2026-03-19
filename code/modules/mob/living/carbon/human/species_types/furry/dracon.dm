@@ -4,9 +4,13 @@
 /datum/species/dracon
 	name = "Drakian"
 	id = "dracon"
+	is_subrace = TRUE
+	origin_default = /datum/virtue/origin/grenzelhoft
+	origin = "Grenzelhoft"
+	base_name = "Zard"
 	desc = "<b>Drakian</b><br>\
 	Mighty scaled individuals who claim to be descendants of the dragons of yore.<br>\
-	(+1 Strength)"
+	<span style='color: #6a8cb7;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;'><b>+1 STR</b></span><br>"
 	species_traits = list(EYECOLOR,LIPS,STUBBLE,MUTCOLORS)
 	///Caustic edit
 	allowed_taur_types = list(
@@ -16,6 +20,8 @@
 		/obj/item/bodypart/taur/altnaga,
 		/obj/item/bodypart/taur/altnagatailmaw,
 		/obj/item/bodypart/taur/fatnaga,
+		/obj/item/bodypart/taur/biglegs,
+		/obj/item/bodypart/taur/biglegsstanced,
 	)
 	///Caustic edit end
 	possible_ages = ALL_AGES_LIST
@@ -75,6 +81,7 @@
 		/datum/customizer/bodypart_feature/face_detail,
 		/datum/customizer/bodypart_feature/underwear,
 		/datum/customizer/bodypart_feature/legwear,
+		/datum/customizer/bodypart_feature/piercing,
 		/datum/customizer/organ/wings/dracon,
 		/datum/customizer/organ/tail/lizard,
 		/datum/customizer/organ/tail_feature/lizard_spines,

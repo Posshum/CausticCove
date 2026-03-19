@@ -16,7 +16,7 @@
 	see_in_dark = 6
 	ventcrawler = VENTCRAWLER_ALWAYS
 	pass_flags = PASSTABLE
-	mob_size = MOB_SIZE_SMALL
+	mob_size = MOB_SMALL
 	density = FALSE // moveblocking cat is annoying as hell
 	pass_flags = PASSMOB
 	mob_biotypes = MOB_ORGANIC|MOB_BEAST
@@ -94,7 +94,7 @@
 
 /mob/living/simple_animal/pet/cat/rogue/black
 	name = "black cat"
-	desc = "Possessed of lamplike eyes and a meow that sounds like the rattle of bones. Black cats are sacred to Necra, said to bring wandering spirits to the Carriageman."
+	desc = "Possessed of lamplike eyes and a meow that sounds like the rattle of bones. Black cats are sacred to Necra, said to bring wandering spirits to the Ferryman."
 	gender = FEMALE
 	icon = 'icons/roguetown/topadd/takyon/Cat.dmi'
 	icon_state = "cat"
@@ -125,7 +125,7 @@
 	icon_dead = "kitten_dead"
 	density = FALSE
 	pass_flags = PASSMOB
-	mob_size = MOB_SIZE_SMALL
+	mob_size = MOB_SMALL
 
 //RUNTIME IS ALIVE! SQUEEEEEEEE~
 /mob/living/simple_animal/pet/cat/Runtime

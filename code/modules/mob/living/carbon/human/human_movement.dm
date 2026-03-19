@@ -46,15 +46,15 @@
 		if(hostagetaker) // If we are TAKEN hostage. Confusing vars at first but then it makes sense.
 			attackhostage()
 
-		if(wear_armor)
+		if(wear_armor && istype(wear_armor, /obj/item/clothing)) //CC Edit: More powder flask shitcode runtimes
 			if(mobility_flags & MOBILITY_STAND)
 				wear_armor.step_action()
 
-		if(wear_shirt)
+		if(wear_shirt && istype(wear_shirt, /obj/item/clothing)) //CC Edit: More powder flask shitcode runtimes
 			if(mobility_flags & MOBILITY_STAND)
 				wear_shirt.step_action()
 
-		if(cloak)
+		if(cloak && istype(cloak, /obj/item/clothing)) //CC Edit: More powder flask shitcode runtimes
 			if(mobility_flags & MOBILITY_STAND)
 				var/obj/item/clothing/C = isclothing(cloak) ? cloak : null
 				C?.step_action()
@@ -84,6 +84,11 @@
 			if(src.mind?.has_antag_datum(/datum/antagonist/zombie) && (!src.handcuffed) && prob(50))
 				visible_message(span_warning("[src] spits out [mouth]."))
 				dropItemToGround(mouth, silent = FALSE)
+
+		if(istype(get_turf(src), /turf/open/floor/rogue/snow) && !HAS_TRAIT(src, TRAIT_LIGHT_STEP))
+			var/obj/effect/decal/cleanable/blood/footprints/mud/mudprint = new /obj/effect/decal/cleanable/blood/footprints/mud(get_turf(src))
+			mudprint.entered_dirs |= dir
+			mudprint.update_icon()
 
 // ===== MOUNTING PONIES =====
 

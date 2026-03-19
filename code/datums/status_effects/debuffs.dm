@@ -140,7 +140,7 @@
 /atom/movable/screen/alert/status_effect/asleep
 	name = "Asleep"
 	desc = ""
-	icon_state = "asleep"
+	icon_state = "sleeping"
 
 //STASIS
 /datum/status_effect/incapacitating/stasis
@@ -793,10 +793,21 @@
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/baitedcd
 	duration = 30 SECONDS
 
+/datum/status_effect/debuff/baitcd/on_creation(mob/living/new_owner, new_dur)
+	if(new_dur)
+		duration = new_dur
+	return ..()
+	
+
 /atom/movable/screen/alert/status_effect/debuff/feintcd
 	name = "Feint Cool down"
 	desc = "I used it. I must wait, or risk a lower chance of success."
 	icon_state = "feintcd"
+
+/atom/movable/screen/alert/status_effect/debuff/feinted
+	name = "Feinted"
+	desc = "I've been feinted. It won't happen again so soon."
+	icon_state = "feinted"
 
 
 /atom/movable/screen/alert/status_effect/debuff/clashcd
@@ -819,6 +830,11 @@
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/clashcd
 	duration = 30 SECONDS
 
+/datum/status_effect/debuff/clashcd/on_creation(mob/living/new_owner, new_dur)
+	if(new_dur)
+		duration = new_dur
+	return ..()
+
 /datum/status_effect/debuff/specialcd
 	id = "specialcd"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/specialcd
@@ -837,7 +853,7 @@
 
 /atom/movable/screen/alert/status_effect/debuff/exposed
 	name = "Exposed"
-	desc = "My defenses are exposed. I can be hit through my parry and dodge!"
+	desc = "My defenses are completely exposed. I can be hit through my parry and dodge to great effect!"
 	icon_state = "exposed"
 
 /datum/status_effect/debuff/exposed
@@ -853,12 +869,46 @@
 		duration = new_dur
 	return ..()
 
+/atom/movable/screen/alert/status_effect/debuff/vulnerable
+	name = "Vulnerable"
+	desc = "A mistake. I can be hit through my parry and dodge to a lighter effect!"
+	icon_state = "vulnerable"
+	icon = 'icons/mob/combat_debuffs.dmi'
+
+/datum/status_effect/debuff/vulnerable
+	id = "nofeintlite"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/vulnerable
+	duration = 10 SECONDS
+	mob_effect_icon = 'icons/mob/mob_effects.dmi'
+	mob_effect_icon_state = "eff_vulnerable"
+	mob_effect_layer = MOB_EFFECT_LAYER_VULNERABLE
+
+/datum/status_effect/debuff/vulnerable/on_creation(mob/living/new_owner, new_dur)
+	if(new_dur)
+		duration = new_dur
+	return ..()
+
+
 /datum/status_effect/debuff/feintcd
 	id = "feintcd"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/feintcd
 	duration = 30 SECONDS
 
 /datum/status_effect/debuff/feintcd/on_creation(mob/living/new_owner, new_dur)
+	if(new_dur)
+		duration = new_dur
+	return ..()
+
+/datum/status_effect/debuff/feinted
+	id = "feinted"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/feinted
+	mob_effect_icon = 'icons/mob/mob_effects.dmi'
+	mob_effect_icon_state = "eff_feinted"
+	mob_effect_offset_y = 10
+	mob_effect_layer = MOB_EFFECT_LAYER_FEINTED
+	duration = 30 SECONDS
+
+/datum/status_effect/debuff/feinted/on_creation(mob/living/new_owner, new_dur)
 	if(new_dur)
 		duration = new_dur
 	return ..()

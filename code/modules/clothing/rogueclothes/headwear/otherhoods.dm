@@ -17,6 +17,7 @@
 	blocksound = SOFTHIT
 	salvage_result = /obj/item/natural/hide
 	salvage_amount = 1
+	sellprice = 20
 
 /obj/item/clothing/head/roguetown/beekeeper
 	name = "beekeeper's hood"
@@ -37,6 +38,7 @@
 	toggle_icon_state = FALSE
 	max_integrity = 100
 	sewrepair = TRUE
+	sellprice = 20
 
 /obj/item/clothing/head/roguetown/necrahood
 	name = "death shroud"
@@ -47,10 +49,11 @@
 	flags_inv = HIDEEARS|HIDEFACE|HIDEHAIR|HIDEFACIALHAIR|HIDESNOUT
 	dynamic_hair_suffix = ""
 	sewrepair = TRUE
+	sellprice = 20
 
 /obj/item/clothing/head/roguetown/necramask
 	name = "death mask"
-	desc = "A hood with a decorated jaw bone at the chin, normally worn by some followers of Necra as a form of devotion"
+	desc = "A hood with a decorated jaw bone at the chin, normally worn by some followers of Necra as a form of devotion."
 	color = null
 	icon_state = "deathface"
 	item_state = "deathface"
@@ -62,6 +65,7 @@
 	dynamic_hair_suffix = ""
 	sewrepair = TRUE
 	mask_override = TRUE
+	sellprice = 20
 
 /obj/item/clothing/head/roguetown/dendormask
 	name = "briarmask"
@@ -77,6 +81,7 @@
 	dynamic_hair_suffix = ""
 	sewrepair = TRUE
 	mask_override = TRUE
+	sellprice = 20
 
 /obj/item/clothing/head/roguetown/necromhood
 	name = "necromancers hood"
@@ -87,6 +92,7 @@
 	flags_inv = HIDEEARS|HIDEFACE|HIDEHAIR|HIDEFACIALHAIR|HIDESNOUT
 	dynamic_hair_suffix = ""
 	sewrepair = TRUE
+	sellprice = 20
 
 /obj/item/clothing/head/roguetown/menacing
 	name = "sack hood"
@@ -102,6 +108,14 @@
 /obj/item/clothing/head/roguetown/menacing/bandit
 	icon_state = "bandithood"
 
+/obj/item/clothing/head/roguetown/menacing/executioner
+	name = "executioners hood"
+	icon_state = "dungeoneer"
+	color = null
+
+/obj/item/clothing/head/roguetown/menacing/executioner/ComponentInitialize()
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_JAILOR, "dungeoneer")
+
 /obj/item/clothing/head/roguetown/jester
 	name = "jester's hat"
 	desc = "A funny-looking hat with jingly bells attached to it."
@@ -115,6 +129,7 @@
 	detail_color = CLOTHING_WHITE
 	color = CLOTHING_AZURE
 	altdetail_color = CLOTHING_WHITE
+	sellprice = 77.7 //It's funny and pricy!
 
 /obj/item/clothing/head/roguetown/jester/update_icon()
 	cut_overlays()

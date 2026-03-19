@@ -1,6 +1,9 @@
 /mob/living/simple_animal/hostile/retaliate/rogue/fae/sprite
 	icon = 'icons/mob/summonable/32x32.dmi'
 	name = "sprite"
+	desc = "This is a sprite, a particularly small manner of fae-creature known often to surround \
+	groves frequented by their kind. Often taken as a sign of good luck, although they are occasionally \
+	mistaken for Will-o'-the-wisps."
 	icon_state = "sprite"
 	icon_living = "sprite"
 	icon_dead = "vvd"
@@ -57,12 +60,12 @@
 /mob/living/simple_animal/hostile/retaliate/rogue/fae/sprite/death(gibbed)
 	..()
 	var/turf/deathspot = get_turf(src)
-	new /obj/item/magic/fairydust(deathspot)
-	new /obj/item/magic/fairydust(deathspot)
-	new /obj/item/magic/fairydust(deathspot)
-	new /obj/item/magic/fairydust(deathspot)
-	new /obj/item/magic/fairydust(deathspot)
-	new /obj/item/magic/fairydust(deathspot)
+	new /obj/item/magic/fae/fairydust(deathspot)
+	new /obj/item/magic/fae/fairydust(deathspot)
+	new /obj/item/magic/fae/fairydust(deathspot)
+	new /obj/item/magic/fae/fairydust(deathspot)
+	new /obj/item/magic/fae/fairydust(deathspot)
+	new /obj/item/magic/fae/fairydust(deathspot)
 	update_icon()
 	sleep(1)
 	qdel(src)

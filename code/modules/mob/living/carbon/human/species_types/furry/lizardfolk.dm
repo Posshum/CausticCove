@@ -4,14 +4,18 @@
 /datum/species/lizardfolk
 	name = "Zardman"
 	id = "lizardfolk"
+	origin_default = /datum/virtue/origin/etrusca
+	origin = "Etrusca"
+	base_name = "Zard"
 	desc = "<b>Zardman</b><br>\
 	Zardmen are semi-aquatic reptilian humanoids. \
 	Their flesh is covered in scales varying in color from dark green to shades of brown and gray. \
 	Taller than humans and powerfully built, zardmen are often between 6 and 7 feet tall. \
 	Zardmen have non-prehensile muscular tails that grow to three or four feet in length, and these are used for balance. \
 	They also have sharp claws and teeth.<br>\
-	(+1 Constitution, +1 Willpower)"
+	<span style='color: #6a8cb7;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;'><b>+1 CON | +1 WIL </b></span><br>"
 	skin_tone_wording = "Skin Colors"
+	use_skin_tone_wording_for_examine = FALSE
 	species_traits = list(EYECOLOR,LIPS,STUBBLE,MUTCOLORS)
 	///Caustic edit
 	allowed_taur_types = list(
@@ -21,6 +25,8 @@
 		/obj/item/bodypart/taur/altnaga,
 		/obj/item/bodypart/taur/altnagatailmaw,
 		/obj/item/bodypart/taur/fatnaga,
+		/obj/item/bodypart/taur/biglegs,
+		/obj/item/bodypart/taur/biglegsstanced,
 	)
 	///Caustic edit end
 	possible_ages = ALL_AGES_LIST
@@ -79,6 +85,7 @@
 		/datum/customizer/bodypart_feature/face_detail,
 		/datum/customizer/bodypart_feature/underwear,
 		/datum/customizer/bodypart_feature/legwear,
+		/datum/customizer/bodypart_feature/piercing,
 		/datum/customizer/organ/tail/lizard,
 		/datum/customizer/organ/tail_feature/lizard_spines,
 		/datum/customizer/organ/snout/lizard,

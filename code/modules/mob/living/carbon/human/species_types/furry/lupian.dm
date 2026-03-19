@@ -4,13 +4,17 @@
 /datum/species/lupian
 	name = "Lupian"
 	id = "lupian"
+	is_subrace = TRUE
+	origin_default = /datum/virtue/origin/hammerhold
+	origin = "Hammerhold"
+	base_name = "Beastvolk"
 	desc = "<b>Lupian</b><br>\
 	As written by an Archivist from times before yours: Lupians, known by many as Volfmen, are a very prominent type of Beastkin that is easily found all across Psydonia. \
 	They are oft tall and slim, carrying with them a coat of discoloured short or medium length fur. \
 	Their bodies are naturally resilient and their minds as sharp as a Humen's own. \
 	A Lupian will usually display loyalty to a fault, as they are quite factional beings. \
 	Tales of old claim that they came to be when Noc stole Dendor’s curse to create lyfe of his own in an attempt to replicate Psydon’s, instead giving birth to a flawed beast-people.<br>\
-	(+1 Constitution, +1 Intelligence)"
+	<span style='color: #6a8cb7;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;'><b>+1 INT | +1 CON </b></span><br>"
 	skin_tone_wording = "Ascendance"
 	species_traits = list(
 		MUTCOLORS,
@@ -23,6 +27,8 @@
 		/obj/item/bodypart/taur/otie,
 		/obj/item/bodypart/taur/wolf,
 		/obj/item/bodypart/taur/fatwolf,
+		/obj/item/bodypart/taur/biglegs,
+		/obj/item/bodypart/taur/biglegsstanced,
 	)
 	///Caustic edit end
 	inherent_biotypes = MOB_ORGANIC|MOB_HUMANOID
@@ -83,6 +89,7 @@
 		/datum/customizer/bodypart_feature/face_detail,
 		/datum/customizer/bodypart_feature/underwear,
 		/datum/customizer/bodypart_feature/legwear,
+		/datum/customizer/bodypart_feature/piercing,
 		/datum/customizer/organ/tail/lupian,
 		/datum/customizer/organ/snout/lupian,
 		/datum/customizer/organ/ears/lupian,

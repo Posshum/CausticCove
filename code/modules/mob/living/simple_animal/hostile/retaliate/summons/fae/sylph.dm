@@ -1,6 +1,9 @@
 /mob/living/simple_animal/hostile/retaliate/rogue/fae/sylph
 	icon = 'icons/mob/summonable/32x32.dmi'
 	name = "sylph"
+	desc = "This creature shifts in the breeze as if it were constructed of fabric and \
+	nothing more. Its face, owl-like, is flanked by near-draconic wings. If this is one of the \
+	fae-folk, it must be one of their rulers."
 	icon_state = "sylph"
 	icon_living = "sylph"
 	icon_dead = "vvd"
@@ -95,15 +98,15 @@
 /mob/living/simple_animal/hostile/retaliate/rogue/fae/sylph/death(gibbed)
 	..()
 	var/turf/deathspot = get_turf(src)
-	new /obj/item/magic/sylvanessence(deathspot)
-	new /obj/item/magic/iridescentscale(deathspot)
-	new /obj/item/magic/iridescentscale(deathspot)
-	new /obj/item/magic/heartwoodcore(deathspot)
-	new /obj/item/magic/heartwoodcore(deathspot)
-	new /obj/item/magic/fairydust(deathspot)
-	new /obj/item/magic/fairydust(deathspot)
-	new /obj/item/magic/fairydust(deathspot)
-	new /obj/item/magic/fairydust(deathspot)
+	new /obj/item/magic/fae/sylvanessence(deathspot)
+	new /obj/item/magic/fae/iridescentscale(deathspot)
+	new /obj/item/magic/fae/iridescentscale(deathspot)
+	new /obj/item/magic/fae/heartwoodcore(deathspot)
+	new /obj/item/magic/fae/heartwoodcore(deathspot)
+	new /obj/item/magic/fae/fairydust(deathspot)
+	new /obj/item/magic/fae/fairydust(deathspot)
+	new /obj/item/magic/fae/fairydust(deathspot)
+	new /obj/item/magic/fae/fairydust(deathspot)
 	new /obj/item/magic/melded/t2(deathspot)
 	update_icon()
 	spill_embedded_objects()

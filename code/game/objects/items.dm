@@ -141,10 +141,12 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	var/datum/skill/associated_skill
 
 	var/list/possible_item_intents = list(/datum/intent/use)
+	var/saved_intent_index = 1 // Stores the last selected intent index when item is dropped
 
 	var/bigboy = FALSE //used to center screen_loc when in hand
 	var/wielded = FALSE
 	var/altgripped = FALSE
+	var/mordhau = FALSE //This weapon can mordhau, therefore we treat it as wielded in alt-grip.
 	var/list/alt_intents //these replace main intents
 	var/list/gripped_intents //intents while gripped, replacing main intents
 	var/force_wielded = 0
@@ -255,6 +257,24 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 
 	/// Makes this item impossible to enchant, for temporary item
 	var/unenchantable = FALSE
+
+	/// A lazylist to store inhands data.
+	var/list/onprop
+	var/d_type = "blunt"
+	var/force_reupdate_inhand = TRUE
+	/// Sanity for smelteries to avoid runtimes, if this is a bar smelted through ore for exp gain
+	var/smelted = FALSE
+	/// Determines whether this item is silver or not.
+	var/is_silver = FALSE
+	var/last_used = 0
+	var/toggle_state = null
+	var/icon_x_offset = 0
+	var/icon_y_offset = 0
+	var/always_destroy = FALSE
+	/// If TRUE, this item is not allowed to be minted. May be useful for other things later.
+	var/is_important = FALSE
+	/// does this item/weapon circumvent two-stage death during dismemberment? (do not add this to anything but ultra rare shit)
+	var/vorpal = FALSE
 
 /obj/item/Initialize()
 	. = ..()
@@ -484,7 +504,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	Both multiplication are applied to the base number, and does not multiply each other. Reduced sharpness decrease the contribution of strength\n\
 	Force, combined with armor penetration on an intent determines whether an attack penetrate the target's armor. Armor penetrating attack deals less damage to the armor itself."
 	if(href_list["showforce"])
-		var/output = span_info("Actual Force: ([force]). [additional_explanation]")
+		var/output = span_info("Actual Force: ([force_dynamic]). [additional_explanation]")
 		if(!usr.client.prefs.no_examine_blocks)
 			output = examine_block(output)
 		to_chat(usr, output)
@@ -498,7 +518,8 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	if(href_list["explainsharpness"])
 		var/output = span_info("Bladed weapons have sharpness. At [SHARPNESS_TIER1_THRESHOLD * 100]%, damage factor and strength damage starts to fall off gradually. \n\
 		At [SHARPNESS_TIER1_FLOOR * 100]%, strength and damage factor no longer applies. Below [SHARPNESS_TIER2_THRESHOLD * 100]%, the base damage value also starts to decline\n\
-		Sharpness declines by [SHARPNESS_ONHIT_DECAY] on parry for bladed weapon.")
+		Sharpness declines by [SHARPNESS_ONHIT_DECAY] on parry for bladed weapon.\n\
+		A grindstone can restore max sharpness, whereas other sources will degrade 0.5 max integrity per sharpening.")
 		if(!usr.client.prefs.no_examine_blocks)
 			output = examine_block(output)
 		to_chat(usr, output)
@@ -540,7 +561,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			inspec += "\n<b>NO HALVING ON WIELD</b>"
 
 		if(force)
-			inspec += "\n<b>FORCE:</b> [get_force_string(force)] <span class='info'><a href='?src=[REF(src)];showforce=1'>{?}</a></span>"
+			inspec += "\n<b>FORCE:</b> [get_force_string(force_dynamic)] <span class='info'><a href='?src=[REF(src)];showforce=1'>{?}</a></span>"
 		if(gripped_intents && !wielded)
 			if(force_wielded)
 				inspec += "\n<b>WIELDED FORCE:</b> [get_force_string(force_wielded)] <span class='info'><a href='?src=[REF(src)];showforcewield=1'>{?}</a></span>"
@@ -591,9 +612,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 		if(istype(src, /obj/item/rogueweapon))
 			var/obj/item/rogueweapon/W = src
 			if(W.special)
-				inspec +="\n<b>SPECIAL:</b> [W.special.name]"
-				inspec +="\n<i>[W.special.desc]</i>"
-				inspec +="\n<i>This ability can be used by right clicking while in STRONG stance.</i>"
+				inspec += "[W.special.get_examine()]"
 
 		if(intdamage_factor != 1 && force >= 5)
 			inspec += "\n<b>INTEGRITY DAMAGE:</b> [intdamage_factor * 100]% <span class='info'><a href='?src=[REF(src)];explainintdamage=1'>{?}</a></span>"
@@ -612,15 +631,13 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			if(!C.body_parts_covered)
 				inspec += "<b>NONE!</b>"
 			if(C.body_parts_covered == C.body_parts_covered_dynamic)
-				var/count = 1
 				var/list/zonelist = body_parts_covered2organ_names(C.body_parts_covered)
+				var/count = 0
 				for(var/zone in zonelist)
 					var/add_divider = TRUE
-					if(count % 2 == 0 || count == (length(zonelist)))
+					if(count == (length(zonelist) - 1))
 						add_divider = FALSE
 					inspec += "<b>[capitalize(zone)]</b> [add_divider ? "| " : ""]"
-					if(count % 2 == 0)
-						inspec += "<br>"
 					count++
 			else
 				var/list/zones = list()
@@ -631,41 +648,25 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 				var/list/dynlist = body_parts_covered2organ_names(C.body_parts_covered_dynamic, precise = TRUE)
 				for(var/zonedyn in dynlist)
 					var/add_divider = TRUE
-					if(count % 2 == 0 || count == (length(dynlist)))
+					if(count == (length(dynlist) - 1))
 						add_divider = FALSE
 
 					inspec += "<b>[capitalize(zonedyn)]</b> [add_divider ? "| " : ""]"
 					if(zonedyn in zones)
 						zones.Remove(zonedyn)
-
-					if(count % 2 == 0)
-						inspec += "<br>"
 					count++
 				for(var/zone in zones)
 					var/add_divider = TRUE
-					if(count % 2 == 0 || count == (length(dynlist)))
+					if(count == (length(dynlist) - 1))
 						add_divider = FALSE
 					inspec += "<b><font color = '#7e0000'>[capitalize(zone)]</font></b> [add_divider ? "| " : ""]"
-					if(count % 2 == 0)
-						inspec += "<br>"
 					count++
-			inspec += "<br>"
 			inspec += "</td>"
-			inspec += "<td width = 60%><b>PREVENTS CRITS:</b><br>"
-			if(!length(C.prevent_crits))
-				inspec += "\n<b>NONE!</b>"
-			var/count = 1
-			for(var/X in C.prevent_crits)
-				if(X == BCLASS_PICK)	//BCLASS_PICK is named "stab", and "stabbing" is its own damage class. Prevents confusion.
-					X = "pick"
-				var/add_divider = TRUE
-				if(count % 2 == 0 || count == (length(C.prevent_crits)))
-					add_divider = FALSE
-				inspec += ("<b>[capitalize(X)]</b> [add_divider ? "| " : ""]")
-				if(count % 2 == 0)
-					inspec += "<br>"
-				count++
-			inspec += "<br></td>"
+			inspec += "<br>"
+			if(!C.prevent_crits)
+				inspec += "\n<b><font color = '#aa2121'>CRIT SUSCEPTIBLE!</font></b>"
+			if(C.prevent_crits == PREVENT_CRITS_ALL)
+				inspec += "\n<b><font color = '#6890a7'>PICK RESISTANT!</font></b>"
 			inspec += "</tr></table>"
 			if(C.body_parts_inherent)
 				inspec += "<b>CANNOT BE PEELED: </b>"
@@ -802,6 +803,16 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	else
 		if(twohands_required)
 			wield(user)
+	
+	//Caustic Edit - Ported over from Chompers/Virgo! This handles possessed items.
+	if(src.possessed_voice && src.possessed_voice.len > 1 && !(user.ckey in warned_of_possession)) // CHOMPEdit Is this item possessed?
+		warned_of_possession |= user.ckey
+		tgui_alert_async(user,{"
+		THIS ITEM IS POSSESSED BY A PLAYER CURRENTLY IN THE ROUND. This could be by anomalous means or otherwise.
+		If this is not something you wish to partake in, it is highly suggested you place the item back down.
+		If this is fine to you, ensure that the other player is fine with you doing things to them beforehand!
+		"},"OOC Warning")
+	//Caustic Edit End
 
 /atom/proc/ontable()
 	if(!isturf(src.loc))
@@ -1472,6 +1483,13 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	if(user.get_active_held_item() == src)
 		if(alt_intents)
 			user.update_a_intents()
+			if(mordhau)
+				if(user.get_inactive_held_item())
+					to_chat(user, span_warning("I need a free hand first."))
+					return
+				src.wielded = TRUE
+				update_force_dynamic()
+				wdefense_dynamic = (wdefense + wdefense_wbonus)
 
 /obj/item/proc/wield(mob/living/carbon/user, show_message = TRUE)
 	if(wielded)
@@ -1702,15 +1720,15 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			return .
 	if(isnull(anvilrepair) && isnull(sewrepair))
 		return .
-	else
-		var/str = "This object can be repaired using "
-		if(anvilrepair)
-			var/datum/skill/S = anvilrepair		//Should only ever be a skill or null
-			str += "<b>[initial(S.name)]</b> and a hammer."
-		if(sewrepair)
-			str += "<b>Sewing</b> and a needle."
-		str = span_info(str)
-		. += str
+
+	var/str = "This object can be repaired using "
+	if(anvilrepair)
+		var/datum/skill/S = anvilrepair		//Should only ever be a skill or null
+		str += "<b>[initial(S.name)]</b> and a hammer."
+	if(sewrepair)
+		str += "<b>Sewing</b> and a needle."
+	str = span_info(str)
+	. += str
 
 /obj/item/proc/update_force_dynamic()
 	force_dynamic = (wielded ? force_wielded : force)

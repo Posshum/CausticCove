@@ -1,3 +1,4 @@
+
 /obj/item/storage/belt/rogue
 	name = ""
 	desc = ""
@@ -16,6 +17,7 @@
 	component_type = /datum/component/storage/concrete/roguetown/belt
 	grid_width = 64
 	grid_height = 64
+	sellprice = 7
 
 /obj/item/storage/belt/rogue/attack_right(mob/user)
 	var/datum/component/storage/CP = GetComponent(/datum/component/storage)
@@ -36,6 +38,7 @@
 
 /obj/item/storage/belt/rogue/leather/plaquegold
 	name = "plaque belt"
+	desc = "An exquisite belt, decorated with studdings of gold."
 	icon_state = "goldplaque"
 	sellprice = 50
 	sewrepair = FALSE
@@ -52,8 +55,15 @@
 	item_state = "blackbelt"
 	sellprice = 10
 
+/obj/item/storage/belt/rogue/leather/double
+	name = "pair of belts"
+	desc = "A pair of slim black belts worn around the waist."
+	icon_state = "belt_double"
+	item_state = "belt_double"
+
 /obj/item/storage/belt/rogue/leather/plaquesilver
 	name = "plaque belt"
+	desc = "An exquisite belt, decorated with studdings of silver."
 	icon_state = "silverplaque"
 	sellprice = 30
 	sewrepair = FALSE
@@ -61,6 +71,7 @@
 
 /obj/item/storage/belt/rogue/leather/battleskirt
 	name = "cloth military skirt"
+	desc = "A fine leather strap notched with holes for a buckle to secure itself, notched above a flared military skirt."
 	icon_state = "battleskirt"
 	sewrepair = FALSE
 	detail_tag = "_belt"
@@ -82,12 +93,30 @@
 
 /obj/item/storage/belt/rogue/leather/battleskirt/faulds
 	name = "belt with faulds"
+	desc = "A fine leather strap notched with holes for a buckle to secure itself, notched above a halved military skirt."
 	icon_state = "faulds"
+	sewrepair = FALSE
+	detail_tag = "_belt"
+
+/obj/item/storage/belt/rogue/leather/battleskirt/breechcloth
+	name = "belt with breechcloth"
+	desc = "A fine leather strap notched with holes for a buckle to secure itself, and nestled above a halved tabard's coverings."
+	icon_state = "breechcloth"
+	flags_inv = HIDECROTCH
+	sewrepair = FALSE
+	detail_tag = "_belt"
+
+/obj/item/storage/belt/rogue/leather/battleskirt/breechcloth/blackbelt
+	name = "black belt with breechcloth"
+	desc = "A fine black-leather strap notched with holes for a buckle to secure itself, and nestled above a halved tabard's coverings."
+	icon_state = "breechclothalt"
+	flags_inv = HIDECROTCH
 	sewrepair = FALSE
 	detail_tag = "_belt"
 
 /obj/item/storage/belt/rogue/leather/steel
 	name = "steel belt"
+	desc = "A fine leather belt that's been sleeved within many segments of steel, protecting its delicate innards from prying hands-and-blades."
 	icon_state = "steelplaque"
 	sellprice = 30
 	sewrepair = FALSE
@@ -95,11 +124,11 @@
 
 /obj/item/storage/belt/rogue/leather/steel/tasset
 	name = "tasseted belt"
+	desc = "A fine leather belt that's been sleeved within many segments of steel, and further reinforced with the tassets of a fluted cuirass."
 	icon_state = "steeltasset"
 	sellprice = 35
 	sewrepair = FALSE
 	anvilrepair = /datum/skill/craft/armorsmithing
-
 
 /obj/item/storage/belt/rogue/leather/rope
 	name = "rope belt"
@@ -161,7 +190,7 @@
 
 /obj/item/storage/backpack/rogue/satchel/otavan
 	name = "otavan leather satchel"
-	desc = "A made to last leather bag from the Psydonian heart of Otava. It's Otava's finest."
+	desc = "A sleek, stylish, and surprisingly sturdy satchel that hails straight from the Sovereignty of Otava. It is made to endure, first and foremost."
 	icon_state = "osatchel"
 	item_state = "osatchel"
 
@@ -196,8 +225,8 @@
 /obj/item/storage/backpack/rogue/satchel/beltpack
 	name = "beltpack" //Satchel that fits on the cloak or belt slot. Should be exceptionally rare for on-spawn loadouts, unless a flag's added to make it incompatable with regular satchels.
 	desc = "A lighter satchel that rests against the rump, freeing the shoulders from any weight. It's traditionally worn in place of a belt or cloak."
-	icon_state = "gamesatchel" //Later down the line, take the unused belt-satchel onmob and rename it to 'gamesatchel'.
-	item_state = "satchel"
+	icon_state = "buttpack" //Later down the line, take the unused belt-satchel onmob and rename it to 'gamesatchel'.
+	item_state = "buttpack"
 	icon = 'icons/roguetown/clothing/storage.dmi'
 	mob_overlay_icon = 'icons/roguetown/clothing/onmob/belts.dmi'
 	slot_flags = ITEM_SLOT_CLOAK|ITEM_SLOT_BELT //Implement a check that prevents one from being worn on both slots at once. Another coder's duty, I think.
@@ -291,6 +320,7 @@
 	desc = "A dark belt with real gold making up the buckle and highlights. How bougie."
 	icon_state = "stewardbelt"
 	item_state = "stewardbelt"
+	sellprice = 100 //The stewards belt especially!
 
 //Knifeblade belts, act as quivers mixed with belts. Lower storage size of a belt, but holds knives without taking space.
 /obj/item/storage/belt/rogue/leather/knifebelt
@@ -298,6 +328,7 @@
 	desc = "A five-slotted belt meant for tossblades. Little room left over."
 	icon_state = "knife"
 	item_state = "knife"
+	sellprice = 20 //Unironically really good.
 	strip_delay = 20
 	var/max_storage = 5			//Javelin bag is 4 and they can't hold items. So, more fair having it like this since these are pretty decent weapons.
 	var/list/knives = list()
@@ -405,6 +436,7 @@
 	desc = "A gold adorned belt with the softest of silks barely concealing one's bits."
 	icon_state = "exoticsilkbelt"
 	var/max_storage = 5
+	sellprice = 15
 	sewrepair = TRUE
 
 ///////////////////////////////////////////////
@@ -425,6 +457,7 @@
 	anvilrepair = /datum/skill/craft/blacksmithing
 	smeltresult = /obj/item/ingot/iron
 	component_type = /datum/component/storage/concrete/grid/headhook
+	sellprice = 15 //Solid utility!
 
 /obj/item/storage/hip/headhook/bronze
 	name = "bronze head hook"
@@ -442,6 +475,7 @@
 	anvilrepair = /datum/skill/craft/blacksmithing
 	smeltresult = /obj/item/ingot/bronze
 	component_type = /datum/component/storage/concrete/grid/headhook/bronze
+	sellprice = 30 //Great utility!
 
 /obj/item/clothing/climbing_gear
 	name = "climbing gear"
@@ -483,12 +517,12 @@
 
 /obj/item/storage/hip/orestore/bronze
 	name = "mechanized ore bag"
-	desc = "a ticking Ore bag for sorting and compressing ore, ingots, and gems"
+	desc = "A becogged bag for sorting and compressing ore, ingots, and gemeralds. It idly ticks to the rhythm of unseen mechanisms, yearning for earthly treats."
 	icon = 'icons/roguetown/items/misc.dmi'
 	//mob_overlay_icon = 'icons/roguetown/clothing/onmob/belts.dmi'
 	icon_state = "rucksack"
 	item_state = "rucksack"
-	slot_flags = ITEM_SLOT_HIP
+	slot_flags = ITEM_SLOT_HIP|ITEM_SLOT_BACK 
 	w_class = WEIGHT_CLASS_NORMAL
 	max_integrity = 400
 	equip_sound = 'sound/blank.ogg'
@@ -496,3 +530,30 @@
 	anvilrepair = /datum/skill/craft/blacksmithing
 	smeltresult = /obj/item/ingot/bronze
 	component_type = /datum/component/storage/concrete/grid/orestore/bronze
+	sellprice = 35
+
+/obj/item/storage/belt/rogue/leather/zig_bandolier
+	name = "zig bandolier"
+	desc = "For when your addiction gets a hold on you."
+	icon_state = "twstrap0"
+	item_state = "twstrap"
+	icon = 'icons/obj/items/twstrap.dmi'
+	lefthand_file = 'icons/mob/inhands/equipment/backpack_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/equipment/backpack_righthand.dmi'
+	w_class = WEIGHT_CLASS_BULKY
+	slot_flags = ITEM_SLOT_BACK | ITEM_SLOT_ARMOR
+	resistance_flags = FIRE_PROOF
+	equip_delay_self = 5 SECONDS
+	unequip_delay_self = 5 SECONDS
+	max_integrity = 0
+	sellprice = 15
+	inhand_x_dimension = 64
+	inhand_y_dimension = 64
+	pixel_y = -16
+	pixel_x = -16
+	bigboy = TRUE
+	equip_sound = 'sound/blank.ogg'
+	bloody_icon_state = "bodyblood"
+	alternate_worn_layer = UNDER_CLOAK_LAYER
+	strip_delay = 20
+	component_type = /datum/component/storage/concrete/roguetown/zig_bandolier

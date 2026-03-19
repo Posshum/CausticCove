@@ -76,6 +76,7 @@ All foods are distributed among various categories. Use common sense.
 
 	var/ingredient_size = 1
 	var/eat_effect
+	var/extra_eat_effect //ideally the eat_effect should just be able to work with lists, but for now, this'll do
 	var/rotprocess = FALSE
 	var/become_rot_type = null
 
@@ -139,7 +140,7 @@ All foods are distributed among various categories. Use common sense.
 		return FALSE
 	return ..()
 
-/obj/item/reagent_containers/food/snacks/proc/become_rotten(to_color = TRUE)
+/obj/item/reagent_containers/food/snacks/proc/become_rotten(to_color = TRUE, to_rename = TRUE)
 	if(isturf(loc) && istype(get_area(src),/area/rogue/under/town/sewer))
 		if(!istype(src,/obj/item/reagent_containers/food/snacks/smallrat))
 			new /obj/item/reagent_containers/food/snacks/smallrat(loc)
@@ -151,7 +152,8 @@ All foods are distributed among various categories. Use common sense.
 			var/obj/item/reagent_containers/NU = new become_rot_type(loc)
 			var/atom/movable/location = loc
 			NU.reagents.clear_reagents()
-			reagents.trans_to(NU.reagents, reagents.maximum_volume)
+			if(reagents) //CC Edit, more slopfix, because no one thought something can't have reagents
+				reagents.trans_to(NU.reagents, reagents.maximum_volume)
 			qdel(src)
 			if(!location || !SEND_SIGNAL(location, COMSIG_TRY_STORAGE_INSERT, NU, null, TRUE, TRUE))
 				NU.forceMove(get_turf(NU.loc))
@@ -162,7 +164,8 @@ All foods are distributed among various categories. Use common sense.
 			color = "#6c6897"
 		var/mutable_appearance/rotflies = mutable_appearance('icons/roguetown/mob/rotten.dmi', "rotten")
 		add_overlay(rotflies)
-		name = "rotten [initial(name)]"
+		if(to_rename)
+			name = "rotten [initial(name)]"
 		eat_effect = /datum/status_effect/debuff/rotfood
 		slices_num = 0
 		slice_path = null
@@ -182,8 +185,8 @@ All foods are distributed among various categories. Use common sense.
 		return
 	if(cooktime)
 		var/added_input = input
-		// Pick flat burninput instead of skill-scaled input so high cooking skill doesn't make food burn faster 
-		if(!cooked_type && !fried_type) 
+		// Pick flat burninput instead of skill-scaled input so high cooking skill doesn't make food burn faster
+		if(!cooked_type && !fried_type)
 			added_input = burninput
 		if(cooking < cooktime)
 			cooking = cooking + added_input
@@ -302,7 +305,6 @@ All foods are distributed among various categories. Use common sense.
 				switch (faretype)
 					if (FARE_IMPOVERISHED)
 						eater.add_stress(/datum/stressevent/noble_impoverished_food)
-						to_chat(eater, span_red("This is disgusting... how can anyone eat this?"))
 						if (eater.nutrition >= NUTRITION_LEVEL_STARVING)
 							eater.taste(reagents)
 							human_eater.add_nausea(34)
@@ -325,7 +327,7 @@ All foods are distributed among various categories. Use common sense.
 							to_chat(eater, span_green("Ah, food fit for my title."))
 
 			// yeomen and courtiers are also used to a better quality of life but are way less picky
-			if (human_eater.is_yeoman() || human_eater.is_courtier())
+			if (human_eater.is_burgher() || human_eater.is_courtier())
 				switch (faretype)
 					if (FARE_IMPOVERISHED)
 						eater.add_stress(/datum/stressevent/noble_bland_food)
@@ -337,6 +339,8 @@ All foods are distributed among various categories. Use common sense.
 
 	if(eat_effect && apply_effect)
 		eater.apply_status_effect(eat_effect)
+		if(extra_eat_effect)
+			eater.apply_status_effect(extra_eat_effect)
 	eater.taste(reagents)
 
 	if(!reagents.total_volume)
@@ -364,6 +368,26 @@ All foods are distributed among various categories. Use common sense.
 		var/fullness = M.nutrition + 10
 		for(var/datum/reagent/consumable/C in M.reagents.reagent_list) //we add the nutrition value of what we're currently digesting
 			fullness += C.nutriment_factor * C.volume / C.metabolization_rate
+
+		//Caustic Edit - Attempting to add in Micros hiding in food and being ate
+		if(food_inserted_micros && food_inserted_micros.len)
+			for(var/mob/living/micro in food_inserted_micros)
+				if(!can_food_vore(M, micro))
+					continue
+
+				var/do_nom
+
+				if(!reagents.total_volume)
+					do_nom = TRUE
+				else
+					var/nom_chance = (bitecount/(bitecount + (bitesize / reagents.total_volume) + 1))*100
+					if(prob(nom_chance))
+						do_nom = TRUE
+
+				if(do_nom)
+					M.vore_selected.nom_atom(micro)
+					food_inserted_micros -= micro
+		//Caustic Edit End
 
 		if(M == user)								//If you're eating it myself.
 /*			if(junkiness && M.satiety < -150 && M.nutrition > NUTRITION_LEVEL_STARVING + 50 && !HAS_TRAIT(user, TRAIT_VORACIOUS))
@@ -401,7 +425,7 @@ All foods are distributed among various categories. Use common sense.
 		else
 			if(!isbrain(M))		//If you're feeding it to someone else.
 //				if(fullness <= (600 * (1 + M.overeatduration / 1000)))
-				if(M.nutrition in NUTRITION_LEVEL_FAT to INFINITY)
+				if(!M.has_flaw(/datum/charflaw/bottomless) && (M.nutrition in NUTRITION_LEVEL_FAT to INFINITY)) // Caustic edit - bottomless characters can be fed as much as we please!
 					M.visible_message(span_warning("[user] cannot force any more of [src] down [M]'s throat!"), \
 										span_warning("[user] cannot force any more of [src] down your throat!"))
 					return FALSE
@@ -415,7 +439,7 @@ All foods are distributed among various categories. Use common sense.
 						if(!CH.grabbedby)
 							to_chat(user, span_info("[C.p_they(TRUE)] steals [C.p_their()] face from it."))
 							return FALSE
-				if(!do_mob(user, M, double_progress = TRUE))
+				if(!do_mob(user, M, double_progress = TRUE, can_move = FALSE))
 					return
 				log_combat(user, M, "fed", reagents.log_list())
 				if(istype(src, /obj/item/reagent_containers/food/snacks/grown/berries/rogue) || istype(src, /obj/item/reagent_containers/food/snacks/grown/fruit))
@@ -512,6 +536,10 @@ All foods are distributed among various categories. Use common sense.
 
 /obj/item/reagent_containers/food/snacks/examine(mob/user)
 	. = ..()
+	//Caustic Edit - Micros In Food Additions
+	if(food_inserted_micros && food_inserted_micros.len)
+		. += span_notice("It has [english_list(food_inserted_micros)] stuck in it.")
+	//Caustic Edit End
 	if(!in_container)
 		switch (bitecount)
 			if(0)
@@ -544,8 +572,14 @@ All foods are distributed among various categories. Use common sense.
 			. += span_smallred("It is rotten!")
 		if(/datum/status_effect/debuff/burnedfood)
 			. += span_smallred("It is burned!")
-		if(/datum/status_effect/buff/foodbuff)
-			. += span_smallnotice("It looks great!")
+		if(/datum/status_effect/buff/snackbuff)
+			. += span_smallnotice("It looks good!")
+		if(/datum/status_effect/buff/greatsnackbuff)
+			. += span_smallnotice("It looks great!!")
+		if(/datum/status_effect/buff/mealbuff)
+			. += span_smallnotice("It looks good!")
+		if(/datum/status_effect/buff/greatmealbuff)
+			. += span_smallnotice("It looks great!!")
 	. += span_smallnotice("[rotprocess_to_text()]")
 
 /obj/item/reagent_containers/food/snacks/attackby(obj/item/W, mob/user, params)
@@ -556,6 +590,32 @@ All foods are distributed among various categories. Use common sense.
 	if(istype(W, /obj/item/storage))
 		..() // -> item/attackby()
 		return 0
+
+	//Caustic Edit - Micros in Food Additions!
+	if(food_can_insert_micro && istype(W, /obj/item/holder))
+		if(!(istype(W, /obj/item/holder/micro)))
+			. = ..()
+			return
+
+		var/obj/item/holder/holder = W
+
+		if(!food_inserted_micros)
+			food_inserted_micros = list()
+
+		var/mob/living/living_mob = holder.held_mob
+
+		living_mob.forceMove(src)
+		holder.held_mob = null
+		user.dropItemToGround(holder)
+		qdel(holder)
+
+		food_inserted_micros += living_mob
+
+		to_chat(user, "Stuffed [living_mob] into \the [src].")
+		balloon_alert(user, "stuffs [living_mob] into \the [src].")
+		to_chat(living_mob, span_warning("[user] stuffs you into \the [src]."))
+		return
+	//Caustic Edit End
 
 /*	if(istype(W, /obj/item/reagent_containers/food/snacks))
 		var/obj/item/reagent_containers/food/snacks/S = W
@@ -665,6 +725,15 @@ All foods are distributed among various categories. Use common sense.
 	slice.filling_color = filling_color
 	slice.name = slice_name ? slice_name : slice.name
 	slice.update_snack_overlays(src)
+	//Caustic Edit - Micros In Food Addition
+	if(food_inserted_micros && food_inserted_micros.len)
+		for(var/mob/living/F in food_inserted_micros)
+			F.forceMove(slice)
+			if(!slice.food_inserted_micros)
+				slice.food_inserted_micros = list()
+			slice.food_inserted_micros += F
+			food_inserted_micros -= F
+	//Caustic Edit End
 //	if(name != initial(name))
 //		slice.name = "slice of [name]"
 //	if(desc != initial(desc))
@@ -776,6 +845,21 @@ All foods are distributed among various categories. Use common sense.
 	else
 		return ..()
 
+//Caustic Edit - Micros in Food additions!
+/obj/item/reagent_containers/food/snacks/MouseDrop_T(mob/living/M, mob/living/user)
+	if(!user.stat && istype(M) && (M == user) && Adjacent(M) && (M.get_effective_size(TRUE) <= 0.50) && food_can_insert_micro)
+		if(!food_inserted_micros)
+			food_inserted_micros = list()
+
+		M.forceMove(src)
+
+		food_inserted_micros += M
+
+		to_chat(user, span_warning("You climb into \the [src]."))
+		return
+
+	return ..()
+//Caustic Edit End
 
 /obj/item/reagent_containers/food/snacks/badrecipe
 	name = "burned mess"

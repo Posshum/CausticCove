@@ -29,11 +29,6 @@
 	xp_gain = TRUE
 	miracle = FALSE
 
-/obj/effect/proc_holder/spell/self/frostbolt/cast(mob/user = usr)
-	var/mob/living/target = user
-	target.visible_message(span_warning("[target] hurls a frosty beam!"), span_notice("You hurl a frosty beam!"))
-	. = ..()
-
 /obj/projectile/magic/frostbolt
 	name = "Frost Dart"
 	icon_state = "ice_2"
@@ -44,7 +39,13 @@
 	range = 10
 	speed = 1
 	nodamage = FALSE
-	var/aoe_range = 0
+
+// Caustic Edit
+/obj/projectile/magic/frostbolt/arc
+	name = "Arced Frostbolt"
+	damage = 15 // 25% damage penalty
+	arcshot = TRUE
+// Caustic Edit End
 
 /obj/projectile/magic/frostbolt/on_hit(target)
 	. = ..()

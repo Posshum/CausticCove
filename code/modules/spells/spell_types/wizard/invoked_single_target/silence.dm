@@ -23,8 +23,12 @@
 	zizo_spell = TRUE
 
 /obj/effect/proc_holder/spell/invoked/silence/cast(list/targets, mob/user = usr)
-	if(isliving(targets[1]))
+	if(iscarbon(targets[1]))
 		var/mob/living/carbon/target = targets[1]
+		if(user == target) //self target
+			to_chat(user, "<span class='warning'>I may not silence myself.</span>")
+			revert_cast()
+			return
 		if(HAS_TRAIT(target, TRAIT_COUNTERCOUNTERSPELL) || HAS_TRAIT(target, TRAIT_ANTIMAGIC) || HAS_TRAIT(target, TRAIT_MUTE))
 			to_chat(user, "<span class='warning'>The spell fizzles, it won't work on them!</span>")
 			revert_cast()
@@ -33,14 +37,38 @@
 			to_chat(user, "<span class='warning'>Their magic is too strong, it won't work on them!</span>")
 			revert_cast()
 			return
+		if(spell_guard_check(target, TRUE))
+			target.visible_message(span_warning("[target] resists the silencing magic!"))
+			return TRUE
 		ADD_TRAIT(target, TRAIT_MUTE, MAGIC_TRAIT)
 		playsound(get_turf(target), 'sound/magic/zizo_snuff.ogg', 80, TRUE, soundping = TRUE)
 		to_chat(target, span_warning("The wind in my voice goes still. I can't speak!"))
 		var/dur = max((9 * (user.get_skill_level(associated_skill, 5))))
 		addtimer(CALLBACK(src, PROC_REF(remove_buff), target), wait = dur SECONDS)
 		return TRUE
+	else //misfire
+		to_chat(user, "<span class='warning'>I must attempt to silence a speaking, thinking being.</span>")
+		revert_cast()
+		return
 
 
 /obj/effect/proc_holder/spell/invoked/silence/proc/remove_buff(mob/living/carbon/target)
 	REMOVE_TRAIT(target, TRAIT_MUTE, MAGIC_TRAIT)
 	to_chat(target, span_warning("My voice returns to me!"))
+
+//Archivist special
+/obj/effect/proc_holder/spell/invoked/silence/archivist_silence
+	name = "Archivist's Silence"
+	desc = "Hush the voices of the disrespectful! Does not work against full-fledged mages."
+	cost = 0 //can't unlearn it
+	xp_gain = FALSE
+	invocations = list()
+
+/obj/effect/proc_holder/spell/invoked/silence/archivist_silence/cast(list/targets, mob/user = usr)
+	if(!..())
+		return
+	user.emote("shh")
+	if(iscarbon(targets[1]))
+		var/mob/living/carbon/target = targets[1]
+		target?.add_stress(/datum/stressevent/archivist_shushed)
+		return TRUE

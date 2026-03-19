@@ -60,6 +60,15 @@
 				new /obj/item/reagent_containers/food/snacks/rogue/rbread_half(loc)
 				qdel(I)
 				qdel(src)
+	if(istype(I, /obj/item/reagent_containers/food/snacks/rogue/butterdough))
+		if(isturf(loc)&& (found_table))
+			playsound(get_turf(user), 'modular/Neu_Food/sound/kneading.ogg', 100, TRUE, -1)
+			to_chat(user, span_notice("Kneading the dough into an elongated shape..."))
+			if(do_after(user,short_cooktime, target = src))
+				add_sleep_experience(user, /datum/skill/craft/cooking, user.STAINT)
+				new /obj/item/reagent_containers/food/snacks/rogue/rbread_half(loc)
+				qdel(I)
+				qdel(src)
 		else
 			to_chat(user, span_warning("You need to put [src] on a table to roll it out!"))
 	if(istype(I, /obj/item/kitchen/rollingpin))
@@ -132,6 +141,17 @@
 				qdel(src)
 		else
 			to_chat(user, span_warning("You need to put [src] on a table to roll it out!"))
+	if(istype(I, /obj/item/reagent_containers/food/snacks/rogue/dough))
+		if(isturf(loc)&& (found_table))
+			playsound(get_turf(user), 'modular/Neu_Food/sound/kneading.ogg', 100, TRUE, -1)
+			to_chat(user, span_notice("Kneading the dough into an elongated shape..."))
+			if(do_after(user,short_cooktime, target = src))
+				add_sleep_experience(user, /datum/skill/craft/cooking, user.STAINT)
+				new /obj/item/reagent_containers/food/snacks/rogue/strudeldough(loc)
+				qdel(I)
+				qdel(src)
+		else
+			to_chat(user, span_warning("You need to put [src] on a table to roll it out!"))
 	else
 		return ..()
 
@@ -145,6 +165,8 @@
 	slices_num = 2
 	slice_batch = TRUE
 	slice_path = /obj/item/reagent_containers/food/snacks/rogue/butterdoughslice
+	cooked_type = /obj/item/reagent_containers/food/snacks/rogue/muffin
+	cooked_smell = /datum/pollutant/food/muffin
 	w_class = WEIGHT_CLASS_NORMAL
 	slice_sound = TRUE
 
@@ -227,19 +249,21 @@
 		else
 			to_chat(user, span_warning("You need to put [src] on a table to roll it out!"))
 	if(I.get_sharpness())
-		if(!isdwarf(user))
+		// Caustic Cove Edit - Make Prezzels not dwarven-only!
+		/*if(!isdwarf(user))
 			to_chat(user, span_warning("You lack knowledge of dwarven pastries!"))
 			return
+		else*/
+		if(isturf(loc)&& (found_table)) //This bit was 1 more tab out as well, but it has been removed for this edit.
+			playsound(get_turf(user), 'sound/foley/dropsound/food_drop.ogg', 40, TRUE, -1)
+			to_chat(user, span_notice("Cutting the dough in strips and making a prezzel..."))
+			if(do_after(user,short_cooktime, target = src))
+				add_sleep_experience(user, /datum/skill/craft/cooking, user.STAINT)
+				new /obj/item/reagent_containers/food/snacks/rogue/foodbase/prezzel_raw(loc)
+				qdel(src)
 		else
-			if(isturf(loc)&& (found_table))
-				playsound(get_turf(user), 'sound/foley/dropsound/food_drop.ogg', 40, TRUE, -1)
-				to_chat(user, span_notice("Cutting the dough in strips and making a prezzel..."))
-				if(do_after(user,short_cooktime, target = src))
-					add_sleep_experience(user, /datum/skill/craft/cooking, user.STAINT)
-					new /obj/item/reagent_containers/food/snacks/rogue/foodbase/prezzel_raw(loc)
-					qdel(src)
-			else
-				to_chat(user, span_warning("You need to put [src] on a table to cut it!"))
+			to_chat(user, span_warning("You need to put [src] on a table to cut it!"))
+		//Caustic Edit end
 	else
 		..()
 
@@ -269,6 +293,10 @@
 		prepare_handpie(I, user, /obj/item/reagent_containers/food/snacks/rogue/foodbase/handpieraw/berry)
 	else if(istype(I, /obj/item/reagent_containers/food/snacks/grown/apple))
 		prepare_handpie(I, user, /obj/item/reagent_containers/food/snacks/rogue/foodbase/handpieraw/apple)
+	else if(istype(I, /obj/item/reagent_containers/food/snacks/rogue/veg/potato_sliced))
+		prepare_handpie(I, user, /obj/item/reagent_containers/food/snacks/rogue/foodbase/handpieraw/potato)
+	else if(istype(I, /obj/item/reagent_containers/food/snacks/grown/cabbage/rogue))//This produces 3 instead of 2 so it'd be obvious go to.
+		prepare_handpie(I, user, /obj/item/reagent_containers/food/snacks/rogue/foodbase/handpieraw/cabbage)
 	else
 		return ..()
 
@@ -281,4 +309,40 @@
 		user.put_in_hands(handpie)
 		qdel(I)
 		qdel(src)
-	
+
+/*	.................   Strudel Dough   ................... */
+/obj/item/reagent_containers/food/snacks/rogue/strudeldough
+	name = "strudeldough"
+	desc = "An empty shell of a greatness to come."
+	icon = 'modular/Neu_Food/icons/raw/raw_dough.dmi'
+	icon_state = "strudel_raw"
+	cooked_smell = /datum/pollutant/food/pastry
+	w_class = WEIGHT_CLASS_NORMAL
+	slice_sound = TRUE
+	process_step = 1
+
+/obj/item/reagent_containers/food/snacks/rogue/strudeldough/attackby(obj/item/I, mob/living/user, params)
+	update_cooktime(user)
+	if(istype(I, /obj/item/reagent_containers/food/snacks/grown/apple))
+		if(process_step != 1)
+			return
+		to_chat(user, span_notice("Filling the dough with apples.."))
+		if(do_after(user, short_cooktime, target = src))
+			playsound(get_turf(user), 'modular/Neu_Food/sound/eggbreak.ogg', 100, TRUE, -1)
+			name = "half-filled strudel"
+			desc = "A strudel form mostly filled with apples. Still missing it's other part."
+			process_step = 2
+			qdel(I)
+			return
+	if(istype(I, /obj/item/reagent_containers/food/snacks/grown/nut))
+		if(process_step != 2)
+			return
+		to_chat(user, span_notice("Finishing the filling with rocknut.."))
+		if(do_after(user, short_cooktime, target = src))
+			name = "filled strudel"
+			desc = "A strudel filled to the brim with apples and nuts. Now to only bake it."
+			cooked_type = /obj/item/reagent_containers/food/snacks/rogue/strudel
+			process_step = 3
+			qdel(I)
+			return
+	return ..()

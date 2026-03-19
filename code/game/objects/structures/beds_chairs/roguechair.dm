@@ -1,5 +1,6 @@
 /obj/structure/chair/bench
 	name = "bench"
+	desc = "A stouter, wider chair. It doesn't look terribly comfortable."
 	icon_state = "bench"
 	icon = 'icons/roguetown/misc/structure.dmi'
 	buildstackamount = 1
@@ -60,33 +61,39 @@
 		return COMPONENT_ATOM_BLOCK_EXIT
 
 /obj/structure/chair/bench/couch
+	desc = "A comfortable-looking piece of furniture, padded with fabric!"
 	icon_state = "redcouch"
 
 /obj/structure/chair/bench/church/smallbench
+	desc = "An unusually small, modest bench. Better than the floor."
 	icon_state = "benchsmall"
 
 /obj/structure/chair/bench/couch/r
 	icon_state = "redcouch2"
 
 /obj/structure/chair/bench/ultimacouch
+	desc = "A particularly affluent piece of furniture, upholstered with brown-green fabric."
 	icon_state = "ultimacouchleft"
 
 /obj/structure/chair/bench/ultimacouch/r
 	icon_state = "ultimacouchright"
 
 /obj/structure/chair/bench/coucha
+	desc = "A particularly affluent piece of furniture, upholstered with red fabric."
 	icon_state = "couchaleft"
 
 /obj/structure/chair/bench/coucha/r
 	icon_state = "coucharight"
 
 /obj/structure/chair/bench/couchablack
+	desc = "A particularly affluent piece of furniture, upholstered with black fabric."
 	icon_state = "couchablackaleft"
 
 /obj/structure/chair/bench/couchablack/r
 	icon_state = "couchablackaright"
 
 /obj/structure/chair/bench/couchamagenta
+	desc = "A particularly affluent piece of furniture, upholstered with magenta fabric."
 	icon_state = "couchamagentaleft"
 
 /obj/structure/chair/bench/couchamagenta/r
@@ -112,7 +119,7 @@
 /obj/structure/chair/wood/rogue
 	icon_state = "chair2"
 	icon = 'icons/roguetown/misc/structure.dmi'
-	item_chair = /obj/item/chair/rogue
+	item_chair = /obj/item/chair/rogue/chair2 //Caustic Edit - Use the proper chair item for each
 	blade_dulling = DULLING_BASHCHOP
 	destroy_sound = 'sound/combat/hits/onwood/destroyfurniture.ogg'
 	attacked_sound = "woodimpact"
@@ -125,7 +132,7 @@
 /obj/structure/chair/wood/rogue/chair3
 	icon_state = "chair3"
 	icon = 'icons/roguetown/misc/structure.dmi'
-	item_chair = /obj/item/chair/rogue
+	item_chair = /obj/item/chair/rogue/chair3 //Caustic Edit - Use the proper chair item for each
 	blade_dulling = DULLING_BASHCHOP
 	destroy_sound = 'sound/combat/hits/onwood/destroyfurniture.ogg'
 	attacked_sound = "woodimpact"
@@ -133,7 +140,7 @@
 /obj/structure/chair/wood/rogue/chair4
 	icon_state = "chair4"
 	icon = 'icons/roguetown/misc/structure.dmi'
-	item_chair = /obj/item/chair/rogue
+	item_chair = /obj/item/chair/rogue/chair4 //Caustic Edit - Use the proper chair item for each
 	blade_dulling = DULLING_BASHCHOP
 	destroy_sound = 'sound/combat/hits/onwood/destroyfurniture.ogg'
 	attacked_sound = "woodimpact"
@@ -141,13 +148,14 @@
 /obj/structure/chair/wood/rogue/chair5
 	icon_state = "chair5"
 	icon = 'icons/roguetown/misc/structure.dmi'
-	item_chair = /obj/item/chair/rogue
+	item_chair = /obj/item/chair/rogue/chair5 //Caustic Edit - Use the proper chair item for each
 	blade_dulling = DULLING_BASHCHOP
 	destroy_sound = 'sound/combat/hits/onwood/destroyfurniture.ogg'
 	attacked_sound = "woodimpact"
 
 /obj/structure/chair/wood/rogue/throne
 	icon_state = "thronechair"
+	desc = "Someone important must sit here."
 	icon = 'icons/roguetown/misc/structure.dmi'
 	blade_dulling = DULLING_BASHCHOP
 	destroy_sound = 'sound/combat/hits/onwood/destroyfurniture.ogg'
@@ -171,16 +179,35 @@
 	obj_flags = CAN_BE_HIT
 	destroy_sound = 'sound/combat/hits/onwood/destroyfurniture.ogg'
 	attacked_sound = "woodimpact"
+	associated_skill = /datum/skill/combat/unarmed
+	swingsound = BLUNTWOOSH_LARGE
+
+//Caustic Edit - Adding the missing fallen-over chairs!
+/obj/item/chair/rogue/chair2
+	icon_state = "chair_red"
+	origin_type = /obj/structure/chair/wood/rogue
+
+/obj/item/chair/rogue/chair3
+	icon_state = "chair3"
+	origin_type = /obj/structure/chair/wood/rogue/chair3
+
+/obj/item/chair/rogue/chair4
+	icon_state = "chair2"
+	origin_type = /obj/structure/chair/wood/rogue/chair4
+
+/obj/item/chair/rogue/chair5
+	icon_state = "chair_purple"
+	origin_type = /obj/structure/chair/wood/rogue/chair5
+//Caustic Edit End
 
 /obj/item/chair/rogue/getonmobprop(tag)
 	. = ..()
 	if(tag)
 		switch(tag)
-			if("wieldedl")
-				return list("shrink" = 0.7,"sx" = 2,"sy" = 1,"nx" = -17,"ny" = 0,"wx" = -11,"wy" = 0,"ex" = 2,"ey" = 0,"westabove" = 1,"eastbehind" = 0,"nturn" = 9,"sturn" = -42,"wturn" = 21,"eturn" = -27,"nflip" = 0,"sflip" = 0,"wflip" = 0,"eflip" = 0)
-			if("wielded")
-				return list("shrink" = 0.7,"sx" = 2,"sy" = 1,"nx" = -17,"ny" = 0,"wx" = -11,"wy" = 0,"ex" = 2,"ey" = 0,"westabove" = 1,"eastbehind" = 0,"nturn" = 9,"sturn" = -42,"wturn" = 21,"eturn" = -27,"nflip" = 0,"sflip" = 0,"wflip" = 0,"eflip" = 0,)
-	..()
+			if("gen") 
+				return list("shrink" = 0.7,"sx" = -1,"sy" = 0,"nx" = 11,"ny" = 1,"wx" = 0,"wy" = 1,"ex" = 4,"ey" = 0,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = 15,"sturn" = 0,"wturn" = 0,"eturn" = 39,"nflip" = 8,"sflip" = 0,"wflip" = 0,"eflip" = 8)
+			if("wielded") 
+				return list("shrink" = 0.7,"sx" = -9,"sy" = 4,"nx" = -7,"ny" = 0,"wx" = -7,"wy" = 2,"ex" = 8,"ey" = 5,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = -42,"sturn" = 190,"wturn" = -170,"eturn" = -10,"nflip" = -8,"sflip" = 1,"wflip" = 1,"eflip" = 0)
 
 /obj/structure/chair/wood/rogue/CanPass(atom/movable/mover, turf/target)
 	if(isliving(mover))
@@ -239,7 +266,7 @@
 	item_chair = /obj/item/chair/rogue/fancy
 
 /obj/item/chair/rogue/fancy
-	icon_state = "chair1"
+	icon_state = "chair_green" //Caustic Edit - Adding the missing fallen-over chairs!
 	origin_type = /obj/structure/chair/wood/rogue/fancy
 
 /obj/structure/chair/wood/rogue/attack_right(mob/user)
@@ -290,15 +317,17 @@
 	obj_flags = CAN_BE_HIT
 	destroy_sound = 'sound/combat/hits/onwood/destroyfurniture.ogg'
 	attacked_sound = "woodimpact"
+	associated_skill = /datum/skill/combat/unarmed
+	swingsound = BLUNTWOOSH_LARGE
 
 /obj/item/chair/stool/bar/rogue/getonmobprop(tag)
 	. = ..()
 	if(tag)
 		switch(tag)
-			if("wieldedl")
-				return list("shrink" = 0.8,"sx" = 3,"sy" = -8,"nx" = -19,"ny" = -6,"wx" = -13,"wy" = -7,"ex" = 1,"ey" = -5,"westabove" = 1,"eastbehind" = 0,"nturn" = 30,"sturn" = -18,"wturn" = 30,"eturn" = -24,"nflip" = 8,"sflip" = 0,"wflip" = 8,"eflip" = 0)
-			if("wielded")
-				return list("shrink" = 0.8,"sx" = -20,"sy" = -6,"nx" = 0,"ny" = -7,"wx" = -18,"wy" = -5,"ex" = -4,"ey" = -8,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = -42,"sturn" = 33,"wturn" = 33,"eturn" = -21,"nflip" = 0,"sflip" = 8,"wflip" = 8,"eflip" = 0)
+			if("gen") 
+				return list("shrink" = 0.7,"sx" = -1,"sy" = 0,"nx" = 11,"ny" = 1,"wx" = 0,"wy" = 1,"ex" = 4,"ey" = 0,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = 15,"sturn" = 0,"wturn" = 0,"eturn" = 39,"nflip" = 8,"sflip" = 0,"wflip" = 0,"eflip" = 8)
+			if("wielded") 
+				return list("shrink" = 0.7, "sx" = -12, "sy" = -8, "nx" = 13, "ny" = -7, "wx" = -10, "wy" = -5, "ex" = 7, "ey" = -6, "northabove" = 0, "southabove" = 1, "eastabove" = 1, "westabove" = 0, "nturn" = -13, "sturn" = 110, "wturn" = -60, "eturn" = -30, "nflip" = 1, "sflip" = 1, "wflip" = 8, "eflip" = 1)
 
 /obj/structure/bed/rogue
 	icon_state = "bed"
@@ -308,6 +337,23 @@
 	buckle_lying = 90
 	sleepy = 3
 	debris = list(/obj/item/grown/log/tree/small = 1)
+	var/broken_matress = FALSE
+	var/broken_percentage = 0
+
+/obj/structure/bed/rogue/proc/damage_bed(dam_value)
+	if(sleepy <= 2) // the bed is already pretty awful and broken (i.e: straw bed/bedroll), so don't break it even further
+		return
+	broken_percentage += dam_value
+	if(!broken_matress && (broken_percentage >= 100))
+		broken_matress = TRUE
+		sleepy = 1 //Worse than a bedroll, better than nothing
+		visible_message(span_warning("\The [src] gives a violent snap. It looks broken!"))
+		playsound(src, 'sound/misc/mat/bed break.ogg', 50, TRUE, ignore_walls = FALSE)
+		desc += " The bed looks stained and has seen better days."
+	else if(broken_percentage >= 100)
+		broken_percentage = 100
+	else
+		playsound(src, pick(list('sound/misc/mat/bed squeak (1).ogg','sound/misc/mat/bed squeak (2).ogg','sound/misc/mat/bed squeak (3).ogg')), 30, TRUE, ignore_walls = FALSE)
 
 /obj/structure/bed/rogue/OnCrafted(dirin)
 	dirin = turn(dirin, 180)
@@ -323,7 +369,7 @@
 	name = "straw bed"
 	desc = "A rough bed of straw. It's scratchy, and probably hides lots of bugs, but at least it's dry and warm."
 	icon_state = "shitbed"
-	sleepy = 1
+	sleepy = 1.5
 
 /obj/structure/bed/rogue/post_buckle_mob(mob/living/M)
 	..()
@@ -376,6 +422,15 @@
 		var/obj/structure/bed/rogue/bedroll/new_bedroll = new /obj/structure/bed/rogue/bedroll(get_turf(src))
 		new_bedroll.color = src.color
 		qdel(src)
+
+/obj/item/bedroll/getonmobprop(tag)
+	. = ..()
+	if(tag)
+		switch(tag)
+			if("gen")
+				return list("shrink" = 0.5,"sx" = -1,"sy" = -1,"nx" = 7,"ny" = -1,"wx" = 0,"wy" = -1,"ex" = 4,"ey" = -2,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = 15,"sturn" = 0,"wturn" = 0,"eturn" = 39,"nflip" = 8,"sflip" = 0,"wflip" = 0,"eflip" = 8)
+			if("onbelt")
+				return list("shrink" = 0.3,"sx" = -2,"sy" = -5,"nx" = 4,"ny" = -5,"wx" = 0,"wy" = -5,"ex" = 2,"ey" = -5,"nturn" = 0,"sturn" = 0,"wturn" = 0,"eturn" = 0,"nflip" = 0,"sflip" = 0,"wflip" = 0,"eflip" = 0,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0)
 
 /obj/structure/bed/rogue/inn
 	icon_state = "inn_bed"

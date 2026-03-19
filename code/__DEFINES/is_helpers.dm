@@ -71,6 +71,8 @@ GLOBAL_LIST_INIT(our_forest_sex, typecacheof(list(
 
 #define ishuman(A) (istype(A, /mob/living/carbon/human))
 
+#define isanimagus(A) (istype(A, /mob/living/carbon/human/species/animagus))
+
 //Human sub-species
 #define ishumanbasic(A) (is_species(A, /datum/species/human))
 #define isvampire(A) (is_species(A,/datum/species/vampire))
@@ -82,6 +84,7 @@ GLOBAL_LIST_INIT(our_forest_sex, typecacheof(list(
 #define iself(A) (is_species(A, /datum/species/elf))
 #define isdarkelf(A) (is_species(A, /datum/species/elf/dark))
 #define iswoodelf(A) (is_species(A, /datum/species/elf/wood))
+#define issunelf(A) (is_species(A, /datum/species/elf/sun))
 #define ishalfelf(A) (is_species(A, /datum/species/human/halfelf))
 #define istiefling(A) (is_species(A, /datum/species/tieberian))
 #define isdullahan(A) (is_species(A, /datum/species/dullahan))

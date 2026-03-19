@@ -6,11 +6,13 @@
 	droning_sound_dusk = null
 	droning_sound_night = null
 	converted_type = /area/rogue/outdoors/exposed/under/town
+	town_area = TRUE
 /area/rogue/outdoors/exposed/under/town
 	icon_state = "town"
 	droning_sound = 'sound/music/area/catacombs.ogg'
 	droning_sound_dusk = null
 	droning_sound_night = null
+	town_area = TRUE
 
 /area/rogue/under/town/sewer
 	name = "sewer"
@@ -23,7 +25,7 @@
 	droning_sound_dusk = null
 	droning_sound_night = null
 	ambientrain = RAIN_SEWER
-	soundenv = 21
+	soundenv = 5
 	converted_type = /area/rogue/outdoors/exposed/under/sewer
 /area/rogue/outdoors/exposed/under/sewer
 	icon_state = "sewer"

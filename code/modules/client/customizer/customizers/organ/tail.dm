@@ -78,6 +78,7 @@
 	sprite_accessories = list(
 		/datum/sprite_accessory/tail/shark,
 		/datum/sprite_accessory/tail/sharknofin,
+		/datum/sprite_accessory/tail/large_tails/large_shark, //Caustic Edit - Give the shark the large shark tail
 		)
 
 /datum/customizer/organ/tail/tiefling
@@ -135,6 +136,7 @@
 		/datum/sprite_accessory/tail/large_snake,
 		/datum/sprite_accessory/tail/large_snake_plain,
 		/datum/sprite_accessory/tail/large_tails/large_shark,
+		/datum/sprite_accessory/tail/large_tails/alraune,
 		//Caustic edit end
 		/datum/sprite_accessory/tail/murid,
 		/datum/sprite_accessory/tail/orca,
@@ -178,6 +180,7 @@
 		//Caustic edit
 		/datum/sprite_accessory/tail/tiefling,
 		/datum/sprite_accessory/tail/tiefling/heart,
+		/datum/sprite_accessory/tail/large_tails/alraune,
 		//Caustic edit end
 		)
 
@@ -218,6 +221,7 @@
 		/datum/sprite_accessory/tail/large_snake_plain,
 		/datum/sprite_accessory/tail/large_tails/large_shark,
 		/datum/sprite_accessory/tail/lizard/kobold,
+		/datum/sprite_accessory/tail/large_tails/alraune,
 		//Caustic edit end
 		/datum/sprite_accessory/tail/murid,
 		/datum/sprite_accessory/tail/orca,

@@ -21,6 +21,7 @@
 	glow_color = GLOW_COLOR_DISPLACEMENT
 	glow_intensity = GLOW_INTENSITY_MEDIUM
 	overlay_state = "ensnare"
+	human_req = TRUE // Combat spell
 	var/area_of_effect = 1
 	var/duration = 5 SECONDS
 	var/delay = 0.8 SECONDS
@@ -28,7 +29,7 @@
 /obj/effect/proc_holder/spell/invoked/ensnare/cast(list/targets, mob/user = usr)
 	var/turf/T = get_turf(targets[1])
 
-	for(var/turf/affected_turf in view(area_of_effect, T))
+	for(var/turf/affected_turf in get_hear(area_of_effect, T))
 		if(affected_turf.density)
 			continue
 		new /obj/effect/temp_visual/ensnare(affected_turf)
@@ -41,9 +42,12 @@
 		animal.Paralyze(duration, updating = TRUE, ignore_canstun = TRUE)	//i think animal movement is coded weird, i cant seem to stun them
 	for(var/mob/living/L in range(area_of_effect, T))
 		if(L.anti_magic_check())
-			visible_message(span_warning("The tendrils of force can't seem to latch onto [L] "))  //antimagic needs some testing
+			L.visible_message(span_warning("The tendrils of force can't seem to latch onto [L]!"))
 			playsound(get_turf(L), 'sound/magic/magic_nulled.ogg', 100)
-			return
+			continue
+		if(spell_guard_check(L, TRUE))
+			L.visible_message(span_warning("[L] breaks free of the tendrils!"))
+			continue
 		L.Immobilize(duration)
 		L.OffBalance(duration)
 		L.visible_message("<span class='warning'>[L] is held by tendrils of arcyne force!</span>")

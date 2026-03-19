@@ -2,7 +2,7 @@
 /mob/living/simple_animal/hostile/retaliate/rogue/chicken
 	icon = 'icons/roguetown/mob/monster/chicken.dmi'
 	name = "\improper chicken"
-	desc = ""
+	desc = "A domestic chicken, among the most common livestock in the known world. Reputed to lay eggs if fed."
 	icon_state = "chicken_brown"
 	icon_living = "chicken_brown"
 	icon_dead = "chicken_brown_dead"
@@ -50,7 +50,7 @@
 	var/body_color
 	var/icon_prefix = "chicken"
 	pass_flags = PASSTABLE | PASSMOB
-	mob_size = MOB_SIZE_SMALL
+	mob_size = MOB_SMALL
 	var/list/layMessage = EGG_LAYING_MESSAGES
 	var/list/validColors = list("brown","black","white")
 	var/static/chicken_count = 0

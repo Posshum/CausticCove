@@ -229,7 +229,7 @@ Turf and target are separate in case you want to teleport some distance from a t
 
 
 //Returns a list of all items of interest with their name
-/proc/getpois(mobs_only=0,skip_mindless=0,team=null)
+/proc/getpois(mobs_only=FALSE,skip_mindless=FALSE,team=null,skip_antighost=TRUE)
 	var/list/mobs = sortmobs()
 	var/list/namecounts = list()
 	var/list/pois = list()
@@ -237,6 +237,8 @@ Turf and target are separate in case you want to teleport some distance from a t
 		if(skip_mindless && (!M.mind || !M.ckey))
 			continue
 		if(M.client && M.client.holder && M.client.holder.fakekey) //stealthmins
+			continue
+		if(skip_mindless && skip_antighost && (M.client?.prefs.ghost_toggles & TOGGLE_ANTIGHOST))
 			continue
 		var/name = avoid_assoc_duplicate_keys(M.real_name, namecounts)
 
@@ -1196,29 +1198,50 @@ GLOBAL_REAL_VAR(list/stack_trace_storage)
 	pixel_x = initialpixelx
 	pixel_y = initialpixely
 
+/// Checks whether a given icon state exists in a given icon file. If `file` and `state` both exist,
+/// this will return `TRUE` - otherwise, it will return `FALSE`.
+///
+/// If you want a stack trace to be output when the given state/file doesn't exist, use
+/// `/proc/icon_exists_or_scream()`.
+/proc/icon_exists(file, state)
+	if(isnull(file) || isnull(state))
+		return FALSE //This is common enough that it shouldn't panic, imo.
 
-///Checks if the given iconstate exists in the given file, caching the result. Setting scream to TRUE will print a stack trace ONCE.
-/proc/icon_exists(file, state, scream)
-	var/static/list/icon_states_cache = list()
-	if(icon_states_cache[file]?[state])
+	if(isnull(GLOB.icon_states_cache_lookup[file]))
+		compile_icon_states_cache(file)
+	return !isnull(GLOB.icon_states_cache_lookup[file][state])
+
+//Caustic Edit - Attempting to update GetFlatIcon to what Chompers has
+/// Cached, rustg-based alternative to icon_states()
+/proc/icon_states_fast(file)
+	if(isnull(file))
+		return null
+	if(isnull(GLOB.icon_states_cache[file]))
+		compile_icon_states_cache(file)
+	return GLOB.icon_states_cache[file]
+//Caustic Edit End
+
+/// Functions the same as `/proc/icon_exists()`, but with the addition of a stack trace if the
+/// specified file or state doesn't exist.
+///
+/// Stack traces will only be output once for each file.
+/proc/icon_exists_or_scream(file, state)
+	if(icon_exists(file, state))
 		return TRUE
 
-	if(icon_states_cache[file]?[state] == FALSE)
-		return FALSE
+	var/static/list/screams = list()
+	if(!isnull(screams[file]))
+		screams[file] = TRUE
+		stack_trace("State [state] in file [file] does not exist.")
 
-	var/list/states = icon_states(file)
+	return FALSE
 
-	if(!icon_states_cache[file])
-		icon_states_cache[file] = list()
-
-	if(state in states)
-		icon_states_cache[file][state] = TRUE
-		return TRUE
-	else
-		icon_states_cache[file][state] = FALSE
-		if(scream)
-			stack_trace("Icon Lookup for state: [state] in file [file] failed.")
-		return FALSE
+/proc/compile_icon_states_cache(file)
+	GLOB.icon_states_cache[file] = list()
+	GLOB.icon_states_cache_lookup[file] = list()
+	for(var/istate in icon_states(file))
+		GLOB.icon_states_cache[file] += istate
+		GLOB.icon_states_cache_lookup[file][istate] = TRUE
 
 /proc/weightclass2text(w_class)
 	switch(w_class)
@@ -1600,14 +1623,15 @@ GLOBAL_LIST_INIT(duplicate_forbidden_vars,list(
 /proc/get_sorted_actors_list()
 	var/list/sorted_ckey_to_actor_data = list()
 	var/list/categories = list(
-		"Nobles" = GLOB.noble_positions,
+		"Ducal Family" = GLOB.noble_positions,
 		"Courtiers" = GLOB.courtier_positions,
+		"Retinue" = GLOB.retinue_positions,
 		"Garrison" = GLOB.garrison_positions,
 		"Church" = GLOB.church_positions,
-		"Inquisition" = GLOB.inquisition_positions,
-		"Yeoman" = GLOB.yeoman_positions,
+		"Burgher" = GLOB.burgher_positions,
 		"Peasant" = GLOB.peasant_positions,
-		"Youngfolk" = GLOB.youngfolk_positions,
+		"Sidefolk" = GLOB.sidefolk_positions,
+		"Inquisition" = GLOB.inquisition_positions,
 		"Wanderer" = GLOB.wanderer_positions,
 	)
 

@@ -72,7 +72,7 @@
 	var/ventcrawler = 0 //0 No vent crawling, 1 vent crawling in the nude, 2 vent crawling always
 	var/limb_destroyer = 0 //1 Sets AI behavior that allows mobs to target and dismember limbs with their basic attack.
 
-	var/mob_size = MOB_SIZE_HUMAN
+	var/mob_size = MOB_MEDIUM //Caustic Edit - Changing it from MOB_SIZE_HUMAN to Chomps MOB_MEDIUM
 	var/mob_biotypes = MOB_ORGANIC
 	var/metabolism_efficiency = 1 //more or less efficiency to metabolize helpful/harmful reagents and regulate body temperature..
 	var/has_limbs = 0 //does the mob have distinct limbs?(arms,legs, chest,head)
@@ -142,8 +142,11 @@
 
 	var/ambushable = 0
 
+	// Tracks whether mob is in surrendering state (right-click combat button)
 	var/surrendering = 0
-	var/compliance = 0 // whether we are choosing to auto-resist grabs and stuff
+
+	// Tracks whether mob is in compliance mode (middle-click combat button)
+	var/compliance = 0
 
 	var/defprob = 50 //base chance to defend against this mob's attacks, for simple mob combat
 	var/encumbrance = 0
@@ -169,6 +172,8 @@
 	var/datum/sex_controller/sexcon
 
 	var/slowdown
+
+	var/last_integ_sound
 
 	var/last_dir_change = 0
 
@@ -199,3 +204,8 @@
 
 	/// Parry timer for projectiles post-attack. Hooks into the attack animation, so is fairly clunky.
 	var/projectile_parry_timer
+
+	/// Toggle delay for Specials, or really anything else that you don't want input spam to instantly cycle through.
+	var/toggle_delay = 1 SECONDS
+	/// Toggle timer for Specials, or really anything else that you don't want input spam to instantly cycle through.
+	var/toggle_timer

@@ -91,7 +91,19 @@
 
 /obj/effect/proc_holder/spell/invoked/raise_undead_formation/cast(list/targets, mob/living/user)
 	..()
+	// Caustic Edit Start
+	// Just in case the user doesn't have the spells to manage their minions
+	if(!user.mind.has_spell(/obj/effect/proc_holder/spell/invoked/minion_order))
+		user.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/minion_order)
+	if(!user.mind.has_spell(/obj/effect/proc_holder/spell/invoked/gravemark))
+		user.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/gravemark)
+	// Caustic Edit End
 
+	if(istype(get_area(user), /area/rogue/indoors/ravoxarena))
+		to_chat(user, span_userdanger("I reach for outer help, but something rebukes me! This challenge is only for me to overcome!"))
+		revert_cast()
+		return FALSE
+	
 	var/turf/T = get_turf(targets[1])
 	if(!isopenturf(T))
 		to_chat(user, span_warning("The targeted location is blocked. My summon fails to come forth."))
@@ -99,36 +111,38 @@
 
 	var/skeleton_roll
 
-	var/list/turf/target_turfs = list(T)
-	if(usr.dir == NORTH || usr.dir == SOUTH)
-		target_turfs += get_step(T, EAST)
-		target_turfs += get_step(T, WEST)
-	else
-		target_turfs += get_step(T, NORTH)
-		target_turfs += get_step(T, SOUTH)
-
 	for(var/i = 1 to to_spawn)
 		if(i > to_spawn)
 			i = 1
 
-		var/t_turf = target_turfs[i]
+		if(i > 1)
+			if(user.dir == NORTH || user.dir == SOUTH)
+				if(prob(50))
+					T = get_step(T, EAST)
+				else
+					T = get_step(T, WEST)
+			else
+				if(prob(50))
+					T = get_step(T, NORTH)
+				else
+					T = get_step(T, SOUTH)
 
-		if(!isopenturf(t_turf))
+		if(!isopenturf(T))
 			continue
 
-		new /obj/effect/temp_visual/bluespace_fissure(t_turf)
+		new /obj/effect/temp_visual/bluespace_fissure(T)
 		skeleton_roll = rand(1,100)
 		switch(skeleton_roll)
 			if(1 to 20)
-				new /mob/living/simple_animal/hostile/rogue/skeleton/axe(t_turf, user, cabal_affine)
+				new /mob/living/simple_animal/hostile/rogue/skeleton/axe(T, user, cabal_affine)
 			if(21 to 40)
-				new /mob/living/simple_animal/hostile/rogue/skeleton/spear(t_turf, user, cabal_affine)
+				new /mob/living/simple_animal/hostile/rogue/skeleton/spear(T, user, cabal_affine)
 			if(41 to 60)
-				new /mob/living/simple_animal/hostile/rogue/skeleton/guard(t_turf, user, cabal_affine)
+				new /mob/living/simple_animal/hostile/rogue/skeleton/guard(T, user, cabal_affine)
 			if(61 to 80)
-				new /mob/living/simple_animal/hostile/rogue/skeleton/bow(t_turf, user, cabal_affine)
+				new /mob/living/simple_animal/hostile/rogue/skeleton/bow(T, user, cabal_affine)
 			if(81 to 100)
-				new /mob/living/simple_animal/hostile/rogue/skeleton(t_turf, user, cabal_affine)
+				new /mob/living/simple_animal/hostile/rogue/skeleton(T, user, cabal_affine)
 	return TRUE
 
 /obj/effect/proc_holder/spell/invoked/raise_undead_formation/necromancer
@@ -158,7 +172,17 @@
 
 /obj/effect/proc_holder/spell/invoked/raise_undead_guard/cast(list/targets, mob/living/user)
 	..()
+	// Caustic Edit Start - Adds Gravmark
+	// We don't give "Order Minion" here because it by design does not work with the stronger undead.
+	if(!user.mind.has_spell(/obj/effect/proc_holder/spell/invoked/gravemark))
+		user.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/gravemark)
+	// Caustic Edit End
 
+	if(istype(get_area(user), /area/rogue/indoors/ravoxarena))
+		to_chat(user, span_userdanger("I reach for outer help, but something rebukes me! This challenge is only for me to overcome!"))
+		revert_cast()
+		return FALSE
+		
 	var/turf/T = get_turf(targets[1])
 	if(!isopenturf(T))
 		to_chat(user, span_warning("The targeted location is blocked. My summon fails to come forth."))
@@ -262,6 +286,7 @@
 			else
 				target.mind?.current.faction += faction_tag
 				user.say("Amicus declaratus es.")
+				target.notify_faction_change()
 		else if(istype(target, /mob/living/simple_animal))
 			if (faction_tag in target.faction)
 				target.faction -= faction_tag
@@ -269,5 +294,9 @@
 			else
 				target.faction |= faction_tag
 				user.say("Amicus declaratus es.")
+				target.notify_faction_change()
 		return TRUE
 	return FALSE
+
+/obj/effect/proc_holder/spell/invoked/gravemark/no_sprite
+	overlay_state = ""

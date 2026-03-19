@@ -85,13 +85,20 @@
 		to_chat(L, "*----*")
 		if(ishuman(usr))
 			var/mob/living/carbon/human/M = usr
-			if(M.charflaw)
-				to_chat(M, "<span class='info'>[M.charflaw.desc]</span>")
+			if(M.charflaws.len)
+				for(var/datum/charflaw/cf in M.charflaws)
+					var/datum/charflaw/addiction/ad_cf = null
+					if(istype(cf, /datum/charflaw/addiction))
+						ad_cf = cf
+					to_chat(M, span_danger("[cf.name] [ad_cf ? ad_cf.sated ? span_purple("SATED") : "" : ""]"))
+					to_chat(M, span_info("[cf.desc]"))
 				to_chat(M, "*----*")
 			if(M.mind)
 				if(M.mind.language_holder)
 					var/finn
 					for(var/X in M.mind.language_holder.languages)
+						if(!X || !ispath(X, /datum/language))
+							continue
 						var/datum/language/LA = new X()
 						finn = TRUE
 						to_chat(M, "<span class='info'>[LA.name] - ,[LA.key]</span>")
@@ -628,12 +635,25 @@
 	var/list/modifiers = params2list(params)
 	if(isliving(usr))
 		var/mob/living/L = usr
-		L.playsound_local(L, 'sound/misc/click.ogg', 100)
 		if(modifiers["right"])
+			L.playsound_local(L, 'sound/misc/click.ogg', 100)
 			L.submit()
 		else if(modifiers["middle"])
+			if(L.mob_timers["complybutton"]) // I am fed up with trying to triage issues that new middle click code has. Here, have hacky workaround. - Zoktiik
+				if(world.time < (L.mob_timers["complybutton"] + 0.5 SECONDS))
+					return
+			L.mob_timers["complybutton"] = world.time
+			L.playsound_local(L, 'sound/misc/click.ogg', 100)
 			L.toggle_compliance()
+		else if(modifiers["shift"] && modifiers["left"])
+			to_chat(usr, span_info("* --- *\n\
+			Combat mode button.\n\
+			<b>Left click:</b> toggles combat mode at-will, allowing you to parry or dodge attacks. Usually costs energy (blue stamina) to keep active. Also allows some more destructive interactions with objects.\n\
+			<b>Right click:</b> makes you visibly surrender, showing a white flag above your head and rendering you temporarily unable to move or fight.\n\
+			<b>Middle click:</b> toggles compliance mode at-will, removing your defense against grapples and tackles. Also makes it faster to restrain and strip you.\n\
+			All of these have configurable keybinds; see the Keybinds settings in your preferences window."))
 		else
+			L.playsound_local(L, 'sound/misc/click.ogg', 100)
 			L.toggle_cmode()
 			update_icon()
 
@@ -915,7 +935,7 @@
 			var/obj/item/flipper = usr.get_active_held_item()
 			if(!flipper)
 				return
-			if((!usr.Adjacent(flipper) && !usr.DirectAccess(flipper)) || !isliving(usr) || usr.incapacitated())
+			if((!usr.Adjacent(flipper) && !usr.IsDirectlyAccessible(flipper)) || !isliving(usr) || usr.incapacitated())
 				return
 			var/old_width = flipper.grid_width
 			var/old_height = flipper.grid_height
@@ -1576,13 +1596,20 @@
 /atom/movable/screen/stress
 	name = "sanity"
 	icon = 'icons/mob/roguehud.dmi'
-	icon_state = "stressback"
+	icon_state = "mood_idle"
+
+/atom/movable/screen/stress/Initialize(mapload, ...)
+	. = ..()
+	var/image/mood_base = image(icon, null, "stressback")
+	mood_base.layer = layer - 0.01
+	add_overlay(mood_base)
 
 /atom/movable/screen/stress/update_icon()
-	cut_overlays()
 	var/state2use = "mood_idle"
-	if(ishuman(usr))
-		var/mob/living/carbon/human/H = usr
+
+	var/mob/our_mob = hud?.mymob
+	if(ishuman(our_mob))
+		var/mob/living/carbon/human/H = our_mob
 		//General stress moodlets
 		var/stress_amt = H.get_stress_amount()
 		switch(stress_amt)
@@ -1612,7 +1639,7 @@
 			state2use = "mood_starsugar"
 		if(H.has_status_effect(/datum/status_effect/buff/bloodrage))
 			state2use = "mood_ult"
-		
+
 		//We go down a janky list of exceptions for total overrides
 		if(HAS_TRAIT(H, TRAIT_NOMOOD))
 			state2use = "mood_hopeless"
@@ -1622,8 +1649,17 @@
 			state2use = "mood_zombidle"
 		else if(H.mind?.has_antag_datum(/datum/antagonist/lich))
 			state2use = "mood_boneidle"
-	add_overlay(state2use)
+		else if(H.stat && H.IsSleeping())
+			state2use = "mood_sleep"
+		else if(H.nausea >= 100)
+			state2use = "mood_sick"
+	icon_state = state2use
 
+/atom/movable/screen/stress/proc/flick_pain(var/critical = FALSE)
+	if(critical)
+		flick("mood_ouch", src)
+	else
+		flick("mood_hurt", src)
 
 /atom/movable/screen/stress/Click(location,control,params)
 	var/list/modifiers = params2list(params)
@@ -1631,9 +1667,10 @@
 	if(ishuman(usr))
 		var/mob/living/carbon/human/M = usr
 		if(modifiers["left"])
-			if(M.charflaw)
+			if(M.charflaws.len)
 				to_chat(M, "*----*")
-				to_chat(M, span_info("[M.charflaw.desc]"))
+				for(var/datum/charflaw/cf in M.charflaws)
+					to_chat(M, span_info("[cf.desc]"))
 			to_chat(M, "*--------*")
 			var/list/already_printed = list()
 			var/list/pos_stressors = M.get_positive_stressors()

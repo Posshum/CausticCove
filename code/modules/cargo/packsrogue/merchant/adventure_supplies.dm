@@ -16,52 +16,6 @@
 	cost = 13
 	contains = list(/obj/item/reagent_containers/glass/bottle/waterskin)
 
-/datum/supply_pack/rogue/adventure_supplies/satchel
-	name = "Satchel"
-	cost = 13
-	contains = list(/obj/item/storage/backpack/rogue/satchel)
-
-/datum/supply_pack/rogue/adventure_supplies/shortsatchel
-	name = "Satchel, Short"
-	cost = 13
-	contains = list(/obj/item/storage/backpack/rogue/satchel/short)
-
-/datum/supply_pack/rogue/adventure_supplies/backpack
-	name = "Backpack"
-	cost = 18
-	contains = list(/obj/item/storage/backpack/rogue/backpack)
-
-/datum/supply_pack/rogue/adventure_supplies/pouches
-	name = "Pouch"
-	cost = 8
-	contains = list(
-					/obj/item/storage/belt/rogue/pouch,
-					/obj/item/storage/belt/rogue/pouch,
-					/obj/item/storage/belt/rogue/pouch)
-
-/datum/supply_pack/rogue/adventure_supplies/belts
-	name = "Belt"
-	cost = 14
-	contains = list(
-					/obj/item/storage/belt/rogue/leather,
-					/obj/item/storage/belt/rogue/leather,
-					/obj/item/storage/belt/rogue/leather,
-				)
-
-/datum/supply_pack/rogue/adventure_supplies/sheath
-	name = "Sheath"
-	cost = 12
-	contains = list(
-					/obj/item/rogueweapon/scabbard/sheath
-				)
-
-/datum/supply_pack/rogue/adventure_supplies/scabbard
-	name = "Scabbard"
-	cost = 15
-	contains = list(
-					/obj/item/rogueweapon/scabbard/sword
-				)
-
 /datum/supply_pack/rogue/adventure_supplies/ropes
 	name = "Ropes"
 	cost = 10
@@ -87,15 +41,20 @@
 	contains = list(/obj/item/folding_table_stored)
 
 /datum/supply_pack/rogue/adventure_supplies/folding_alchstation
-	name = "alchemical station kit"
+	name = "Portable Alchemical Station"
 	cost = 45
 	contains = list(/obj/item/folding_alchstation_stored)
 
 /datum/supply_pack/rogue/adventure_supplies/folding_alchcauldron
-	name = "folding cauldron"
+	name = "Folding Cauldron"
 	cost = 45
 	contains = list(/obj/item/folding_alchcauldron_stored)
-
+//caustic edit start
+/datum/supply_pack/rogue/adventure_supplies/mobilestove
+	name = "Mobile Stove"
+	cost = 60
+	contains = list(/obj/item/mobilestove)
+//caustic edit end
 /datum/supply_pack/rogue/adventure_supplies/mess_kit
 	name = "Mess Kit"
 	cost = 60
@@ -115,3 +74,8 @@
 					/obj/item/ration,
 					/obj/item/ration,
 				)
+
+/datum/supply_pack/rogue/adventure_supplies/rationpaper
+	name = "Roll of bandages"
+	cost = 25
+	contains = list(/obj/item/natural/bundle/cloth/bandage/full)

@@ -169,8 +169,8 @@
 		zombie.npc_jump_chance = initial(zombie.npc_jump_chance)
 		zombie.rude = initial(zombie.rude)
 		zombie.tree_climber = initial(zombie.tree_climber)
-		if(zombie.charflaw)
-			zombie.charflaw.ephemeral = FALSE
+		for(var/datum/charflaw/cf in zombie.charflaws)
+			cf.ephemeral = FALSE
 		zombie.update_body()
 
 		zombie.STASTR = src.STASTR
@@ -261,8 +261,8 @@
 	ambushable = zombie.ambushable
 	zombie.ambushable = FALSE
 
-	if(zombie.charflaw)
-		zombie.charflaw.ephemeral = TRUE
+	for(var/datum/charflaw/cf in zombie.charflaws)
+		cf.ephemeral = TRUE
 	zombie.mob_biotypes |= MOB_UNDEAD
 	zombie.faction += "undead"
 	zombie.faction += "zombie"
@@ -374,6 +374,11 @@
 
 	if (!istype(zombie, /mob/living/carbon/human)) // Ensure the zombie is human
 		return
+	
+	//Caustic Edit - Prevent Zombification if currently held within an Observer mob. IE: got digested probably
+	if(istype(zombie.loc, /mob/dead/observer))
+		return
+	//Caustic Edit End
 
 	var/obj/item/bodypart/head = zombie.get_bodypart(BODY_ZONE_HEAD)
 	if (!head) // Missing head
@@ -419,7 +424,10 @@
 
 
 	if (converted || infected_wake)
-		zombie.flash_fullscreen("redflash3")
+		//Caustic Edit
+		if(zombie.show_redflash())
+			zombie.flash_fullscreen("redflash3")
+		//Caustic Edit End
 		zombie.emote("scream") // Warning for nearby players
 		zombie.Knockdown(1)
 
@@ -435,6 +443,8 @@
 		return
 	if(mind.has_antag_datum(/datum/antagonist/skeleton))
 		return
+	//if(mind.has_antag_datum(/datum/antagonist/gnoll)) Caustic edit, allows gnolls to come back as deadite. Preventing claw use as balance.
+	//	return FALSE
 	if(HAS_TRAIT(src, TRAIT_ZOMBIE_IMMUNE))
 		return
 	return mind.add_antag_datum(/datum/antagonist/zombie)

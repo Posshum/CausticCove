@@ -69,19 +69,19 @@
 		needed_xp += needed_xp_for_level(next_skill_level)
 	return needed_xp
 
-/datum/sleep_adv/proc/add_sleep_experience(skill, amt, silent = FALSE)
+/datum/sleep_adv/proc/add_sleep_experience(skill, amt, silent = FALSE, _show_xp = TRUE)
 	var/mob/living/L = mind.current
-	var/show_xp = TRUE
-	if(!(L.client?.prefs.floating_text_toggles & XP_TEXT))
+	var/show_xp = _show_xp
+	if(!(L.client?.prefs.combat_toggles & XP_TEXT))
 		show_xp = FALSE
-	if((L.get_skill_level(skill) < SKILL_LEVEL_APPRENTICE) && !is_considered_sleeping())
+	if((L.get_skill_level(skill) < SKILL_LEVEL_APPRENTICE) && (!is_considered_sleeping()|| HAS_TRAIT(mind.current, TRAIT_VAMP_DREAMS)))
 		var/org_lvl = L.get_skill_level(skill)
 		L.adjust_experience(skill, amt)
 		var/new_lvl = L.get_skill_level(skill)
 		var/capped_post_check = enough_sleep_xp_to_advance(skill, 2)
 		if(COOLDOWN_FINISHED(src, xp_show))
 			if(org_lvl == new_lvl && !capped_post_check && show_xp)
-				L.balloon_alert(L, "[amt] XP")
+				L.balloon_alert(L, "[round(amt, 0.1)] XP")
 				COOLDOWN_START(src, xp_show, XP_SHOW_COOLDOWN)
 		return
 	var/datum/skill/skillref = GetSkillRef(skill)
@@ -116,7 +116,7 @@
 			"[skillref.name] starts making more sense to me...",
 		))))
 		if(!COOLDOWN_FINISHED(src, level_up))
-			if((L.client?.prefs.floating_text_toggles & XP_TEXT))
+			if((L.client?.prefs.combat_toggles & XP_TEXT))
 				L.balloon_alert(L, "<font color = '#9BCCD0'>Level up...</font>")
 			L.playsound_local(L, pick(LEVEL_UP_SOUNDS), 100, TRUE)
 			COOLDOWN_START(src, level_up, XP_SHOW_COOLDOWN)
@@ -126,14 +126,14 @@
 			"My [lowertext(skillref.name)] can no longer improve without some rest and meditation...",
 		))))
 		if(!COOLDOWN_FINISHED(src, level_up))
-			if((L.client?.prefs.floating_text_toggles & XP_TEXT))
+			if((L.client?.prefs.combat_toggles & XP_TEXT))
 				L.balloon_alert(L, "<font color = '#9BCCD0'>Level up...</font>")
 			L.playsound_local(L, pick(LEVEL_UP_SOUNDS), 100, TRUE)
 			COOLDOWN_START(src, level_up, XP_SHOW_COOLDOWN)
 		show_xp = FALSE
 	if(COOLDOWN_FINISHED(src, xp_show))
-		if(amt && show_xp && (L.client?.prefs.floating_text_toggles & XP_TEXT))
-			L.balloon_alert(L, "[amt] XP")
+		if(amt && show_xp && (L.client?.prefs.combat_toggles & XP_TEXT))
+			L.balloon_alert(L, "[round(amt, 0.1)] XP")
 			COOLDOWN_START(src, xp_show, XP_SHOW_COOLDOWN)
 
 /datum/sleep_adv/proc/advance_cycle()
@@ -151,12 +151,15 @@
 	var/dream_dust = retained_dust
 	dream_dust += BASE_DREAM_DUST
 
+	/*
+	CC Edit: Moved this to nightshift.dm
 	var/int = mind.current.STAINT
 	dream_dust += mind.current.STAINT * DREAM_DUST_PER_INT //25% dream points for each int
 	if(int < 10)
 		to_chat(mind.current, span_boldwarning("My shallow imagination makes them dull..."))
 	else if (int > 10)
 		to_chat(mind.current, span_notice("My creative thinking enhances them..."))
+	*/
 
 	var/stress_median = stress_amount / stress_cycles
 
@@ -217,13 +220,14 @@
 /datum/sleep_adv/proc/process_sleep()
 	if(is_considered_sleeping())
 		return
+	if(mind.current.eyesclosed)
+		return
 	close_ui()
 
 /datum/sleep_adv/proc/is_considered_sleeping()
 	if(!mind.current)
 		return FALSE
-	var/has_vamp_trait = HAS_TRAIT(mind.current, TRAIT_VAMP_DREAMS)
-	if(has_vamp_trait)
+	if(HAS_TRAIT(mind?.current, TRAIT_VAMP_DREAMS))
 		return TRUE
 	if(mind.current.IsSleeping())
 		return TRUE
@@ -332,6 +336,9 @@
 	if(HAS_TRAIT(mind.current, TRAIT_STUDENT))
 		REMOVE_TRAIT(mind.current, TRAIT_STUDENT, TRAIT_GENERIC)
 		to_chat(mind.current, span_smallnotice("I feel that I can be educated in a skill once more."))
+	if(HAS_TRAIT(mind.current, TRAIT_EXPLOSIVE_SUPPLY))
+		mind.has_bomb = TRUE
+		to_chat(mind.current, span_smallnotice("I need to check on HERMES. I think a new package has arrived."))
 	close_ui()
 
 /datum/sleep_adv/Topic(href, list/href_list)
@@ -339,7 +346,7 @@
 	if(!mind.current)
 		close_ui()
 		return
-	if(!is_considered_sleeping())
+	if(!mind.current.eyesclosed)
 		close_ui()
 		return
 	switch(href_list["task"])
