@@ -890,14 +890,14 @@
 /// Helper proc that returns the worn item ref that has the highest rating covering the def_zone (targeted zone) for the d_type (damage type)
 /mob/living/carbon/human/proc/get_best_worn_armor(def_zone, d_type)
 	var/obj/item/clothing/used
-	if(def_zone == BODY_ZONE_TAUR)
-		def_zone = pick(BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)
 	//CC Edit Begin - Layered Armor Integrity
 	var/new_val = 0 //We are the newest armor rating value.
 	var/old_val = 0 //We are the HIGHEST armor rating value.
 	//CC Edit End 0 - Layered Armor Integrity
+	if(def_zone == BODY_ZONE_TAUR)
+		def_zone = pick(BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)
 
-	else if(get_taur_tail())
+	if(get_taur_tail())
 		switch(def_zone)
 			if(BODY_ZONE_PRECISE_L_FOOT)
 				def_zone = BODY_ZONE_L_LEG
