@@ -934,6 +934,11 @@
 /// Similar to get_best_worn_armor(), but instead returns a list of all armors that protect the same spot.
 /mob/living/carbon/human/proc/get_all_of_worn_armors(def_zone, d_type)
 	var/list/used_armors_list = list()
+	var/new_val = 0 //We are the newest
+	var/old_val
+	var/shield //Boolshit check.
+	var/list/body_parts = list(skin_armor, head, wear_mask, wear_wrists, gloves, wear_neck, cloak, wear_armor, wear_shirt, shoes, wear_pants, backr, backl, belt, s_store, glasses, ears, wear_ring) //Everything but pockets. Pockets are l_store and r_store. (if pockets were allowed, putting something armored, gloves or hats for example, would double up on the armor)
+
 	if(def_zone == BODY_ZONE_TAUR)
 		def_zone = pick(BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)
 	else if(get_taur_tail())
@@ -942,15 +947,11 @@
 				def_zone = BODY_ZONE_L_LEG
 			if(BODY_ZONE_PRECISE_R_FOOT)
 				def_zone = BODY_ZONE_R_LEG
-	var/new_val = 0 //We are the newest
-	var/old_val
-	var/shield //Boolshit check.
-	var/list/body_parts = list(skin_armor, head, wear_mask, wear_wrists, gloves, wear_neck, cloak, wear_armor, wear_shirt, shoes, wear_pants, backr, backl, belt, s_store, glasses, ears, wear_ring) //Everything but pockets. Pockets are l_store and r_store. (if pockets were allowed, putting something armored, gloves or hats for example, would double up on the armor)
 	if(skin_armor)
 		var/obj/item/clothing/C = skin_armor
 		if(C.obj_integrity > 0)
 			used_armors_list += C
-	else
+	else if(!skin_armor)
 		for(var/bp in body_parts) //Check for every BP of armor on them.
 			if(!bp)
 				continue
