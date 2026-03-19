@@ -73,24 +73,24 @@
 					remove_status_effect(/datum/status_effect/debuff/vulnerable)
 					emote("groan", forced = TRUE)
 		
-		//CC Edit Begin - Layered armor Integrity
-		//Integrity Spread armor ratio begins here.
-		if(length(used_armors) >= 2) //Check if we even have multiple armors.
-			var/ratio_index = 1
-			var/ratio_total = 0
-			var/list/AC_ratio = get_armor_class_ratio(used_armors)
-			for(var/ii in 1 to length(AC_ratio))
-				var/val = AC_ratio[ratio_index]
-				ratio_index++
-				ratio_total += val
+			//CC Edit Begin - Layered armor Integrity
+			//Integrity Spread armor ratio begins here.
+			if(length(used_armors) >= 2) //Check if we even have multiple armors.
+				var/ratio_index = 1
+				var/ratio_total = 0
+				var/list/AC_ratio = get_armor_class_ratio(used_armors)
+				for(var/ii in 1 to length(AC_ratio))
+					var/val = AC_ratio[ratio_index]
+					ratio_index++
+					ratio_total += val
 
-			if(ratio_total) //Only spread damage if the ratio has a value. Typically this will always be the case.
-				var/damage_ratio_percentage = AC_ratio[cur_armor] / ratio_total
-				intdamage *= damage_ratio_percentage
-	
-		used.take_damage(intdamage, damage_flag = d_type, sound_effect = FALSE, armor_penetration = 100)
-		cur_armor++ //Index to the next armor piece.
-		//CC Edit End - Layered Armor Integrity
+				if(ratio_total) //Only spread damage if the ratio has a value. Typically this will always be the case.
+					var/damage_ratio_percentage = AC_ratio[cur_armor] / ratio_total
+					intdamage *= damage_ratio_percentage
+
+			used.take_damage(intdamage, damage_flag = d_type, sound_effect = FALSE, armor_penetration = 100)
+			cur_armor++ //Index to the next armor piece.
+			//CC Edit End - Layered Armor Integrity
 	
 	else
 		var/list/layers = get_best_worn_armor_layered(def_zone, d_type)
@@ -887,13 +887,12 @@
 
 /// Helper proc that returns the worn item ref that has the highest rating covering the def_zone (targeted zone) for the d_type (damage type)
 /mob/living/carbon/human/proc/get_best_worn_armor(def_zone, d_type)
-	var/protection = 0
 	var/obj/item/clothing/used
 	if(def_zone == BODY_ZONE_TAUR)
 		def_zone = pick(BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)
 	//CC Edit Begin - Layered Armor Integrity
-	var/new_val = 0 //We are the newest
-	var/old_val = 0 //We are the HIGHEST
+	var/new_val = 0 //We are the newest armor rating value.
+	var/old_val = 0 //We are the HIGHEST armor rating value.
 	//CC Edit End 0 - Layered Armor Integrity
 
 	else if(get_taur_tail())
