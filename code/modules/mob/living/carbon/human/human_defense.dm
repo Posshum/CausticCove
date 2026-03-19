@@ -896,8 +896,7 @@
 	//CC Edit End 0 - Layered Armor Integrity
 	if(def_zone == BODY_ZONE_TAUR)
 		def_zone = pick(BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)
-
-	if(get_taur_tail())
+	else if(get_taur_tail())
 		switch(def_zone)
 			if(BODY_ZONE_PRECISE_L_FOOT)
 				def_zone = BODY_ZONE_L_LEG
