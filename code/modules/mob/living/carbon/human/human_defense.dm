@@ -93,7 +93,9 @@
 			//CC Edit End - Layered Armor Integrity
 	
 	else
-		var/list/layers = get_best_worn_armor_layered(def_zone, d_type)
+		//CC Edit Begin
+		var/list/layers = get_best_worn_armor(def_zone, d_type)
+		//CC Edit End
 		if(length(layers))
 			for(var/C in layers)
 				if(layers[C] > protection)
