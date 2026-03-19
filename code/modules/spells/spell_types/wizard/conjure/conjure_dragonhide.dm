@@ -55,7 +55,9 @@
 	armor = ARMOR_DRAGONHIDE
 	body_parts_covered = COVERAGE_ALL_BUT_HANDFEET | COVERAGE_HEAD_NOSE | NECK | HANDS | FEET
 	unenchantable = TRUE
+	//CC Edit Begin
 	shielding_armor = ARMOR_SHIELD
+	//CC Edit End
 
 /obj/item/clothing/suit/roguetown/dragonhide/equipped(mob/living/user)
 	. = ..()

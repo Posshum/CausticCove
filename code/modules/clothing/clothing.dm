@@ -59,8 +59,10 @@
 	var/chunkcolor = "#5e5e5e"
 	var/material_category = ARMOR_MAT_LEATHER
 
+	//CC Edit Begin
 	//Used in regards to temporary/overshield armors I.E. Fateweaver/Dragonhide, magical barriers, etc. Always takes the full damage during armor integrity damage ratio calculations.
 	var/shielding_armor = FALSE
+	//CC Edit End
 
 /obj/item
 	var/blocking_behavior
