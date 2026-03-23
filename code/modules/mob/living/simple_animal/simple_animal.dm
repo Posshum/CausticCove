@@ -884,15 +884,40 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 /mob/living/simple_animal/update_transform()
 	var/matrix/ntransform = matrix(transform) //aka transform.Copy()
-	var/changed = FALSE
-
+	var/final_pixel_y = pixel_y
+	var/final_dir = dir
+	var/changed = 0
+	if(lying != lying_prev)
+		changed++
+		if(!lying) //Lying to standing
+			final_pixel_y = get_standard_pixel_y_offset()
+		else //if(lying != 0)
+			if(lying_prev == 0) //Standing to lying
+				pixel_y = get_standard_pixel_y_offset()
+				final_pixel_y = get_standard_pixel_y_offset(lying)
+				if(dir & (EAST|WEST)) //Facing east or west
+//					final_dir = pick(NORTH, SOUTH) //So you fall on your side rather than your face or ass
+					final_dir = SOUTH
 	if(resize != RESIZE_DEFAULT_SIZE)
-		changed = TRUE
+		changed++
 		ntransform.Scale(resize)
 		resize = RESIZE_DEFAULT_SIZE
 
 	if(changed)
-		animate(src, transform = ntransform, time = 2, easing = EASE_IN|EASE_OUT)
+//		animate(src, transform = ntransform, time = (lying_prev == 0 || !lying) ? 2 : 0, pixel_y = final_pixel_y, dir = final_dir, easing = (EASE_IN|EASE_OUT))
+		transform = ntransform
+		// Only reset pixel_x if we're not in a custom pixel shift
+		if(!is_shifted)
+			pixel_x = get_standard_pixel_x_offset()
+			pixel_y = final_pixel_y
+		dir = final_dir
+		setMovetype(movement_type & ~FLOATING)  // If we were without gravity, the bouncing animation got stopped, so we make sure we restart it in next life().
+		update_vision_cone()
+	else
+		// Only reset pixel_x if we're not in a custom pixel shift
+		if(!is_shifted)
+			pixel_x = get_standard_pixel_x_offset()
+			pixel_y = get_standard_pixel_y_offset(lying)
 
 /mob/living/simple_animal/proc/sentience_act() //Called when a simple animal gains sentience via gold slime potion
 	toggle_ai(AI_OFF) // To prevent any weirdness.
@@ -901,21 +926,19 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 /mob/living/simple_animal/update_sight()
 	if(!client)
 		return
-	if(stat == DEAD)
-		sight = (SEE_TURFS|SEE_MOBS|SEE_OBJS)
-		see_in_dark = 8
-		see_invisible = SEE_INVISIBLE_OBSERVER
-		return
 
-	see_invisible = initial(see_invisible)
-	see_in_dark = initial(see_in_dark)
 	sight = initial(sight)
+	lighting_alpha = initial(lighting_alpha)
 
 	if(client.eye != src)
 		var/atom/A = client.eye
-		if(A.update_remote_sight(src)) //returns 1 if we override all other sight updates.
-			return
-	sync_lighting_plane_alpha()
+		if(A)
+			if(A.update_remote_sight(src)) //returns 1 if we override all other sight updates.
+				return
+
+	if(see_override)
+		see_invisible = see_override
+	. = ..()
 
 /mob/living/simple_animal/can_hold_items()
 	return dextrous

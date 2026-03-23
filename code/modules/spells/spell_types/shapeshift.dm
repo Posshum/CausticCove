@@ -75,6 +75,7 @@
 	var/mob/living/shape = new shapeshift_type(caster.loc)
 	H = new(shape,src,caster)
 	shape.name = "[shape]"
+	shape.hud_type = caster.hud_type
 
 	clothes_req = FALSE
 	human_req = FALSE
