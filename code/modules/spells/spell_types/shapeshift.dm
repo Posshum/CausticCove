@@ -76,6 +76,7 @@
 	H = new(shape,src,caster)
 	shape.name = "[shape]"
 	shape.hud_type = caster.hud_type
+	shape.hud_used = caster.hud_used
 
 	clothes_req = FALSE
 	human_req = FALSE
