@@ -75,8 +75,13 @@
 	var/mob/living/shape = new shapeshift_type(caster.loc)
 	H = new(shape,src,caster)
 	shape.name = "[shape]"
-	shape.hud_type = caster.hud_type
-	shape.hud_used = caster.hud_used
+	if(issimple(shape))
+		var/mob/living/simple_animal/shape_simp = shape
+		shape_simp.next_grid_update_time = INFINITY //Do not call grid updates. Ever. No AI Processing.
+		shape_simp.AIStatus = AI_OFF //We shouldn't process our AI.
+		shape_simp.can_have_ai = FALSE
+	shape.update_fov_angles()
+	shape.vis_flags = VIS_INHERIT_ID|VIS_INHERIT_LAYER|VIS_INHERIT_PLANE
 
 	clothes_req = FALSE
 	human_req = FALSE

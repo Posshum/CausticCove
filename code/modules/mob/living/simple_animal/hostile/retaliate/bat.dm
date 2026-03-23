@@ -31,7 +31,6 @@
 	movement_type = FLYING
 	speak_emote = list("squeaks")
 	base_intents = list(/datum/intent/bite)
-	sight = (SEE_TURFS|SEE_MOBS|SEE_OBJS|SEE_SELF)
 	see_in_dark = 8
 	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
 	STASTR = 1 // You are not charging or bumping anyone down
@@ -98,7 +97,6 @@
 	melee_damage_upper = 0
 	remains_type = /obj/effect/decal/remains/crow
 	fly_time = 3 SECONDS // slowing down crow for witches
-	sight = 0
 
 /obj/effect/decal/remains/crow
 	name = "zad remains"

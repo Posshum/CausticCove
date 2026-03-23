@@ -666,6 +666,8 @@
 /datum/hud/human/hidden_inventory_update(mob/viewer)
 	if(!mymob)
 		return
+	if(!ishuman(viewer))
+		return
 	var/mob/living/carbon/human/H = mymob
 
 	var/mob/screenmob = viewer || H

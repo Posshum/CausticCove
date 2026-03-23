@@ -71,6 +71,8 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 	draw_icon = TRUE
 
 /mob/dead/observer/admin
+	sight = 0
+	see_in_dark = 10
 	hud_type = /datum/hud/adminghost
 
 /mob/dead/observer/rogue/nodraw
