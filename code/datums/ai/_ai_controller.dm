@@ -779,6 +779,12 @@ have ways of interacting with a specific atom and control it. They posses a blac
 				next_to_clear -= inner_value
 
 		index += 1
+		
+/datum/ai_controller/proc/recalculate_idle()
+	if(ai_status == AI_STATUS_OFF)
+		return
+	if(should_idle())
+		set_ai_status(AI_STATUS_OFF)
 
 #undef TRACK_AI_DATUM_TARGET
 #undef CLEAR_AI_DATUM_TARGET
