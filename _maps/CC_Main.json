@@ -1,0 +1,16 @@
+{
+    "map_name": "Caustic Cove Main",
+    "map_path": "map_files/CC_Main",
+    "map_file": ["CC_Main.dmm"],
+	"traits": [{"Name": "Cove World", "Up": true}, {"Up": true, "Down": true}, {"Up": true, "Down": true}, {"Up": true, "Down": true}, {"Down": true}],
+	"minetype": null,
+	"space_empty_levels": 0,
+	"space_ruin_levels": 0,
+	"matthios_dungeon": 0,
+	"shuttles": {
+	    "cargo": "cargo_rogue",
+	    "ferry": "ferry_base",
+	    "whiteship": "whiteship_box",
+	    "emergency": "emergency_rogue"
+    }
+}
