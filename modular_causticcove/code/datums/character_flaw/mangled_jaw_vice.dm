@@ -6,3 +6,7 @@
 
 /datum/charflaw/mangled_jaw/on_mob_creation(mob/user)
 	ADD_TRAIT(user, TRAIT_MANGLED_JAW, TRAIT_GENERIC)
+
+//TO ADD - Make speaking a pain. Screaming/Yelling should be even more painful. 
+// Possibly make oral cause issues as well when attempting to perform or being made to take oral.
+// Spellcasting could have a chance to fail on a scale of how much pain you're possibly in with this vice if it's an incantation you speak.
