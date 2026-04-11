@@ -73,3 +73,25 @@
 //Resets the whp to its initial value, used for tolerating the pain and refreshing forced feeding.
 /datum/wound/jaw_abuse/proc/refresh()
 	whp = initial(whp)
+
+/datum/wound/jaw_abuse/on_mob_gain(mob/living/affected)
+	warn() //Warn the user about the pain they're in. Helps then gauge when they finally have relief.
+
+/datum/wound/jaw_abuse/on_mob_loss(mob/living/affected)
+	if(ishuman(affected))
+		if(stage > 3) //If the person is doing their best to count the time, don't spam em too much.
+			to_chat(affected, span_info("The aching feeling in my jaw has vanished."))
+
+/datum/wound/jaw_abuse/proc/warn(mob/living/affected)
+	if(ishuman(affected))
+		switch(stage)
+			if(1)
+				to_chat(affected, span_info("This hurts."))
+			if(2)
+				to_chat(affected, span_info("This hurts a good bit."))
+			if(3)
+				to_chat(affected, span_info("This hurts a lot!"))
+			if(4)
+				to_chat(affected, span_info("THIS HURTS!"))
+			if(5)
+				to_chat(affected, span_info("AAAAHHHHH!!!"))

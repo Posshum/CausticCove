@@ -26,6 +26,51 @@ GLOBAL_LIST_INIT(freqtospan, list(
 	spans |= speech_span
 	if(!language)
 		language = get_default_language()
+
+	//CC Edit - Mangled Jaw Vice
+	if(ishuman(C))
+		if(HAS_TRAIT(C, TRAIT_MANGLED_JAW))
+			var/painpercent = (C.get_complex_pain() / C.pain_threshold) * 100
+			if(painpercent >= 50)
+				to_chat(C, span_warning("It hurts!"))
+			for(var/obj/item/bodypart/head/head in C.bodyparts)
+				if(head.status == BODYPART_ROBOTIC || head.skeletonized)
+					continue
+				//Should only return one wound at a time.
+				var/jaw_abuse_found
+				for(var/datum/wound/jaw_abuse/jaw_wound in head.wounds)
+					jaw_abuse_found = TRUE
+					if(prob(10))
+						visible_message(span_notice("[C.name] struggles to speak."))
+					var/cur_stage = jaw_wound.stage
+					if(cur_stage >= 4) //High pain stage. If you can manage to tolerate the pain however you're good.
+						if(painpercent >= 33)
+							to_chat(C, span_warning("I can't speak, it hurts too much!"))
+							if(!forced)
+								visible_message(span_warning("[C.name] struggles to open their jaw.")) //Give them a moment, be polite.
+								return FALSE //Woe, spellcasters.
+							else //Handle when the user is forced to speak.
+								visible_message(span_warning("[C.name] unwillingly forces themselves to speak."))
+								cur_stage++
+								if(cur_stage > 5)
+									jaw_wound.refresh()
+									break
+								head.remove_wound(jaw_wound)
+								head.add_wound(jaw_wound.jaw_wounds_ascending[cur_stage])
+								break
+						else //Refresh the duration for tolerating the pain.
+							to_chat(C, span_warning("I manage to tolerate the pain."))
+							jaw_wound.refresh()
+							break
+					cur_stage++ //Iterate to the next stage on the list.
+					head.remove_wound(jaw_wound)
+					head.add_wound(jaw_wound.jaw_wounds_ascending[cur_stage])
+					break
+				//Only give us the first stage if we cannot find any jaw wounds prior.
+				if(!jaw_abuse_found)
+					head.add_wound(/datum/wound/jaw_abuse/first_stage)
+	//CC Edit - Mangled Jaw Vice
+
 	send_speech(message, message_range, src, , spans, message_language=language, message_mode = message_mode)
 
 /atom/movable/proc/Hear(message, atom/movable/speaker, message_language, raw_message, radio_freq, list/spans, message_mode)
