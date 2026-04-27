@@ -228,8 +228,7 @@
 /turf/open/floor/rogue/sandbrick,
 /area/rogue/outdoors/desertdeep/above)
 "afN" = (
-/obj/structure/bed/rogue/shit,
-/obj/effect/landmark/start/prisonerr{
+/obj/structure/bed/rogue/shit{
 	dir = 1
 	},
 /turf/open/floor/rogue/sandbrick,
@@ -3515,14 +3514,14 @@
 /turf/open/floor/rogue/concrete,
 /area/rogue/under/cave)
 "bta" = (
-/obj/item/clothing/shoes/roguetown/boots/blacksteel/plateboots,
+/obj/item/clothing/shoes/roguetown/boots/armor/blacksteel/modern,
 /obj/structure/closet/crate/chest/gold{
 	locked = 1;
 	lockid = "lich"
 	},
-/obj/item/clothing/gloves/roguetown/blacksteel/plategloves,
+/obj/item/clothing/gloves/roguetown/plate/blacksteel/modern,
 /obj/item/clothing/suit/roguetown/armor/plate/blacksteel_full_plate,
-/obj/item/clothing/head/roguetown/helmet/blacksteel/bucket,
+/obj/item/clothing/head/roguetown/helmet/blacksteel,
 /turf/open/floor/rogue/church,
 /area/rogue/under/cave/licharena/bossroom)
 "btf" = (
@@ -3564,7 +3563,7 @@
 /obj/structure/fluff/railing/border{
 	dir = 8
 	},
-/obj/effect/landmark/start/orphan{
+/obj/effect/landmark/start/vagabond{
 	dir = 1
 	},
 /turf/open/floor/rogue/church,
@@ -3593,10 +3592,10 @@
 /area/rogue/outdoors/desert)
 "buR" = (
 /obj/structure/closet/crate/roguecloset,
-/obj/item/clothing/cloak/stabard/surcoat,
-/obj/item/clothing/cloak/stabard/surcoat,
-/obj/item/clothing/cloak/stabard/surcoat,
-/obj/item/clothing/cloak/stabard/surcoat,
+/obj/item/clothing/cloak/tabard/stabard/surcoat,
+/obj/item/clothing/cloak/tabard/stabard/surcoat,
+/obj/item/clothing/cloak/tabard/stabard/surcoat,
+/obj/item/clothing/cloak/tabard/stabard/surcoat,
 /obj/item/clothing/head/roguetown/roguehood/shalal,
 /obj/item/clothing/head/roguetown/roguehood/shalal,
 /obj/item/clothing/head/roguetown/roguehood/shalal,
@@ -4433,7 +4432,7 @@
 /turf/open/floor/rogue/darkpath,
 /area/rogue/outdoors/town/desert)
 "bLl" = (
-/obj/effect/landmark/start/rookie,
+/obj/effect/landmark/start/squire,
 /turf/open/floor/rogue/wood,
 /area/rogue/indoors/town/garrison/desert)
 "bLt" = (
@@ -5823,7 +5822,7 @@
 /area/rogue)
 "cmN" = (
 /obj/effect/landmark/start/dt/janissary,
-/obj/effect/landmark/start/manorguardsman,
+/obj/effect/landmark/start/guardsman,
 /obj/structure/rack/rogue/shelf,
 /obj/effect/landmark/start/dt/janissary,
 /turf/open/floor/carpet/royalblack,
@@ -7073,7 +7072,6 @@
 /area/rogue/outdoors/desert)
 "cMg" = (
 /obj/structure/bed/rogue/shit,
-/obj/effect/landmark/start/prisonerb,
 /turf/open/floor/rogue/darkpath,
 /area/rogue/indoors/town/cell{
 	warden_area = 1
@@ -7226,7 +7224,7 @@
 "cOY" = (
 /obj/item/cushion/desert1,
 /obj/machinery/light/rogue/candle/r,
-/obj/effect/landmark/start/beastmonger,
+/obj/effect/landmark/start/cook,
 /turf/open/floor/rogue/tile/brownbrick{
 	icon = 'modular_deserttown/icons/alt/roguefloor.dmi'
 	},
@@ -8304,7 +8302,7 @@
 /turf/open/floor/rogue/darkpath,
 /area/rogue/indoors/town/desert)
 "djv" = (
-/obj/effect/landmark/start/nightmaiden,
+/obj/effect/landmark/start/bathworker,
 /turf/open/floor/rogue/carpet,
 /area/rogue/indoors/town/bath/desert)
 "djG" = (
@@ -9404,7 +9402,7 @@
 	},
 /area/rogue/indoors/town/desert)
 "dEW" = (
-/obj/effect/landmark/start/butler{
+/obj/effect/landmark/start/seneschal{
 	dir = 8
 	},
 /obj/effect/landmark/start/dt/headslave,
@@ -10990,7 +10988,7 @@
 	},
 /area/rogue/indoors/town/desert)
 "ejk" = (
-/obj/effect/landmark/start/manorguardsman,
+/obj/effect/landmark/start/guardsman,
 /obj/structure/roguemachine/bounty{
 	pixel_y = 32
 	},
@@ -12977,8 +12975,7 @@
 /turf/open/floor/rogue/desert_grass,
 /area/rogue/indoors/town/church/chapel)
 "eZg" = (
-/obj/structure/bed/rogue/shit,
-/obj/effect/landmark/start/prisonerr{
+/obj/structure/bed/rogue/shit{
 	dir = 4
 	},
 /turf/open/floor/rogue/sandbrick,
@@ -14192,7 +14189,7 @@
 /turf/open/floor/rogue/dirt/road/desert,
 /area/rogue/outdoors/desertdeep)
 "fAf" = (
-/obj/effect/landmark/start/manorguardsman,
+/obj/effect/landmark/start/guardsman,
 /obj/effect/landmark/start/dt/janissary,
 /obj/machinery/light/rogue/candle,
 /obj/effect/landmark/start/dt/janissary,
@@ -15092,7 +15089,7 @@
 /turf/open/floor/rogue/sandbrick,
 /area/rogue/outdoors/town/manor/desert/roofs)
 "fRp" = (
-/obj/effect/landmark/start/churchling,
+/obj/effect/landmark/start/sexton,
 /turf/open/floor/rogue/churchmarble,
 /area/rogue/indoors/town/church/chapel)
 "fRs" = (
@@ -18445,11 +18442,11 @@
 /area/rogue/outdoors/desert)
 "hms" = (
 /obj/structure/rack/rogue,
-/obj/item/clothing/cloak/stabard/guard,
-/obj/item/clothing/cloak/stabard/guard,
-/obj/item/clothing/cloak/stabard/guard,
-/obj/item/clothing/cloak/stabard/guard,
-/obj/item/clothing/cloak/stabard/guard,
+/obj/item/clothing/cloak/tabard/stabard/guard,
+/obj/item/clothing/cloak/tabard/stabard/guard,
+/obj/item/clothing/cloak/tabard/stabard/guard,
+/obj/item/clothing/cloak/tabard/stabard/guard,
+/obj/item/clothing/cloak/tabard/stabard/guard,
 /obj/item/clothing/cloak/tabard/knight/guard,
 /obj/item/clothing/cloak/tabard/knight/guard,
 /obj/item/clothing/cloak/tabard/knight/guard,
@@ -18769,7 +18766,7 @@
 /turf/open/floor/rogue/citybrick/citybrick6,
 /area/rogue/outdoors/desertdeep/above)
 "htH" = (
-/obj/effect/landmark/start/butler{
+/obj/effect/landmark/start/seneschal{
 	dir = 8
 	},
 /turf/open/floor/rogue/wood,
@@ -19397,7 +19394,7 @@
 /turf/open/floor/rogue/naturalstone/sandstone,
 /area/rogue/under/town/basement/desert/town)
 "hIe" = (
-/obj/effect/landmark/start/orphan{
+/obj/effect/landmark/start/vagabond{
 	dir = 1
 	},
 /turf/open/floor/rogue/church,
@@ -20126,7 +20123,6 @@
 /area/rogue/outdoors/desertdeep)
 "hYZ" = (
 /obj/structure/bed/rogue/shit,
-/obj/effect/landmark/start/prisonerb,
 /turf/open/floor/rogue/sandbrick,
 /area/rogue/indoors/town/cell{
 	warden_area = 1
@@ -21956,7 +21952,7 @@
 /area/rogue/indoors/town/church)
 "iNY" = (
 /obj/effect/landmark/start/dt/janissary,
-/obj/effect/landmark/start/manorguardsman,
+/obj/effect/landmark/start/guardsman,
 /obj/effect/landmark/start/dt/janissary,
 /turf/open/floor/carpet/royalblack,
 /area/rogue/indoors/town/garrison/desert)
@@ -22180,8 +22176,8 @@
 	keylock = 1;
 	lockid = "armory"
 	},
-/obj/item/clothing/cloak/stabard/guard,
-/obj/item/clothing/cloak/stabard/guard,
+/obj/item/clothing/cloak/tabard/stabard/guard,
+/obj/item/clothing/cloak/tabard/stabard/guard,
 /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/zyb,
 /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/zyb,
 /turf/open/floor/rogue/woodturned,
@@ -22821,7 +22817,7 @@
 /turf/open/floor/rogue/woodturned/nosmooth,
 /area/rogue/outdoors/town/manor/desert/roofs)
 "jih" = (
-/obj/effect/landmark/start/barkeeper,
+/obj/effect/landmark/start/innkeeper,
 /turf/open/floor/rogue/tile/harem1,
 /area/rogue/indoors/town/tavern/desert)
 "jil" = (
@@ -25872,7 +25868,7 @@
 /turf/open/floor/rogue/churchmarble,
 /area/rogue/under/cave/licharena)
 "kpD" = (
-/obj/effect/landmark/start/bogguardsman{
+/obj/effect/landmark/start/warden{
 	dir = 1
 	},
 /obj/effect/landmark/start/dt/azeb,
@@ -31156,7 +31152,7 @@
 /turf/open/floor/rogue/greenstone/runed,
 /area/rogue/indoors/town/magician/desert)
 "myO" = (
-/obj/effect/landmark/start/guard_captain{
+/obj/effect/landmark/start/sergeant{
 	dir = 1
 	},
 /turf/open/floor/rogue/carpet/lord/center,
@@ -33853,7 +33849,7 @@
 	},
 /area/rogue/under/town/basement/desert/keep)
 "nDP" = (
-/obj/effect/landmark/start/barkeep,
+/obj/effect/landmark/start/innkeeper,
 /turf/open/floor/rogue/tile/harem1,
 /area/rogue/indoors/town/tavern/desert)
 "nDT" = (
@@ -34982,7 +34978,6 @@
 /area/rogue/under/cave/rhgoblinencampment)
 "obK" = (
 /obj/structure/bed/rogue/shit,
-/obj/effect/landmark/start/prisonerr,
 /turf/open/floor/rogue/sandbrick,
 /area/rogue/indoors/town/garrison/desert/cell)
 "obM" = (
@@ -36164,7 +36159,7 @@
 /obj/structure/fluff/railing/border{
 	dir = 4
 	},
-/obj/effect/landmark/start/orphan{
+/obj/effect/landmark/start/vagabond{
 	dir = 1
 	},
 /turf/open/floor/rogue/church,
@@ -36310,7 +36305,7 @@
 /turf/open/floor/rogue/desert_grass,
 /area/rogue/outdoors/desert/river)
 "oAz" = (
-/obj/effect/landmark/start/bogmaster,
+/obj/effect/landmark/start/warden,
 /obj/effect/landmark/start/dt/azebagha,
 /turf/open/floor/rogue/sandbrick,
 /area/rogue/outdoors/desert)
@@ -36997,16 +36992,16 @@
 /area/rogue/under/town/basement/desert/keep)
 "oOr" = (
 /obj/structure/rack/rogue,
-/obj/item/clothing/cloak/stabard/surcoat/guard,
-/obj/item/clothing/cloak/stabard/surcoat/guard,
-/obj/item/clothing/cloak/stabard/surcoat/guard,
-/obj/item/clothing/cloak/stabard/surcoat/guard,
-/obj/item/clothing/cloak/stabard/surcoat/guard,
-/obj/item/clothing/cloak/stabard/guardhood,
-/obj/item/clothing/cloak/stabard/guardhood,
-/obj/item/clothing/cloak/stabard/guardhood,
-/obj/item/clothing/cloak/stabard/guardhood,
-/obj/item/clothing/cloak/stabard/guardhood,
+/obj/item/clothing/cloak/tabard/stabard/surcoat/guard,
+/obj/item/clothing/cloak/tabard/stabard/surcoat/guard,
+/obj/item/clothing/cloak/tabard/stabard/surcoat/guard,
+/obj/item/clothing/cloak/tabard/stabard/surcoat/guard,
+/obj/item/clothing/cloak/tabard/stabard/surcoat/guard,
+/obj/item/clothing/cloak/tabard/stabard/guardhood,
+/obj/item/clothing/cloak/tabard/stabard/guardhood,
+/obj/item/clothing/cloak/tabard/stabard/guardhood,
+/obj/item/clothing/cloak/tabard/stabard/guardhood,
+/obj/item/clothing/cloak/tabard/stabard/guardhood,
 /turf/open/floor/rogue/tile/brownbrick{
 	icon = 'modular_deserttown/icons/alt/roguefloor.dmi'
 	},
@@ -37726,7 +37721,7 @@
 /area/rogue/outdoors/desert/above)
 "pdn" = (
 /obj/structure/chair/stool/rogue,
-/obj/effect/landmark/start/churchling,
+/obj/effect/landmark/start/sexton,
 /turf/open/floor/carpet/red,
 /area/rogue/indoors/town/church)
 "pdF" = (
@@ -39618,7 +39613,7 @@
 /area/rogue/outdoors/desertdeep/above)
 "pPN" = (
 /obj/structure/bars/grille,
-/obj/effect/landmark/start/bogguardsman{
+/obj/effect/landmark/start/warden{
 	dir = 1
 	},
 /obj/effect/landmark/start/dt/azeb,
@@ -43291,7 +43286,7 @@
 /turf/open/floor/rogue/sandbrick,
 /area/rogue/under/town/basement/desert/town)
 "rrI" = (
-/obj/effect/landmark/start/priest,
+/obj/effect/landmark/start/bishop,
 /obj/item/cushion/zybantine,
 /turf/open/floor/carpet/purple,
 /area/rogue/indoors/town/church/chapel)
@@ -44959,7 +44954,7 @@
 	},
 /area/rogue/indoors/town/desert)
 "rZX" = (
-/obj/effect/landmark/start/nightman{
+/obj/effect/landmark/start/bathmaster{
 	dir = 1
 	},
 /obj/structure/chair/wood/zybantine{
@@ -51626,7 +51621,7 @@
 /area/rogue/under/cave/dungeon1)
 "uDL" = (
 /obj/structure/closet/crate/roguecloset/inn,
-/obj/item/clothing/cloak/psydontabard,
+/obj/item/clothing/cloak/tabard/psydontabard,
 /obj/item/clothing/mask/rogue/facemask/psydonmask,
 /obj/item/clothing/head/roguetown/roguehood/psydon,
 /turf/open/floor/carpet/red,
@@ -54485,7 +54480,7 @@
 /turf/open/floor/rogue/darkpath,
 /area/rogue/indoors/town/garrison/desert/cell)
 "vJa" = (
-/obj/effect/landmark/start/manorguardsman,
+/obj/effect/landmark/start/guardsman,
 /obj/effect/landmark/start/dt/janissary,
 /turf/open/floor/carpet/royalblack,
 /area/rogue/indoors/town/garrison/desert)
@@ -55989,7 +55984,7 @@
 /area/rogue/under/town/basement/desert/town)
 "wms" = (
 /obj/structure/chair/wood/rogue/fancy,
-/obj/effect/landmark/start/sheriff{
+/obj/effect/landmark/start/marshal{
 	dir = 1
 	},
 /obj/structure/rack/rogue/shelf,
@@ -56320,7 +56315,7 @@
 /area/rogue/outdoors/desert)
 "wtC" = (
 /obj/structure/closet/crate/roguecloset,
-/obj/item/clothing/cloak/psydontabard,
+/obj/item/clothing/cloak/tabard/psydontabard,
 /obj/item/clothing/mask/rogue/facemask/psydonmask,
 /obj/item/clothing/head/roguetown/roguehood/psydon,
 /obj/item/rogueweapon/mace/cudgel,
@@ -56688,7 +56683,7 @@
 	keep_area = 1
 	})
 "wCH" = (
-/obj/effect/landmark/start/sapprentice,
+/obj/effect/landmark/start/guildsman,
 /turf/open/floor/rogue/deserttile{
 	icon_state = "tiledrab2";
 	color = "#d4d6d6"
@@ -57400,7 +57395,6 @@
 /area/rogue/indoors/town/manor/desert)
 "wQZ" = (
 /obj/structure/bed/rogue/shit,
-/obj/effect/landmark/start/prisonerr,
 /turf/open/floor/rogue/darkpath,
 /area/rogue/indoors/town/garrison/desert/cell)
 "wRj" = (
@@ -60612,7 +60606,7 @@
 /area/rogue/under/underdarker)
 "ydw" = (
 /obj/structure/closet/crate/roguecloset,
-/obj/item/clothing/cloak/psydontabard,
+/obj/item/clothing/cloak/tabard/psydontabard,
 /obj/item/clothing/mask/rogue/facemask/psydonmask,
 /obj/item/clothing/head/roguetown/roguehood/psydon,
 /obj/item/rogueweapon/mace/cudgel,

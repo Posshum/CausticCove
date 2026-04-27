@@ -17,7 +17,7 @@
 		/datum/job/roguetown/prince = list(display_title = "Amir", f_title = "Amira"),
 		// /datum/job/roguetown/marshal = list(display_title = "Mayor"),
 		/datum/job/roguetown/priest =  list(display_title = "High Priest", f_title = "High Priestess"),
-		/datum/job/roguetown/captain = list(display_title = "Cataphract Captain"),
+		// /datum/job/roguetown/captain = list(display_title = "Cataphract Captain"), //CC Edit - Removed for now.
 		/datum/job/roguetown/physician = list(display_title = "Palace Physician"),
 		/datum/job/roguetown/villager = list(display_title = "Villager"),
 		/datum/job/roguetown/magician = list(display_title = "Palace Magician"),
@@ -64,7 +64,7 @@
 
 		//church. Fine as is
 
-		/datum/job/roguetown/butler,// headslave
+		/datum/job/roguetown/seneschal, //CC Edit - /butler -> /senseschal   // headslave
 		// /datum/job/roguetown/councillor,// sheikh
 		// /datum/job/roguetown/magician,// moved to an if-map-then-outfit statement in the baseblock
 		/datum/job/roguetown/jester, //are jesters really a desert thing? Maybe ought to push people into playing slaves instead..?
@@ -72,15 +72,15 @@
 
 		/datum/job/roguetown/manorguard,//  mamaluk
 		// /datum/job/roguetown/rookie,//  mamalukrookie!
-		/datum/job/roguetown/guardsman,//  mamaluk
-		/datum/job/roguetown/vanguard,//  jannissary
+		/datum/job/roguetown/manorguard, //CC Edit - /guardsman -> manorguard  //  mamaluk
+		///datum/job/roguetown/sergeant, //CC Edit - Commented out for now. //  jannissary
 		/datum/job/roguetown/warden,//  jannissary
-		/datum/job/roguetown/dungeoneer,// Slavemaster. Okay it's a bit different but it's nice to cut bloat y'know!
+		// /datum/job/roguetown/dungeoneer, //CC Edit - We use Bailiff.  // Slavemaster. Okay it's a bit different but it's nice to cut bloat y'know!
 		/datum/job/roguetown/sergeant,//janissary sergeant
 		// /datum/job/roguetown/squire,
 		// /datum/job/roguetown/veteran,
-		/datum/job/roguetown/watchcaptain,
-		/datum/job/roguetown/wardenmaster,
+		// /datum/job/roguetown/watchcaptain, //CC Edit - Don't have yet.
+		// /datum/job/roguetown/wardenmaster, //CC Edit - Don't have yet.
 
 		//trader (probably fine to keep as it is)
 
@@ -101,7 +101,7 @@
 		// /datum/job/roguetown/hostage,
 		// /datum/job/roguetown/nightmaiden, // Current ones are probably fine?
 		// /datum/job/roguetown/cook,
-		/datum/job/roguetown/knavewench, //maybe after expanding the tavern for it
+		// /datum/job/roguetown/knavewench, //CC Edit - Removed for now. //maybe after expanding the tavern for it
 		// /datum/job/roguetown/lunatic,
 
 
@@ -132,7 +132,7 @@
 		// /datum/job/roguetown/slavemaster,
 		// /datum/job/roguetown/dtslave,
 
-	threat_regions = list(
+	/* threat_regions = list(
 		THREAT_REGION_DESERT_NEAR,
 		THREAT_REGION_DESERT_DEEP,
-	)
+	) */

@@ -3401,6 +3401,7 @@
 #include "modular_causticcove\code\modules\mob\living\carbon\human\species_types\witchshape\vernard.dm"
 #include "modular_causticcove\code\modules\mob\living\carbon\human\species_types\witchshape\volf.dm"
 #include "modular_causticcove\code\modules\mob\living\carbon\human\species_types\witchshape\zad.dm"
+#include "modular_causticcove\code\modules\clothing\storage\treasures\treasure_pouch.dm"
 #include "modular_causticcove\code\modules\clothing\npc\hobgoblin_armor.dm"
 #include "modular_causticcove\code\modules\mob\living\carbon\hobgoblin\ambush_config\ambush_hobgoblin.dm"
 #include "modular_causticcove\code\modules\mob\living\carbon\human\species.dm"
@@ -3506,6 +3507,7 @@
 #include "modular_ochrevalley\code\modules\mob\living\simple_animal\rogue\ooze_blob.dm"
 
 //Ratwood's Desert Town stuff here
+#include "modular_deserttown\code\controllers\subsystem\rogue\regional_threat\__define.dm"
 #include "modular_deserttown\camel.dm"
 #include "modular_deserttown\desertareas.dm"
 #include "modular_deserttown\desertclothing.dm"
@@ -3515,6 +3517,17 @@
 #include "modular_deserttown\desertstuff.dm"
 #include "modular_deserttown\desertwalls.dm"
 #include "modular_deserttown\hyena.dm"
+#include "modular_deserttown\code\datums\status_effects\rogue\debuff.dm"
+#include "modular_deserttown\code\modules\reagents\reagent_containers\powderspice.dm"
+#include "modular_deserttown\code\modules\roguetown\mapgen\underdarkrat.dm"
+#include "modular_deserttown\code\game\objects\effects\effect_system\effects_smoke.dm"
+#include "modular_deserttown\code\game\objects\items\rogueitems\natural\zizobane.dm"
+#include "modular_deserttown\code\game\objects\items\spellbooks\granters.dm"
+#include "modular_deserttown\code\game\turfs\open\floor\roguefloor.dm"
+#include "modular_deserttown\mobs\living\carbon\skeleton.dm"
+#include "modular_deserttown\mobs\living\simple_animal\friendly\archibald.dm"
+#include "modular_deserttown\mobs\living\simple_animal\hostile\retaliate\summons\void\voiddragonboss.dm"
+#include "modular_deserttown\mobs\living\simple_animal\rogue\creacher\rock_spider.dm"
 /*#include "modular_deserttown\jobs\courtslave.dm" //Since we won't actually use these jobs yet? Probably can just comment them out for now.
 #include "modular_deserttown\jobs\desertjobs.dm"
 #include "modular_deserttown\jobs\dtslave.dm"

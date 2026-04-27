@@ -443,3 +443,80 @@
 	converted_type = /area/rogue/outdoors/exposed/church
 	deathsight_message = "a hallowed place, sworn to the One"
 	first_time_text = "THE HOUSE OF THE ONE"
+
+/area/rogue/indoors/town/grove
+	name = "grove"
+	icon_state = "druidgrove"
+	droning_sound = 'modular_deserttown/sounds/sound_music_area_druid.ogg'
+	droning_sound_dusk = null
+	droning_sound_night = null
+	droning_sound_dawn = 'sound/music/area/forest.ogg'
+	converted_type = /area/rogue/indoors/shelter/woods
+	deathsight_message = "A sacred place of dendor, beneath the tree of Aeons.."
+	warden_area = TRUE
+	town_area = FALSE
+
+/area/rogue/outdoors/town/grove
+	icon_state = "druidgrove"
+	color = "#b8b5c9"
+	droning_sound = 'modular_deserttown/sounds/sound_music_area_druid.ogg'
+	droning_sound_dawn = 'sound/music/area/forest.ogg'
+	converted_type = /area/rogue/indoors/town/grove
+	deathsight_message = "A sacred place of dendor, near the tree of Aeons.."
+	first_time_text = null
+	droning_sound_dusk = null
+	droning_sound_night = null
+	warden_area = TRUE
+	town_area = FALSE
+
+/area/rogue/under/cave/rhgoblinencampment
+	name = "goblin encampment"
+	icon_state = "under"
+	first_time_text = "Lost Encampment"
+	ambientsounds = AMB_BASEMENT
+	ambientnight = AMB_BASEMENT
+	droning_sound = 'modular_deserttown/sounds/sound_music_area_gobcamp.ogg'
+	droning_sound_dusk = null
+	droning_sound_night = null
+	ceiling_protected = TRUE
+	deathsight_message = "A hidden goblin-stained fortress"
+
+/area/rogue/under/underdark/rockhill
+	name = "Central Underdark"
+	first_time_text = "The Underdark"
+	spookysounds = SPOOKY_MYSTICAL
+	spookynight = SPOOKY_MYSTICAL
+	ambush_mobs = list(
+		/mob/living/simple_animal/hostile/retaliate/rogue/spider/mutated = 20,
+		/mob/living/simple_animal/hostile/retaliate/rogue/spider = 15,
+		/mob/living/simple_animal/hostile/retaliate/rogue/mole = 15,
+		/mob/living/simple_animal/hostile/retaliate/rogue/minotaur = 15,
+		/mob/living/carbon/human/species/goblin/npc/ambush/moon = 40,
+		/mob/living/simple_animal/hostile/retaliate/rogue/troll = 15)
+	deathsight_message = "deep, dark and mushroom filled caverns"
+
+/area/rogue/under/underdarker
+	name = "Central Underdark" // Northern is Sunken City
+	icon_state = "cavewet"
+	warden_area = FALSE
+	first_time_text = "The Underdark" // This is where most people will enter Underdark
+	ambientsounds = AMB_CAVEWATER
+	ambientnight = AMB_CAVEWATER
+	spookysounds = SPOOKY_CAVE
+	spookynight = SPOOKY_CAVE
+	droning_sound = 'sound/music/area/underdark.ogg'
+	droning_sound_dusk = null
+	droning_sound_night = null
+	ambush_times = list("night","dawn","dusk","day")
+	ambush_mobs = list(
+				/mob/living/simple_animal/hostile/retaliate/rogue/spider/mutated = 20,
+				/mob/living/carbon/human/species/elf/dark/drowraider/ambush = 10,
+				/mob/living/simple_animal/hostile/retaliate/rogue/minotaur = 25,
+				/mob/living/carbon/human/species/goblin/npc/ambush/moon = 30,
+				/mob/living/simple_animal/hostile/retaliate/rogue/troll = 15,
+				/mob/living/simple_animal/hostile/retaliate/rogue/drider = 10,
+	)
+	converted_type = /area/rogue/outdoors/caves
+	deathsight_message = "an acid-scarred depths"
+	detail_text = DETAIL_TEXT_UNDERDARK
+//This version will use a different terraingen that spawns unhappy shrooms instead of happy shrooms, for scarier and eviler underdarks
