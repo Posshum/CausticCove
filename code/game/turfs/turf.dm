@@ -117,6 +117,10 @@
 		QUEUE_SMOOTH(src)
 		QUEUE_SMOOTH_NEIGHBORS(src)
 
+	//CC Edit - Checks if this can be placed in the turfs_affected list in SSnature.
+	//This simple proc makes it really easy to add more turfs in the future.
+	SSnature.attempt_add_to_turf_list(src)
+
 	ComponentInitialize()
 
 	return INITIALIZE_HINT_NORMAL

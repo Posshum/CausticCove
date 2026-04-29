@@ -33,6 +33,9 @@
 			name = "burnt tree"
 			update_icon()
 
+		//CC Edit - Burning trees makes nature angry. Especially if you don't put it out.
+		SSnature.nature_happiness -= NATURE_HAPPINESS_LOW
+
 /obj/structure/flora/newtree/attack_right(mob/user)
 	if(user.cmode)
 		return
@@ -44,6 +47,9 @@
 	src.obj_flags = CAN_BE_HIT | BLOCK_Z_IN_UP //so the logs actually fall when pulled by zfall
 	if(burnt)
 		damage_flag = "fire"
+
+	//CC Edit - You destroyed this tree! How dare you! The size of the tree impacts the happiness lost.
+	SSnature.nature_happiness -= NATURE_HAPPINESS_HIGH
 
 	for(var/obj/structure/flora/newtree/D in UPNT)//theoretically you'd be able to break trees through a floor but no one is building floors under a tree so this is probably fine
 		D.obj_destruction(damage_flag)
@@ -235,6 +241,14 @@
 		AddComponent(/datum/component/squeak, list('sound/foley/plantcross1.ogg','sound/foley/plantcross2.ogg','sound/foley/plantcross3.ogg','sound/foley/plantcross4.ogg'), 100)
 		base_state = "center-leaf[rand(1,2)]"
 	update_icon()
+
+	//CC Edit - Cache to branch list for nature subsystem.
+	SSnature.branches_affected += src
+
+//CC Edit - You destroyed this branch! How dare you! The size of the tree the branches were on, impacts the happiness lost.
+/obj/structure/flora/newbranch/Destroy()
+	. = ..()
+	SSnature.nature_happiness -= NATURE_HAPPINESS_LOW
 
 /obj/structure/flora/newbranch/connector
 	icon_state = "branch-extend"

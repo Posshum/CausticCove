@@ -132,6 +132,7 @@
 #define INIT_ORDER_OUTPUTS			35
 #define INIT_ORDER_ATOMS			30
 #define INIT_ORDER_TREESETUP		27 // CC Edit for Map Template
+#define INIT_ORDER_NATURE			26 // CC Edit - Nature...
 #define INIT_ORDER_LANGUAGE			25
 #define INIT_ORDER_MACHINES			20
 #define INIT_ORDER_SKILLS			15

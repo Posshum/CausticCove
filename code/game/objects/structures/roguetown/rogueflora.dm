@@ -302,7 +302,22 @@
 /obj/structure/flora/roguegrass/Initialize()
 	update_icon()
 	AddComponent(/datum/component/roguegrass)
+
+	//CC Edit - Can Upgrade into Kneestingers or Flowers
+	add_to_upgrade_list()
 	. = ..()
+
+/obj/structure/flora/roguegrass/attempt_upgrade()
+	. = ..()
+	var/spawned
+	if(SSnature.nature_happiness < SAD_NATURE_THRESHOLD)	
+		new /obj/structure/glowshroom(src)
+		spawned = TRUE
+	else if(SSnature.nature_happiness > HAPPY_NATURE_THRESHOLD)
+		new /obj/structure/flora/ausbushes/ywflowers(src)
+		spawned = TRUE
+	if(spawned)
+		qdel(src)
 
 /obj/structure/flora/roguegrass/update_icon()
 	icon_state = "grass[rand(1, 6)]"

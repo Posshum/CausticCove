@@ -5,10 +5,38 @@
 	layer = LYING_MOB_LAYER
 	plane = GAME_PLANE
 
+	//CC Edit - Nature's Happiness.
+	var/natural_happiness = NATURE_HAPPINESS_LOW
+
 /obj/structure/flora/Initialize()
 	. = ..()
 	if(isclosedturf(loc))
 		return INITIALIZE_HINT_QDEL
+
+	//CC Edit - Nature!
+	SSnature.how_many_plants_exist++
+
+//CC Edit - Nature DESTROY!!!
+/obj/structure/flora/Destroy()
+	. = ..()
+	SSnature.how_many_plants_exist--
+
+	//We destroyed a plant... How vile... Every plant by default is 0.25 happiness point.
+	SSnature.nature_happiness -= natural_happiness
+	
+	//Check if we're here to begin with before removing us.
+	if(src in SSnature.plants_affected)
+		SSnature.plants_affected -= src
+
+//CC Edit - Nature proc for upgrading plants to their next tier, I.E. Grass -> Flowers, Bushes -> Tall Bushes.
+//We remove ourselves from the plants_affected list upon being Destroyed, do not manually call that in your upgrades.
+/obj/structure/flora/proc/attempt_upgrade()
+	return
+
+//CC Edit - Add this plant to the upgrade list for plants_affected in SSnature
+/obj/structure/flora/proc/add_to_upgrade_list()
+	SSnature.plants_affected += src
+	return
 
 /obj/structure/flora/rogueflora
     icon = 'icons/obj/flora/rogueflora.dmi'
