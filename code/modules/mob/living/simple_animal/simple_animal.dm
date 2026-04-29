@@ -644,6 +644,8 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 				if(rotstuff)
 					var/obj/item/reagent_containers/food/snacks/F = I
 					F.become_rotten()
+		
+		SSnature.nature_happiness += NATURE_HAPPINESS_MID //CC Edit - Butchering is good. Do it. Don't let the meat, hide, bones, etc., go to waste.
 
 		if(user.mind)
 			user.mind.add_sleep_experience(/datum/skill/labor/butchering, user.STAINT * 0.5)

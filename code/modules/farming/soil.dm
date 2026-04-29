@@ -79,6 +79,7 @@ GLOBAL_LIST_EMPTY(soil_list)
 /obj/structure/soil/proc/user_harvests(mob/living/user)
 	if(!produce_ready)
 		return
+	SSnature.nature_happiness += NATURE_HAPPINESS_LOW - 0.05 //CC Edit - Much lower rate considering you can mass produce these and harvest at a farm.
 	apply_farming_fatigue(user, 5)
 	add_sleep_experience(user, /datum/skill/labor/farming, user.STAINT * 2)
 

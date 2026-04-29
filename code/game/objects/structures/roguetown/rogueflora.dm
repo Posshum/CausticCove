@@ -125,6 +125,8 @@
 	. = ..()
 	if(activated && !cooldown)
 		retaliate(user)
+		SSnature.nature_happiness -= NATURE_HAPPINESS_HIGH + 1 //CC Edit - Now you fucked up.
+		
 
 
 /obj/structure/flora/roguetree/wise/proc/retaliate(mob/living/target)
@@ -148,6 +150,7 @@
 
 /obj/structure/flora/roguetree/wise/druids/take_damage(damage_amount, damage_type = BRUTE || BURN, damage_flag, sound_effect = TRUE)
 	. = ..()
+	SSnature.nature_happiness -= NATURE_HAPPINESS_HIGH + 1 //CC Edit - You're pissing off the druids.
 	SEND_GLOBAL_SIGNAL(COMSIG_SACRED_TREE_DAMAGED, src, damage_amount)
 
 /obj/structure/flora/roguetree/burnt
@@ -448,6 +451,7 @@
 					res_replenish = world.time + 8 MINUTES
 				var/obj/item/B = pick_n_take(looty)
 				if(B)
+					SSnature.nature_happiness += NATURE_HAPPINESS_LOW //CC Edit - Nothing beats the fruits of your labors!
 					B = new B(user.loc)
 					user.put_in_hands(B)
 					user.visible_message(span_notice("[user] finds [B] in [src]."))
@@ -748,6 +752,7 @@
 					res_replenish = world.time + 8 MINUTES
 				var/obj/item/B = pick_n_take(looty)
 				if(B)
+					SSnature.nature_happiness += NATURE_HAPPINESS_LOW //CC Edit - Fruits of ur labors.
 					B = new B(user.loc)
 					user.put_in_hands(B)
 					user.visible_message("<span class='notice'>[user] finds [B] in [src].</span>")
@@ -800,11 +805,13 @@
 					res_replenish = world.time + 8 MINUTES
 				var/obj/item/B = pick_n_take(looty)
 				if(B)
+					SSnature.nature_happiness += NATURE_HAPPINESS_LOW //CC Edit - Fruits of ur labors.
 					B = new B(user.loc)
 					user.put_in_hands(B)
 					if(HAS_TRAIT(user, TRAIT_WOODWALKER))
 						var/obj/item/C = new B.type(user.loc)
 						user.put_in_hands(C)
+						SSnature.nature_happiness += NATURE_HAPPINESS_LOW //CC Edit - Double Kill! ... Or harvest in this case.
 					user.visible_message("<span class='notice'>[user] finds [HAS_TRAIT(user, TRAIT_WOODWALKER) ? "two of " : ""][B] in [src].</span>")
 					return
 			user.visible_message("<span class='warning'>[user] searches through [src].</span>")
@@ -846,6 +853,7 @@
 			if(looty.len && prob(75))
 				var/obj/item/B = pick_n_take(looty)
 				if(B)
+					SSnature.nature_happiness += NATURE_HAPPINESS_LOW //CC Edit - Mmm Pumbpkin...
 					B = new B(user.loc)
 					user.put_in_hands(B)
 					user.visible_message("<span class='notice'>[user] finds [B] in [src].</span>")
