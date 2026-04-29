@@ -64,6 +64,11 @@
 	if(timerid)
 		deltimer(timerid)
 
+//CC Edit - NO UPGRADES!
+/obj/structure/flora/roguegrass/herb/attempt_upgrade()
+	return //Do not upgrade herbs. They are not meant to be upgraded.
+	
+
 /obj/structure/flora/roguegrass/herb/random
 	name = "random herb"
 	desc = "Haha, im in danger."
