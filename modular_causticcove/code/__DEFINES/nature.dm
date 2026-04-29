@@ -5,10 +5,12 @@
 #define MAX_NATURE_POINTS 100
 #define MIN_NATURE_POINTS 0
 
+//The Round Start value. By default this is -10.
+#define ROUND_START_NATURE_HAPPINESS -10
+
 //A scale between 100, and -100. When Nature is happy, it will grow happy plants. If nature is unhappy, it will grow evil plants. (More Maneaters, etc.)
 //Dendorites can affect this happiness scale, growing sacred trees will please this scale. Anyone who destroys nature who are not dendorites will decrease happiness.
 //This passively resets overtime back to 0 if the value is negative and enough time has passed without anyone harming nature.
-#define ROUND_START_NATURE_HAPPINESS 50 //Default to 50 happiness.
 #define MAX_NATURE_HAPPINESS 100
 #define DEFAULT_NATURE_HAPPINESS 0 //Do not change these values without viewing how they are used in the probabilities and happiness proc.
 #define MIN_NATURE_HAPPINESS -100
@@ -79,4 +81,5 @@
 //The objects that can spawn on trees in the world, associated by weight.
 #define BRANCH_OBJECTS list(/obj/item/reagent_containers/food/snacks/crow = 19, /obj/structure/fluff/nest = 1)
 
-
+//The objects that can spawn on trees only when nature is unhappy, associated by weight.
+#define EVIL_BRANCH_OBJECTS list(/obj/item/reagent_containers/food/snacks/crow = 20)

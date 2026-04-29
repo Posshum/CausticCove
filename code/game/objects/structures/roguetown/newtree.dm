@@ -240,10 +240,10 @@
 	if(base_state)
 		AddComponent(/datum/component/squeak, list('sound/foley/plantcross1.ogg','sound/foley/plantcross2.ogg','sound/foley/plantcross3.ogg','sound/foley/plantcross4.ogg'), 100)
 		base_state = "center-leaf[rand(1,2)]"
-	update_icon()
 
-	//CC Edit - Cache to branch list for nature subsystem.
-	SSnature.branches_affected += src
+		//CC Edit - Cache to branch list for nature subsystem. Add only if the "base_state" is TRUE (i.e. It's a branch with leaves and not just a branch on the ground.)
+		SSnature.branches_affected += src
+	update_icon()
 
 //CC Edit - You destroyed this branch! How dare you! The size of the tree the branches were on, impacts the happiness lost.
 /obj/structure/flora/newbranch/Destroy()

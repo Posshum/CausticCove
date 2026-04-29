@@ -307,16 +307,21 @@
 	add_to_upgrade_list()
 	. = ..()
 
+//Handle the upgrades of the default grass. Use this as a reference for adding new types to other plants, see the bush for a smaller scale reference.
 /obj/structure/flora/roguegrass/attempt_upgrade()
-	. = ..()
-	var/spawned
+	var/spawned_atom
+		//Spawn an evil glowshroom.
 	if(SSnature.nature_happiness < SAD_NATURE_THRESHOLD)	
-		new /obj/structure/glowshroom(src)
-		spawned = TRUE
-	else if(SSnature.nature_happiness > HAPPY_NATURE_THRESHOLD)
-		new /obj/structure/flora/ausbushes/ywflowers(src)
-		spawned = TRUE
-	if(spawned)
+		spawned_atom = new /obj/structure/glowshroom(get_turf(src))
+		//Spawn some beautiful flowers.
+	else if(SSnature.nature_happiness > JUBILANT_NATURE_THRESHOLD)
+		var/list/possible_flowers = list(/obj/structure/flora/ausbushes/ywflowers,
+		 								 /obj/structure/flora/ausbushes/brflowers,
+										 /obj/structure/flora/ausbushes/lavendergrass,
+										 /obj/structure/flora/ausbushes/ppflowers)
+		var/chosen_flower = pick(possible_flowers)
+		spawned_atom = new chosen_flower(get_turf(src))
+	if(spawned_atom)
 		qdel(src)
 
 /obj/structure/flora/roguegrass/update_icon()
@@ -327,6 +332,11 @@
 	desc = "This grass is sodden and muddy."
 	icon_state = "swampgrass"
 	max_integrity = 5
+
+//CC Edit - No Upgrades for water grass.
+/obj/structure/flora/roguegrass/water/attempt_upgrade()
+	return
+	
 
 /obj/structure/flora/roguegrass/water/reeds
 	name = "reeds"
@@ -386,6 +396,8 @@
 					/obj/item/reagent_containers/food/snacks/grown/rogue/pipeweed=1))
 	loot_replenish()
 	pixel_x += rand(-3,3)
+
+	add_to_upgrade_list() //CC Edit
 	return ..()
 
 /obj/structure/flora/roguegrass/bush/proc/loot_replenish()
@@ -496,6 +508,19 @@
 	if(get_dir(loc, target) == dir)
 		return 0
 	return 1
+
+//CC Edit - Bush Upgrade Paths
+/obj/structure/flora/roguegrass/bush/attempt_upgrade()
+	var/spawned_atom
+		//Spawn an evil bush... No more fibers for you!
+	if(SSnature.nature_happiness < MISERABLE_NATURE_THRESHOLD)
+		spawned_atom = new /obj/structure/flora/roguegrass/thorn_bush(get_turf(src))
+
+		//Spawn a giant bush wall...
+	else if(SSnature.nature_happiness > HAPPY_NATURE_THRESHOLD)
+		spawned_atom = new /obj/structure/flora/roguegrass/bush/wall(get_turf(src))
+	if(spawned_atom)
+		qdel(src)
 
 /obj/structure/flora/roguegrass/bush/westleach
 	name = "westleach bush"

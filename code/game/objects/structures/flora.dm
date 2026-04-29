@@ -31,6 +31,7 @@
 //CC Edit - Nature proc for upgrading plants to their next tier, I.E. Grass -> Flowers, Bushes -> Tall Bushes.
 //We remove ourselves from the plants_affected list upon being Destroyed, do not manually call that in your upgrades.
 /obj/structure/flora/proc/attempt_upgrade()
+	debug_admins("[src] is not applicable for the Nature Subsystem Upgrade/Evolution, please notify a coder or maintainer.")
 	return
 
 //CC Edit - Add this plant to the upgrade list for plants_affected in SSnature
@@ -196,6 +197,10 @@
 	desc = "A lively patch of greenery sits here."
 	icon = 'icons/obj/flora/ausflora.dmi'
 	icon_state = "firstbush_1"
+	//CC Edit - Make these the same as grass, please.
+	max_integrity = 2
+	blade_dulling = DULLING_CUT
+	debris = list(/obj/item/natural/fibers = 1)
 
 /obj/structure/flora/ausbushes/Initialize()
 	if(icon_state == "firstbush_1")

@@ -1,6 +1,6 @@
 SUBSYSTEM_DEF(nature)
 	name = "Nature"
-	flags = SS_KEEP_TIMING | SS_NO_INIT
+	flags = SS_BACKGROUND | SS_NO_INIT
 
 	//We are growing plants everytime this runs, please be careful when adjusting this timer.
 	wait = 5 MINUTES
@@ -90,14 +90,15 @@ SUBSYSTEM_DEF(nature)
 			//Pick a random turf from our affected turfs list.
 			var/turf/T = pick(turfs_affected)
 
-			//Don't use turfs that already contain something. 
-			if(length(T.contents))
-				continue
+			//Check if we can enter so we don't spawn shit inside other shit that isn't accessible by normal means.
+			for(var/obj/O in T.contents)
+				if(!(O.Enter()))
+					continue //Object with density located; lets skip it boys.
 			
 			//Pick our plant. Checks happiness first before we choose what to spawn and makes a choice based on happiness.
 			var/chosen_plant
 			//Angy >:(
-			if(nature_happiness > DEFAULT_NATURE_HAPPINESS)
+			if(nature_happiness < DEFAULT_NATURE_HAPPINESS)
 				chosen_plant = pick(EVIL_PLANT_OBJECTS)
 			//Hapi <:)
 			else
@@ -114,11 +115,11 @@ SUBSYSTEM_DEF(nature)
 			//Pick our object. Checks happiness first before we choose what to spawn and makes a choice based on happiness.
 			var/chosen_object
 			//Angy >:(
-			if(nature_happiness > DEFAULT_NATURE_HAPPINESS)
-				chosen_object = pick(EVIL_PLANT_OBJECTS)
+			if(nature_happiness < DEFAULT_NATURE_HAPPINESS)
+				chosen_object = pick(EVIL_BRANCH_OBJECTS)
 			//Hapi <:)
 			else
-				chosen_object = pick(PLANT_OBJECTS)
+				chosen_object = pick(BRANCH_OBJECTS)
 			
 			//Actually spawn the object now.
 			var/branch_object = new chosen_object(get_turf(B))
@@ -140,12 +141,11 @@ SUBSYSTEM_DEF(nature)
 		//The more bored the forest is, the less we wanna upgrade. If Happiness is 10 - 100, 90 prob to return.
 		if(prob((abs(nature_happiness) - MAX_NATURE_HAPPINESS)))
 			return
-
-		var/obj/structure/flora/cur_plant = plants_affected[i]
-		if(istype(cur_plant, /obj/structure/flora))
+			
+		if(i < length(plants_affected))
+			var/obj/structure/flora/cur_plant = plants_affected[i+1]
 			cur_plant.attempt_upgrade()
-		else
-			debug_admins("[cur_plant.type] IS NOT ALLOWED IN THE NATURE SUBSYSTEM! ALERT A CODER OR MAINTAINER!")
+
 
 //Allowed in the turf list? Blotch it on there then!
 /datum/controller/subsystem/nature/proc/attempt_add_to_turf_list(turf/T)
