@@ -735,7 +735,7 @@
 	if(isliving(AM))
 		var/mob/living/L = AM
 		if((L.mobility_flags & MOBILITY_STAND)) //Thorny bushes do not need you to run to cut you.
-			if(!ishuman(L))
+			if(ishuman(L))
 				var/mob/living/carbon/human/H = L
 				if(prob(25)) //Yeowch.
 					if(!HAS_TRAIT(src, TRAIT_PIERCEIMMUNE))
