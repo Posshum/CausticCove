@@ -1,6 +1,6 @@
 SUBSYSTEM_DEF(nature)
 	name = "Nature"
-	flags = SS_BACKGROUND | SS_NO_INIT
+	flags = SS_BACKGROUND
 
 	//We are growing plants everytime this runs, please be careful when adjusting this timer.
 	wait = 5 MINUTES
@@ -34,6 +34,9 @@ SUBSYSTEM_DEF(nature)
 	//The happiness of nature. If this falls under a certain threshold, the nature subsystem may spawn more evil plants in the world.
 	var/nature_happiness = ROUND_START_NATURE_HAPPINESS
 
+/datum/controller/subsystem/nature/Initialize(start_timeofday)
+	. = ..()
+	nature_happiness = initial(nature_happiness) //Just so that map creation doesn't ... Y'know, fuck shit up.
 
 /datum/controller/subsystem/nature/fire(resumed)
 	//This should never happen.
@@ -42,8 +45,8 @@ SUBSYSTEM_DEF(nature)
 
 	//Handle Point Growth
 	if(cur_points < MAX_NATURE_POINTS)
-		//If we have 7588 plants alive, we end up with 32 points.
-		//If we have 1652 plants alive, we end up with 151 points.
+		//If we have 75880 plants alive, we end up with 320 points.
+		//If we have 16520 plants alive, we end up with 1510 points.
 		cur_points += clamp(floor((MAX_PLANT_POPULATION / how_many_plants_exist) * GROWTH_DIVISOR), MIN_NATURE_POINTS, MAX_NATURE_POINTS)
 
 	//Handle Point Multiplier based on our current god.
@@ -80,19 +83,20 @@ SUBSYSTEM_DEF(nature)
 	if(how_many_objects_exist > MAX_BRANCH_OBJECTS)
 		can_branches = FALSE //Too many objects!!!
 
-	var/max_attempts = cur_points
+	var/max_attempts = cur_points * point_multiplier
 	for(var/i in 1 to max_attempts)
 		if(cur_points <= MIN_NATURE_POINTS)
-			return //We used up all of our points!
+			return //We used up all of our current points!
+		cur_points--
 
 		//Handle Plants at a rate equal to nature's happiness, the angrier, or happier, nature is, the more often it will grow plants.
 		if(can_plants && prob((abs(nature_happiness)))) 
 			//Pick a random turf from our affected turfs list.
 			var/turf/T = pick(turfs_affected)
 
-			//Check if we can enter so we don't spawn shit inside other shit that isn't accessible by normal means.
+			//Check if we can enter so we don't spawn shit inside other shit that isn't accessible by normal means. Like trees and logs.
 			for(var/obj/O in T.contents)
-				if(!(O.Enter()))
+				if(!O.Enter())
 					continue //Object with density located; lets skip it boys.
 			
 			//Pick our plant. Checks happiness first before we choose what to spawn and makes a choice based on happiness.
@@ -135,7 +139,7 @@ SUBSYSTEM_DEF(nature)
 	else if(nature_happiness < RESTING_LIMIT_NATURE_HAPPINESS)
 		nature_happiness += 20
 
-//Handle
+//Handle Plant Upgrades
 /datum/controller/subsystem/nature/proc/handle_upgrades()
 	for(var/i in 1 to length(plants_affected))
 		//The more bored the forest is, the less we wanna upgrade. If Happiness is 10 - 100, 90 prob to return.
@@ -143,7 +147,7 @@ SUBSYSTEM_DEF(nature)
 			return
 			
 		if(i < length(plants_affected))
-			var/obj/structure/flora/cur_plant = plants_affected[i+1]
+			var/obj/structure/flora/cur_plant = plants_affected[rand(length(plants_affected))]
 			cur_plant.attempt_upgrade()
 
 

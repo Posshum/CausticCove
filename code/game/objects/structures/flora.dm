@@ -6,7 +6,7 @@
 	plane = GAME_PLANE
 
 	//CC Edit - Nature's Happiness.
-	var/natural_happiness = NATURE_HAPPINESS_LOW
+	var/natural_happiness = NATURE_HAPPINESS_ADJUSTMENT_LOW
 
 /obj/structure/flora/Initialize()
 	. = ..()
@@ -30,8 +30,16 @@
 
 //CC Edit - Nature proc for upgrading plants to their next tier, I.E. Grass -> Flowers, Bushes -> Tall Bushes.
 //We remove ourselves from the plants_affected list upon being Destroyed, do not manually call that in your upgrades.
+//Also make sure to not call this with . = ..() this does NOT need to be called.
 /obj/structure/flora/proc/attempt_upgrade()
 	debug_admins("[src] is not applicable for the Nature Subsystem Upgrade/Evolution, please notify a coder or maintainer.")
+	return
+
+//CC Edit - Handle deleting flora without reworking the entire qdel chain. Basically just cancel itself out by adding and then removing points.
+//Yeah, it's a bandaid, but I'd rather handle it like this then entirely rework the destroy chain and having to *specifically* check for if a player destroys it etc.
+/obj/structure/flora/proc/handle_upgrade_delete()
+	SSnature.nature_happiness += natural_happiness
+	qdel(src)
 	return
 
 //CC Edit - Add this plant to the upgrade list for plants_affected in SSnature

@@ -1,7 +1,9 @@
-//separate dm since hydro is getting bloated already
+/* //separate dm since hydro is getting bloated already
 var/electrodam = 80 //damage amount
 var/debuffdir = 8 //seconds of immobilize and clickcd (halved for you stimki druids)
 var/dendordam = 30 //FUCK YOOOOU DENDOR
+ */
+	//CC Edit - Moved into the glowshroom type path as nothing else called for these.
 
 /obj/structure/glowshroom
 	name = "kneestingers"
@@ -21,7 +23,10 @@ var/dendordam = 30 //FUCK YOOOOU DENDOR
 	light_inner_range = 1
 	light_power = 1.5
 	light_color = "#d4fcac"
-
+	//CC Edit - See above commented code at the first line.
+	var/electrodam = 80 //damage amount
+	var/debuffdir = 8 //seconds of immobilize and clickcd (halved for you stimki druids)
+	var/dendordam = 30 //FUCK YOOOOU DENDOR
 
 /obj/structure/glowshroom/dendorite
 	var/timeleft = null //5 MINUTES balancing factor no longer relevant, uncommoent if gay
@@ -153,7 +158,7 @@ var/dendordam = 30 //FUCK YOOOOU DENDOR
 
 /obj/structure/glowshroom/New(loc, obj/item/seeds/newseed, mutate_stats)
 	..()
-	icon_state = "glowshroom[rand(1,3)]"
+	icon_state = "glowshroom[pick(1,3)]" //CC Edit - Upgraded Glowshrooms get the 'glowshroom2' icon.
 
 	pixel_x = rand(-4, 4)
 	pixel_y = rand(0,5)

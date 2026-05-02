@@ -41,6 +41,9 @@
 
 /obj/structure/flora/roguetree/Initialize()
 	. = ..()
+	//CC Edit - 25% chance to be an upgradable tree, 50% to become vines or not.
+	if(prob(25))
+		add_to_upgrade_list()
 
 /*
 	if(makevines)
@@ -82,6 +85,21 @@
 /obj/structure/flora/roguetree/Initialize()
 	. = ..()
 	icon_state = "t[rand(1,16)]"
+
+//CC Edit - Trees can turn into vines if they're lucky!
+/obj/structure/flora/roguetree/attempt_upgrade()
+	//Spawn an evil vine controller. If we are sad enough.
+	if(SSnature.nature_happiness < MISERABLE_NATURE_THRESHOLD)	
+		if(prob(50)) //50% chance so this isn't SPAMMED spammed...
+			new /datum/vine_controller(get_turf(src), event = null, potency = 1, muts = list(/datum/vine_mutation/toxicity, /datum/vine_mutation/thorns, /datum/vine_mutation/woodening))
+	//Spawn a good vine controller. If we are happy enough.
+	else if(SSnature.nature_happiness > JUBILANT_NATURE_THRESHOLD)
+		if(prob(50)) 
+			new /datum/vine_controller(get_turf(src), event = null, potency = 1, muts = list(/datum/vine_mutation/light, /datum/vine_mutation/healing, /datum/vine_mutation/woodening))
+
+	//We 50/50 if we spawn as vines or not.
+	handle_upgrade_delete()
+	
 
 /obj/structure/flora/roguetree/evil/Initialize()
 	. = ..()
@@ -125,7 +143,7 @@
 	. = ..()
 	if(activated && !cooldown)
 		retaliate(user)
-		SSnature.nature_happiness -= NATURE_HAPPINESS_HIGH + 1 //CC Edit - Now you fucked up.
+		SSnature.nature_happiness -= NATURE_HAPPINESS_ADJUSTMENT_HIGH //CC Edit - Stop hitting the trees!
 		
 
 
@@ -150,7 +168,7 @@
 
 /obj/structure/flora/roguetree/wise/druids/take_damage(damage_amount, damage_type = BRUTE || BURN, damage_flag, sound_effect = TRUE)
 	. = ..()
-	SSnature.nature_happiness -= NATURE_HAPPINESS_HIGH + 1 //CC Edit - You're pissing off the druids.
+	SSnature.nature_happiness -= NATURE_HAPPINESS_ADJUSTMENT_HIGH + 1 //CC Edit - You're pissing off the druids now... Nature's PISSED.
 	SEND_GLOBAL_SIGNAL(COMSIG_SACRED_TREE_DAMAGED, src, damage_amount)
 
 /obj/structure/flora/roguetree/burnt
@@ -318,14 +336,14 @@
 		spawned_atom = new /obj/structure/glowshroom(get_turf(src))
 		//Spawn some beautiful flowers.
 	else if(SSnature.nature_happiness > JUBILANT_NATURE_THRESHOLD)
-		var/list/possible_flowers = list(/obj/structure/flora/ausbushes/ywflowers,
+		var/list/possible_upgrades = list(/obj/structure/flora/ausbushes/ywflowers,
 		 								 /obj/structure/flora/ausbushes/brflowers,
 										 /obj/structure/flora/ausbushes/lavendergrass,
 										 /obj/structure/flora/ausbushes/ppflowers)
-		var/chosen_flower = pick(possible_flowers)
-		spawned_atom = new chosen_flower(get_turf(src))
+		var/chosen_upgrade = pick(possible_upgrades)
+		spawned_atom = new chosen_upgrade(get_turf(src))
 	if(spawned_atom)
-		qdel(src)
+		handle_upgrade_delete()
 
 /obj/structure/flora/roguegrass/update_icon()
 	icon_state = "grass[rand(1, 6)]"
@@ -336,9 +354,17 @@
 	icon_state = "swampgrass"
 	max_integrity = 5
 
-//CC Edit - No Upgrades for water grass.
+//CC Edit - Water Grass turns into glowshrooms.
 /obj/structure/flora/roguegrass/water/attempt_upgrade()
-	return
+	var/obj/structure/glowshroom/spawned_atom //We only spawn glowshrooms here.
+		//Spawn an evil glowshroom.
+	if(SSnature.nature_happiness < SAD_NATURE_THRESHOLD)	
+		spawned_atom = new /obj/structure/glowshroom(get_turf(src))
+	if(spawned_atom)
+		spawned_atom.electrodam *= 1.5 //Increase the damage of these. You done upset nature. (120 burn damage.)
+		spawned_atom.opacity = 1
+		spawned_atom.icon_state = "glowshroom2" //Specifically take the larger Glowshroom/Kneestingers sprite and give it an opacity.
+		handle_upgrade_delete()
 	
 
 /obj/structure/flora/roguegrass/water/reeds
@@ -451,7 +477,7 @@
 					res_replenish = world.time + 8 MINUTES
 				var/obj/item/B = pick_n_take(looty)
 				if(B)
-					SSnature.nature_happiness += NATURE_HAPPINESS_LOW //CC Edit - Nothing beats the fruits of your labors!
+					SSnature.nature_happiness += NATURE_HAPPINESS_ADJUSTMENT_LOW //CC Edit - Nothing beats the fruits of your labors!
 					B = new B(user.loc)
 					user.put_in_hands(B)
 					user.visible_message(span_notice("[user] finds [B] in [src]."))
@@ -524,7 +550,7 @@
 	else if(SSnature.nature_happiness > HAPPY_NATURE_THRESHOLD)
 		spawned_atom = new /obj/structure/flora/roguegrass/bush/wall(get_turf(src))
 	if(spawned_atom)
-		qdel(src)
+		handle_upgrade_delete()
 
 /obj/structure/flora/roguegrass/bush/westleach
 	name = "westleach bush"
@@ -703,6 +729,26 @@
 	dir = SOUTH
 	debris = list(/obj/item/natural/thorn = 3, /obj/item/grown/log/tree/stick = 1)
 
+//CC Edit - Thorny Bushes are now actually dangerous and thorny. Don't cross them!!!
+/obj/structure/flora/roguegrass/thorn_bush/Crossed(atom/movable/AM)
+	. = ..()
+	if(isliving(AM))
+		var/mob/living/L = AM
+		if((L.mobility_flags & MOBILITY_STAND)) //Thorny bushes do not need you to run to cut you.
+			if(!ishuman(L))
+				var/mob/living/carbon/human/H = L
+				if(prob(25)) //Yeowch.
+					if(!HAS_TRAIT(src, TRAIT_PIERCEIMMUNE))
+						var/obj/item/bodypart/BP = pick(H.bodyparts)
+						var/obj/item/natural/thorn/TH = new(src.loc)
+						BP.add_embedded_object(TH, silent = TRUE)
+						BP.receive_damage(15) //More if it does embed.
+						to_chat(H, span_danger("\A [TH] impales my [BP.name]!"))
+				else
+					var/obj/item/bodypart/BP = pick(H.bodyparts)
+					to_chat(H, span_warning("A thorn [pick("slices","cuts","nicks")] my [BP.name]."))
+					BP.receive_damage(5) //Less damage if it doesn't embed...
+
 /obj/structure/flora/roguegrass/thorn_bush/update_icon()
 	icon_state = "thornbush"
 //WIP
@@ -752,7 +798,7 @@
 					res_replenish = world.time + 8 MINUTES
 				var/obj/item/B = pick_n_take(looty)
 				if(B)
-					SSnature.nature_happiness += NATURE_HAPPINESS_LOW //CC Edit - Fruits of ur labors.
+					SSnature.nature_happiness += NATURE_HAPPINESS_ADJUSTMENT_LOW //CC Edit - Fruits of ur labors.
 					B = new B(user.loc)
 					user.put_in_hands(B)
 					user.visible_message("<span class='notice'>[user] finds [B] in [src].</span>")
@@ -805,13 +851,13 @@
 					res_replenish = world.time + 8 MINUTES
 				var/obj/item/B = pick_n_take(looty)
 				if(B)
-					SSnature.nature_happiness += NATURE_HAPPINESS_LOW //CC Edit - Fruits of ur labors.
+					SSnature.nature_happiness += NATURE_HAPPINESS_ADJUSTMENT_LOW //CC Edit - Fruits of ur labors.
 					B = new B(user.loc)
 					user.put_in_hands(B)
 					if(HAS_TRAIT(user, TRAIT_WOODWALKER))
 						var/obj/item/C = new B.type(user.loc)
 						user.put_in_hands(C)
-						SSnature.nature_happiness += NATURE_HAPPINESS_LOW //CC Edit - Double Kill! ... Or harvest in this case.
+						SSnature.nature_happiness += NATURE_HAPPINESS_ADJUSTMENT_LOW //CC Edit - Double Kill! ... Or harvest in this case.
 					user.visible_message("<span class='notice'>[user] finds [HAS_TRAIT(user, TRAIT_WOODWALKER) ? "two of " : ""][B] in [src].</span>")
 					return
 			user.visible_message("<span class='warning'>[user] searches through [src].</span>")
@@ -853,7 +899,7 @@
 			if(looty.len && prob(75))
 				var/obj/item/B = pick_n_take(looty)
 				if(B)
-					SSnature.nature_happiness += NATURE_HAPPINESS_LOW //CC Edit - Mmm Pumbpkin...
+					SSnature.nature_happiness += NATURE_HAPPINESS_ADJUSTMENT_LOW //CC Edit - Mmm Pumbpkin...
 					B = new B(user.loc)
 					user.put_in_hands(B)
 					user.visible_message("<span class='notice'>[user] finds [B] in [src].</span>")

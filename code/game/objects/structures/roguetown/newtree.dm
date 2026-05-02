@@ -34,7 +34,7 @@
 			update_icon()
 
 		//CC Edit - Burning trees makes nature angry. Especially if you don't put it out.
-		SSnature.nature_happiness -= NATURE_HAPPINESS_LOW
+		SSnature.nature_happiness -= NATURE_HAPPINESS_ADJUSTMENT_VERY_LOW / 4 //Trees can burn for a LONG time.
 
 /obj/structure/flora/newtree/attack_right(mob/user)
 	if(user.cmode)
@@ -49,7 +49,7 @@
 		damage_flag = "fire"
 
 	//CC Edit - You destroyed this tree! How dare you! The size of the tree impacts the happiness lost.
-	SSnature.nature_happiness -= NATURE_HAPPINESS_HIGH
+	SSnature.nature_happiness -= NATURE_HAPPINESS_ADJUSTMENT_VERY_LOW
 
 	for(var/obj/structure/flora/newtree/D in UPNT)//theoretically you'd be able to break trees through a floor but no one is building floors under a tree so this is probably fine
 		D.obj_destruction(damage_flag)
@@ -248,7 +248,7 @@
 //CC Edit - You destroyed this branch! How dare you! The size of the tree the branches were on, impacts the happiness lost.
 /obj/structure/flora/newbranch/Destroy()
 	. = ..()
-	SSnature.nature_happiness -= NATURE_HAPPINESS_LOW
+	SSnature.nature_happiness -= NATURE_HAPPINESS_ADJUSTMENT_VERY_LOW / 2 //Branches stack up VERY easily, and quickly.
 
 /obj/structure/flora/newbranch/connector
 	icon_state = "branch-extend"

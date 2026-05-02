@@ -2,10 +2,10 @@
 //INTERNAL VAR DEFINES//
 
 //How many points does the nature subsystem have, and how much it can hold.
-#define MAX_NATURE_POINTS 100
+#define MAX_NATURE_POINTS 1000
 #define MIN_NATURE_POINTS 0
 
-//The Round Start value. By default this is -10.
+//The Round Start value. By default this is 100.
 #define ROUND_START_NATURE_HAPPINESS -10
 
 //A scale between 100, and -100. When Nature is happy, it will grow happy plants. If nature is unhappy, it will grow evil plants. (More Maneaters, etc.)
@@ -23,17 +23,19 @@
 #define MISERABLE_NATURE_THRESHOLD -50
 #define WRETCHED_NATURE_THRESHOLD  -75
 
-//The amount of happiness we will rest at if we are below 25 and have fully decayed off happiness.
+//The amount of happiness we will rest at if we are below 25 and have fully decayed off sadness.
 #define RESTING_LIMIT_NATURE_HAPPINESS 25
 
 //The rate at which we decay negative happiness values.
 //With a decay divisor of 1.25, and a negative happiness of 100, we decay 20 happiness, resulting at -80 happiness.
 #define SADNESS_DECAY_DIVISOR 1.25
 
-//Applied when flora objects are destroyed.
-#define NATURE_HAPPINESS_LOW  0.1
-#define NATURE_HAPPINESS_MID  0.25
-#define NATURE_HAPPINESS_HIGH 0.5
+//Applied when flora objects are destroyed. Remember;
+	// LOTS of people can destroy shit at once and there's a fuck ton of plants everywhere. Make people WORK FOR IT if they wanna upset nature. Even just a single person!
+#define NATURE_HAPPINESS_ADJUSTMENT_VERY_LOW 0.025 //For things like trees that have many possible layers.
+#define NATURE_HAPPINESS_ADJUSTMENT_LOW  0.05
+#define NATURE_HAPPINESS_ADJUSTMENT_MID  0.1
+#define NATURE_HAPPINESS_ADJUSTMENT_HIGH 0.25
 
 //The value used when calculating point growth. The more plants that exist, the less points that are gained.
 	//point gain = (MAX_PLANT_POPULATION / `how_many_plants_exst`) * GROWTH_DIVISOR
@@ -42,22 +44,19 @@
 #define GROWTH_DIVISOR 25
 
 //How many plants on turfs are allowed to exist at once. If `how_many_plants_exist` exceeds this value, the subsystem does not spawn any more.
-#define MAX_PLANT_POPULATION 10000
+#define MAX_PLANT_POPULATION 100000
 
 //How many objects on branches are allowed to exist at once. If `how_many_objects_exist` exceeds this value, the subsystem does not spawn any more.
-#define MAX_BRANCH_OBJECTS 100
+#define MAX_BRANCH_OBJECTS 1000
 
 //Cost in points for growing a new plant. By default, this is 1 point.
 #define NORMAL_NATURE_COST 1
 
-//Cost in points for when Dendor, Astrata, or Abyssor are the storyteller. Plants are 40% cheaper, let the world bloom!
-#define GOOD_NATURE_COST 0.6
+//Point multiplier for when Dendor, Astrata, or Abyssor are the storyteller. Plants are 60% cheaper, let the world bloom!
+#define GOOD_NATURE_COST 1.6
 
-//Cost in points for when Zizo or Pestra are the storyteller. 
-#define BAD_NATURE_COST 4
-
-//Divisors for the good, and bad gods.
-#define BAD_GOD_DIVISOR
+//Point multiplier for when Zizo or Pestra are the storyteller. Plants are 60% more expensive. Let the world suffer...
+#define BAD_NATURE_COST 0.4
 
 //Gods that increase growth towards plants. Less point costs.
 #define GOOD_PLANT_GODS list(/datum/patron/divine/dendor, /datum/patron/divine/astrata, /datum/patron/divine/abyssor)
