@@ -15,6 +15,8 @@
 /obj/item/clothing/gloves/roguetown/chain/contraption/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+	if(armor_class > ARMOR_CLASS_LIGHT)
+		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 // === CONTRAPTION CORE BEHAVIOR ===
 /obj/item/clothing/gloves/roguetown/chain/contraption/proc/battery_collapse(obj/O, mob/living/user)
@@ -47,7 +49,6 @@
 	resistance_flags = FIRE_PROOF
 	blocksound = CHAINHIT
 	max_integrity = ARMOR_INT_SIDE_BRONZE
-	blade_dulling = DULLING_BASHCHOP
 	break_sound = 'sound/foley/breaksound.ogg'
 	drop_sound = 'sound/foley/dropsound/chain_drop.ogg'
 	pickup_sound = 'sound/foley/equip/equip_armor_chain.ogg'

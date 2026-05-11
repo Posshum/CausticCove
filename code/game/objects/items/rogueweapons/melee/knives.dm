@@ -572,6 +572,34 @@
 	smelt_bar_num = 1
 	sellprice = 100
 
+/obj/item/rogueweapon/huntingknife/idagger/steel/zizo
+	name = "avantyne dagger"
+	desc = "The very moment of sacrifice; that imperceptable difference between a dagger's edge and a heart's chamber, crystallized into \
+	a scalpel of bleeding darksteel. In the hands of Her trusted disciples, it serves as an unholy countermandate against order and sanity."
+	icon_state = "zizodagger"
+	sheathe_icon = "zizodagger"
+	force = 25
+	max_integrity = 250
+	max_blade_int = 300
+	embedding = list("embedded_pain_multiplier" = 1.2, "embed_chance" = 20, "embedded_fall_chance" = 0) 
+	smeltresult = /obj/item/ingot/component/zizo
+
+/obj/item/rogueweapon/huntingknife/idagger/steel/zizo/Initialize()
+	. = ..()
+	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "DAGGER")
+
+/obj/item/rogueweapon/huntingknife/idagger/avantyne
+	name = "avantyne-threaded dagger"
+	desc = "An darksteel misericorde, defying rhyme-and-reason in favor of unholy lethality. The jagged edge continuously remorphs itself, \
+	yearning to disembowel the divine filament once more; though for now, it will settle with the bellies of blunderous bastards."
+	icon_state = "zizodagger"
+	sheathe_icon = "zizodagger"
+	force = 25
+	max_integrity = 250
+	max_blade_int = 300
+	embedding = list("embedded_pain_multiplier" = 1.2, "embed_chance" = 50, "embedded_fall_chance" = 0) 
+	smeltresult = /obj/item/ingot/avantyne
+
 /obj/item/rogueweapon/huntingknife/idagger/steel/holysee
 	name = "eclipsum dagger"
 	desc = "A sliver of heaven, shaped into an elegant dagger. The alloy radiates with magnificence: a reminder that no matter how dark the nites grow, there will always be a dawn to follow. Such a dagger is reserved for the Holy See's bishops and priests - both as a symbol of their divine authority, and as a means of ritualistic bloodletting. </br>'..come forth, child o' myne, and be anointed in the Pantheon's light once more..'"
@@ -1120,7 +1148,7 @@
 	name = "quick thrust"
 	icon_state = "inthresh"
 	attack_verb = list("thrusts", "shanks")
-	penfactor = 20 //Counts as up to 30-35AP, when factoring in strength-modified damage. Keep restricted to weapons that're meant to counter grapplers and wrestlers.
+	penfactor = PEN_LIGHT
 	clickcd = 4 //Halved penetration, doubled attack speed. This is either going to be extremely funny, or extremely evil.
 
 /obj/item/rogueweapon/huntingknife/scissors
@@ -1409,7 +1437,7 @@
 	desc = "An intricate ritual-knife made from a shard of crystallized mana. Though not suited for direct combat, it will save you in a pinch."
 	icon_state = "magicstone_knife"
 	implement_tier = IMPLEMENT_TIER_LESSER
-	implement_multiplier = IMPLEMENT_MULT_LESSER
+	implement_refund = IMPLEMENT_REFUND_LESSER
 	max_blade_int = 25
 	max_integrity = 50
 	sellprice = 15 // It's a very pretty rock on a stick.

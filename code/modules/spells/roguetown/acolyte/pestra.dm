@@ -6,7 +6,7 @@
 	action_icon = 'icons/mob/actions/pestraspells.dmi'
 	overlay_state = "diagnose"
 	releasedrain = 10
-	range = 4 // just in case free wants to demolish me for changing that, but 4 range is essential for this skill's functionality
+	range = SPELL_RANGE_GROUND //Caustic Edit - Lets make this on parity with and using the Spell Defines? // just in case free wants to demolish me for changing that, but 4 range is essential for this skill's functionality
 	warnie = "sydwarning"
 	movement_interrupt = FALSE
 	sound = 'sound/magic/diagnose.ogg'
@@ -202,7 +202,7 @@
 	name = "Secular Diagnosis"
 	overlay_state = "diagnose"
 	desc = "A practiced reading of the body's humors and hidden ailments. Reveals a target's condition, with greater skill granting deeper detail. By embedding a Forceps on your patient, you may even identify substances within the blood; but even the most unskilled physicker can tell from a Cheele or Leech's reactions."
-	range = 4 // 2 range doesn't let you see over a meeting table, 4 range is just enough for that, it also falls in line with normal miracle
+	range = SPELL_RANGE_GROUND //Caustic Edit - Lets make this on parity with and using the Spell Defines?
 	associated_skill = /datum/skill/misc/medicine
 	miracle = FALSE
 	devotion_cost = 0 //Doctors are not clerics

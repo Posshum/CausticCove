@@ -65,6 +65,15 @@
 	candodge = FALSE
 	misscost = 0
 
+//Caustic Edit - Moved this check to Glass here, and not the reagent_container below
+/obj/item/reagent_containers/glass/canconsume(mob/eater, mob/user, silent = FALSE)
+	if(!spillable)
+		to_chat(user, span_warning("How am I to drink from this while it's still corked?"))
+		return FALSE
+	
+	. = ..()
+//Caustic Edit End
+
 /obj/item/reagent_containers/glass/attack(mob/M, mob/user, obj/target)
 	if(!reagents || !reagents.total_volume)
 		to_chat(user, span_warning("[src] is empty!"))

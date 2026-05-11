@@ -638,32 +638,71 @@
 
 /turf/open/water/transparent/update_multiz(prune, init)
 	var/turf/T = GET_TURF_BELOW(src)
-	if(T && init) vis_contents += T
+
+	//Caustic Edit - Should hopefully check for the tile below _actually_ being a water-tile first.
+	if(istype(T, /turf/open/water/transparent))
+		if(T && init)
+			vis_contents += T
+	//Caustic Edit End
+
 	return !!T
 
-
-/turf/open/water/transparent/can_zFall(atom/movable/A)
-	if(ishuman(A))
-		var/mob/living/carbon/human/H = A
-		
-		if(H.stat == DEAD)
-			return FALSE
-			
-		if(H.stat == UNCONSCIOUS || H.IsImmobilized() || H.IsKnockdown())
+//Caustic Edit - Maybe this stops anchored reeds and plants and stuff from z-falling into water? Also trying to fix items not falling in... This was wonky.
+/turf/open/water/transparent/can_traverse_safely(atom/movable/A)
+	var/turf/destination = GET_TURF_BELOW(src)
+	if(!destination || !istype(destination, /turf/open/water/transparent))
+		return TRUE //Either there is nothing below, or it's _not_ an open/water/transparent type
+	
+	if(isliving(A))
+		var/mob/living/L = A
+		if(L.pulledby || (L.stat != UNCONSCIOUS && !L.IsImmobilized() && !L.IsKnockdown()))
 			return TRUE
-			
-		return FALSE 
-	return TRUE
+	if(A.throwing)
+		return TRUE
+	if(!A.can_zTravel(destination, DOWN, src)) // something is blocking their fall!
+		return TRUE
+	if(!A.can_zFall(src, DOWN, destination)) // they can't fall!
+		return TRUE
+	
+	return FALSE
 
-/turf/open/water/transparent/zPassOut(atom/movable/A, direction)
-	if(direction == DOWN && ishuman(A))
-		var/mob/living/carbon/human/H = A
-		if(H.stat == DEAD)
-			return FALSE
-		if(H.stat == UNCONSCIOUS || H.IsImmobilized() || H.IsKnockdown())
-			return TRUE
-		return FALSE 
-	return ..()
+/turf/open/water/transparent/zPassIn(atom/movable/A, direction, turf/source)
+	if(direction == DOWN)
+		for(var/obj/O in contents)
+			if(O.obj_flags & BLOCK_Z_IN_DOWN)
+				return FALSE
+		return TRUE
+	if(direction == UP)
+		for(var/obj/O in contents)
+			if(O.obj_flags & BLOCK_Z_IN_UP)
+				return FALSE
+		return TRUE
+	return FALSE
+
+/turf/open/water/transparent/zPassOut(atom/movable/A, direction, turf/destination)
+	if(A.anchored)
+		return FALSE
+	if(HAS_TRAIT(A, TRAIT_I_AM_INVISIBLE_ON_A_BOAT))
+		return FALSE
+	if(A.throwing)
+		return FALSE
+	
+	if(direction == DOWN)
+		if(isliving(A))
+			var/mob/living/L = A
+			if(L.pulledby || (L.stat != UNCONSCIOUS && !L.IsImmobilized() && !L.IsKnockdown()))
+				return FALSE
+		for(var/obj/O in contents)
+			if(O.obj_flags & BLOCK_Z_OUT_DOWN)
+				return FALSE
+		return TRUE
+	if(direction == UP)
+		for(var/obj/O in contents)
+			if(O.obj_flags & BLOCK_Z_OUT_UP)
+				return FALSE
+		return TRUE
+	return FALSE
+//Caustic Edit End
 
 /turf/open/water/transparent/Entered(atom/movable/AM)
 	. = ..()

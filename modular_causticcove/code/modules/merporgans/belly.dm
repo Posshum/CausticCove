@@ -42,10 +42,15 @@ GLOBAL_LIST_INIT(named_belly_sizes, list(
 	generic_gender_feature_adjust(appearance_list, organ, bodypart, owner, OFFSET_BELT, OFFSET_BELT_F)
 
 /datum/sprite_accessory/belly/is_visible(obj/item/organ/organ, obj/item/bodypart/bodypart, mob/living/carbon/owner)
+	//Caustic Edit - Support to always show/hide parts!
+	if(organ.visible_organ && organ.always_show)
+		return TRUE
+	//Caustic Edit End
 	return is_human_part_visible(owner, HIDEBOOB|HIDEJUMPSUIT)
 
 /datum/sprite_accessory/belly
 	icon_state = "pair"
 	name = "Belly"
 	color_key_defaults = list(KEY_CHEST_COLOR)
-	relevant_layers = list(BODY_BEHIND_LAYER, BELLY_LAYER) //Giving these their own unique layers now. PLEASE PLEASE PLEASE if anyone sees this, and wants to fix the names of the Iconstates in the various DMI files... I would love it. Check _sprite_accessory.dm as well to change what string is appended to the state. I'm leaving it as "FRONT" for now so I don't have to rename them all over AGAIN... - Jon
+	relevant_layers = list(BODY_BEHIND_LAYER, BELLY_LAYER)
+	always_shown_layers = list(BODY_BEHIND_LAYER, BODY_FRONT_LAYER)

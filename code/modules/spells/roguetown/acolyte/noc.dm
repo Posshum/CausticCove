@@ -180,8 +180,9 @@ Somewhat fitting, considering the broadness of their domains. I also just think 
 
 /obj/effect/proc_holder/spell/invoked/invisibility
 	name = "Invisibility"
+	action_icon = 'icons/mob/actions/nocmiracles.dmi'
+	overlay_icon = 'icons/mob/actions/nocmiracles.dmi'
 	overlay_state = "invisibility"
-	base_icon_state = "wisescroll"
 	desc = "Make another (or yourself) invisible for some time. Duration scales with intelligence. Casting, attacking or being attacked will cancel the duration."
 	releasedrain = 30
 	chargedrain = 5

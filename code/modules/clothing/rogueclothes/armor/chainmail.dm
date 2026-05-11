@@ -20,6 +20,8 @@
 /obj/item/clothing/suit/roguetown/armor/chainmail/ComponentInitialize()
 	. = ..()
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+	if(armor_class > ARMOR_CLASS_LIGHT)
+		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/iron
 	icon_state = "ihaubergeon"
@@ -60,6 +62,8 @@
 	. = ..()
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+	if(armor_class > ARMOR_CLASS_LIGHT)
+		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/light/fencer
 	name = "besilked haubergeon"
@@ -229,6 +233,7 @@
 	name = "gilded hauberk"
 	desc = "All that glimmers is gold; yet only shining stars shalt break the mold.."
 	color = "#ffc960"
+	smeltresult = /obj/item/ingot/component/matthios
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/matthios/Initialize()
 	. = ..()
@@ -238,22 +243,46 @@
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/zizo
 	name = "avantyne hauberk"
-	desc = "The rings crackle with unkempt magicka, yearning to enamor the enlightened with avantynic might."
+	desc = "The rings crackle softly with avantynic power, yet this lighter weave can still be taken off without being lost to the rite."
 	color = "#c1b18d"
 	chunkcolor = "#363030"
 	material_category = ARMOR_MAT_CHAINMAIL
+	smeltresult = /obj/item/ingot/component/zizo
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/zizo/Initialize()
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "ARMOR")
 
-//
+//Caustic Edit - Let us remove and drop armors again! For fun stuffs.
+/obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/zizo/heavy/Initialize(mapload)
+	. = ..()
+	//ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
+
+/obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/zizo/heavy/dropped(mob/living/carbon/human/user)
+	. = ..()
+	/*if(QDELETED(src))
+		return
+	qdel(src)*/
+//Caustic Edit End
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/graggar
 	name = "vicious hauberk"
 	desc = "The blessing of a Martyr is nothing, when put before the Sinistar's rage."
 	color = "#ddc0a7"
+	smeltresult = /obj/item/ingot/component/graggar
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/graggar/Initialize()
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_HORDE, "ARMOR", "RENDERED ASUNDER")
+
+//Caustic Edit - Let us remove and drop armors again! For fun stuffs.
+/obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/graggar/heavy/Initialize()
+	. = ..()
+	//ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
+
+/obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/graggar/heavy/dropped(mob/living/carbon/human/user)
+	. = ..()
+	/*if(QDELETED(src))
+		return
+	qdel(src)*/
+//Caustic Edit End

@@ -59,7 +59,7 @@
 		shirt = /obj/item/clothing/suit/roguetown/shirt/courtphysician/female
 		gloves = /obj/item/clothing/gloves/roguetown/courtphysician/female
 		pants = /obj/item/clothing/under/roguetown/skirt/courtphysician
-		shoes = /obj/item/clothing/shoes/roguetown/courtphysician/female/
+		shoes = /obj/item/clothing/shoes/roguetown/courtphysician/female
 	else
 		head = /obj/item/clothing/head/roguetown/courtphysician
 		armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/jacket/courtphysician

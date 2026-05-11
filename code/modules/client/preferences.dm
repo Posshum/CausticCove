@@ -63,6 +63,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/preferred_map = null
 	var/pda_style = MONO
 	var/pda_color = "#808000"
+	var/topjob = null
 
 	var/uses_glasses_colour = 0
 
@@ -143,6 +144,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/lobbymusicvol = 50
 	var/ambiencevol = 50
 	var/mastervol = 50
+	var/stopdroning = FALSE
 
 	var/anonymize = TRUE
 	var/masked_examine = FALSE
@@ -251,6 +253,9 @@ GLOBAL_LIST_EMPTY(chosen_names)
 
 	/// Per-character theme override for examine panel viewers
 	var/examine_theme
+
+	/// Whether we can see the feint HUD bar.
+	var/feint_hud = FALSE 
 
 	//CC Edit - Audio Preload
 	var/audio_preload
@@ -395,7 +400,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 			dat += "<td style='width:33%;text-align:left'>"
 			dat += "</td>"
 			dat += "<td style='width:33%;text-align:center'>"
-			dat += "<a href='?_src_=prefs;preference=lore_primer'>* Lore Primer *</a>"
+			dat += "<a href='?_src_=prefs;preference=lore_primer'>Lore Primer</a>"
 			dat += "</td>"
 			dat += "<td style='width:33%;text-align:right'>"
 			///Caustic edit
@@ -512,6 +517,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 				dat += "<b>Taur Color:</b><span style='border: 1px solid #161616; background-color: #[taur_color];'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=taur_color;task=input'>Change</a><BR>"
 
 			dat += "<b>Age:</b> <a href='?_src_=prefs;preference=age;task=input'>[age]</a><BR>"
+			dat += "<br>" //Caustic Edit - Lets position the Virtues and Vices together?
 
 //			dat += "<br><b>Age:</b> <a href='?_src_=prefs;preference=age;task=input'>[age]</a>"
 //			if(randomise[RANDOM_BODY] || randomise[RANDOM_BODY_ANTAG]) //doesn't work unless random body
@@ -523,16 +529,24 @@ GLOBAL_LIST_EMPTY(chosen_names)
 				virtue = GLOB.virtues[/datum/virtue/none]
 			if(!virtuetwo)
 				virtuetwo = GLOB.virtues[/datum/virtue/none]
+			//Caustic Edit - Extra Virtue Handling
+			if(!extravirtue)
+				extravirtue = GLOB.virtues[/datum/virtue/none]
 			var/virtue_html
 			if(length(pref_species.restricted_virtues))
 				if(virtue.type in pref_species.restricted_virtues)
 					virtue = GLOB.virtues[/datum/virtue/none]
 				if(virtuetwo.type in pref_species.restricted_virtues)
 					virtuetwo = GLOB.virtues[/datum/virtue/none]
-			if(istype(virtue, virtuetwo) && !virtue.stackable)
+				if(extravirtue.type in pref_species.restricted_virtues)
+					extravirtue = GLOB.virtues[/datum/virtue/none]
+			if((istype(virtue, virtuetwo) && !virtue.stackable) || (istype(extravirtue, virtuetwo) && !extravirtue.stackable))
 				virtuetwo = GLOB.virtues[/datum/virtue/none]
 			if(virtue.virtuous_only && !statpack.virtuous)
 				virtue = GLOB.virtues[/datum/virtue/none]
+			if(extravirtue.virtuous_only && !statpack.virtuous)
+				extravirtue = GLOB.virtues[/datum/virtue/none]
+			//Caustic Edit End
 			var/tricost_virt = 0
 			if(length(virtue.extra_choices) && length(virtue.picked_choices))
 				for(var/i in 1 to length(virtue.picked_choices))
@@ -550,6 +564,9 @@ GLOBAL_LIST_EMPTY(chosen_names)
 					virtue_html += "[dat_html][tooltip_html]"
 			if(length(virtue.picked_choices) < virtue.max_choices)
 				virtue_html += "   <a href='?_src_=prefs;preference=subvirtue;task=input'>[(virtue.choice_costs[(virtue.picked_choices.len + 1)] <= 0) ? "<font color = '#a08357'>" : ""]Pick Bonus[(virtue.choice_costs[(virtue.picked_choices.len + 1)] <= 0) ? "</font>" : ""] [(virtue.choice_costs[(virtue.picked_choices.len + 1)] > 0) ? "([virtue.choice_costs[(virtue.picked_choices.len + 1)]] TRI)" : ""] </a><br>"
+			//Caustic Edit - Extra Virtue Handling
+			virtue_html += get_extra_virtue_htmlpick()
+			//Caustic Edit End
 			if(statpack.virtuous)
 				tricost_virt = 0
 				if(length(virtuetwo.extra_choices) && length(virtuetwo.picked_choices))
@@ -577,7 +594,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 			dat += virtue_fieldset ? virtue_fieldset : ""
 			dat += virtue_html
 			dat += virtue_fieldset ? "</fieldset>" : ""
-			dat += "<br>"
+			//dat += "<br>" //Caustic Edit - Lets position the Virtues and Vices together?
 			dat += "<b>Vices:</b>"
 			if(charflaws.len)
 				for(var/i = 1 to charflaws.len)
@@ -600,12 +617,13 @@ GLOBAL_LIST_EMPTY(chosen_names)
 				if(!averse_chosen_faction)
 					averse_chosen_faction = "Inquisition"
 				dat += "<b>Loathed Group:</b> <a href='?_src_=prefs;preference=charflaw_averse_choice;task=input'>[averse_chosen_faction]</a><BR>"
+			dat += "<br>" //Caustic Edit - Lets position the Virtues and Vices together?
 			var/datum/faith/selected_faith = GLOB.faithlist[selected_patron?.associated_faith]
 			dat += "<b>Faith:</b> <a href='?_src_=prefs;preference=faith;task=input'>[selected_faith?.name || "FUCK!"]</a><BR>"
 			dat += "<b>Patron:</b> <a href='?_src_=prefs;preference=patron;task=input'>[selected_patron?.name || "FUCK!"]</a><BR>"
 			dat += "<b>Dominance:</b> <a href='?_src_=prefs;preference=domhand'>[domhand == 1 ? "Left-handed" : "Right-handed"]</a><BR>"
 			//Caustic edit
-			dat += "<b>Size Category:</b> <a href='?_src_=prefs;preference=sizecat;task=input'>[sizecat]</a><BR>"
+			dat += "<b>Size Scale:</b> <a href='?_src_=prefs;preference=sizescale;task=input'>[sizescale]%</a><BR>"
 			//dat += "<b>Pickup able:</b> <a href='?_src_=prefs;preference=pickupable'>[pickupable == 1 ? "Yes" : "No"]</a><BR>"
 			//Caustic edit end
 			dat += "<b>Food Preferences:</b> <a href='?_src_=prefs;preference=culinary;task=menu'>Change</a><BR>"
@@ -990,6 +1008,10 @@ GLOBAL_LIST_EMPTY(chosen_names)
 					restricted_list.Add(virtue.name)
 				if(virtuetwo?.type in job.virtue_restrictions)
 					restricted_list.Add(virtuetwo.name)
+				//Caustic Edit - Extra Virtue Handling
+				if(extravirtue?.type in job.virtue_restrictions)
+					restricted_list.Add(extravirtue.name)
+				//Casutic Edit End
 				for(var/datum/charflaw/cf in charflaws)
 					if(cf.type in job.vice_restrictions)
 						restricted_list.Add(cf.name)
@@ -1003,6 +1025,10 @@ GLOBAL_LIST_EMPTY(chosen_names)
 					restricted_list.Add(virtue.name)
 				if(virtuetwo?.type in job.virtue_restrictions)
 					restricted_list.Add(virtuetwo.name)
+				//Caustic Edit - Extra Virtue Handling
+				if(extravirtue?.type in job.virtue_restrictions)
+					restricted_list.Add(extravirtue.name)
+				//Casutic Edit End
 				if(length(restricted_list))
 					var/restrict_text = english_list(restricted_list)
 					HTML += "<font color='#a59461'>[used_name] (Disallowed by Virtue: [restrict_text])</font></td> <td> </td></tr>"
@@ -1095,6 +1121,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 					var/mob/dead/new_player/P = user
 					if(istype(P))
 						P.topjob = job.title
+						topjob = job.title
 				if(JP_MEDIUM)
 					prefLevelLabel = "Medium"
 					prefLevelColor = "green"
@@ -1481,6 +1508,28 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 		else if(task == "tooltip")
 			var/tooltip = href_list["tooltip"]
 			to_chat(user, span_notice(virtuetwo.choice_tooltips[tooltip]))
+	
+	//Caustic Edit - Extra Virtue Handling
+	else if(href_list["preference"] == "subextravirtue")
+		var/task = href_list["task"]
+		if(task == "input")
+			if(length(extravirtue.picked_choices) < extravirtue.max_choices)
+				var/list/subchoices = extravirtue.extra_choices.Copy()
+				for(var/choice in subchoices)
+					if(choice in extravirtue.picked_choices)
+						subchoices.Remove(choice)
+				var/result = tgui_input_list(user, "What strength shall you wield?", "VIRTUES", subchoices)
+				if(result)
+					extravirtue.picked_choices.Add(result)
+		else if(task == "remove")
+			var/index = text2num(href_list["index"])
+			if(index && (index >= 1) && (index <= extravirtue.picked_choices.len))
+				var/v_to_remove = extravirtue.picked_choices[index]
+				extravirtue.picked_choices.Remove(v_to_remove)
+		else if(task == "tooltip")
+			var/tooltip = href_list["tooltip"]
+			to_chat(user, span_notice(extravirtue.choice_tooltips[tooltip]))
+	//Caustic Edit End
 
 	else if(href_list["preference"] == "charflaw")
 		var/task = href_list["task"]
@@ -2441,7 +2490,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						var/datum/virtue/V = GLOB.virtues[path]
 						if (!V.name)
 							continue
-						if ((V.name == virtue.name || V.name == virtuetwo.name) && !istype(V, /datum/virtue/none))
+						if ((V.name == virtue.name || V.name == virtuetwo.name || V.name == extravirtue.name) && !istype(V, /datum/virtue/none)) //Caustic Edit - Extra Virtue handling
 							if(!V.stackable)
 								continue
 						if (istype(V, /datum/virtue/origin))
@@ -2463,7 +2512,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						var/datum/virtue/virtue_chosen = virtue_choices[result]
 						virtue = new virtue_chosen.type
 						to_chat(user, process_virtue_text(virtue_chosen))
-						if(!istype(virtue, /datum/virtue/combat/rotcured) && !istype(virtuetwo, /datum/virtue/combat/rotcured))
+						if(!istype(virtue, /datum/virtue/combat/rotcured) && !istype(virtuetwo, /datum/virtue/combat/rotcured) && !istype(extravirtue, /datum/virtue/combat/rotcured)) //Caustic Edit - Extra Virtue Handling
 							if(skin_tone == SKIN_COLOR_ROT)
 								var/new_tone = random_skin_tone()
 								skin_tone = new_tone
@@ -2475,7 +2524,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						var/datum/virtue/V = GLOB.virtues[path]
 						if (!V.name)
 							continue
-						if ((V.name == virtue.name || V.name == virtuetwo.name) && !istype(V, /datum/virtue/none))
+						if ((V.name == virtue.name || V.name == virtuetwo.name || V.name == extravirtue.name) && !istype(V, /datum/virtue/none)) //Caustic Edit - Extra Virtue handling
 							if(!V.stackable)
 								continue
 						if (istype(V, /datum/virtue/origin))
@@ -2495,7 +2544,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						var/datum/virtue/virtue_chosen = virtue_choices[result]
 						virtuetwo = new virtue_chosen.type
 						to_chat(user, process_virtue_text(virtue_chosen))
-						if(!istype(virtue, /datum/virtue/combat/rotcured) && !istype(virtuetwo, /datum/virtue/combat/rotcured))
+						if(!istype(virtue, /datum/virtue/combat/rotcured) && !istype(virtuetwo, /datum/virtue/combat/rotcured) && !istype(extravirtue, /datum/virtue/combat/rotcured)) //Caustic Edit - Extra Virtue Handling
 							if(skin_tone == SKIN_COLOR_ROT)
 								var/new_tone = random_skin_tone()
 								skin_tone = new_tone
@@ -2504,8 +2553,10 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 					/*	if (statpack.type != /datum/statpack/wildcard/virtuous)
 							statpack = new /datum/statpack/wildcard/virtuous
 							to_chat(user, span_purple("Your statpack has been set to virtuous (no stats) due to selecting a virtue.")) */
+				//Caustic Edit - Extra Virtue Handling!
 				if("extravirtue")
 					get_extra_virtue_input(user)
+				//Caustic Edit End
 				if("origin")
 					var/list/virtue_choices = list()
 					for (var/path as anything in GLOB.virtues)
@@ -2546,8 +2597,8 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						new_body_size = clamp(new_body_size * 0.01, BODY_SIZE_MIN, BODY_SIZE_MAX)
 						features["body_size"] = new_body_size
 				//Caustic edit
-				if("sizecat")
-					select_sizecat(user)
+				if("sizescale")
+					select_sizescale(user)
 				//Caustic edit end
 				if("taur_color")
 					var/new_taur_color = color_pick_sanitized(user, "Choose your character's taur color:", "Character Preference", "#"+taur_color)
@@ -2587,7 +2638,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 */
 				if("s_tone")
 					var/listy = pref_species.get_skin_list()
-					if(istype(virtue, /datum/virtue/combat/rotcured) || istype(virtuetwo, /datum/virtue/combat/rotcured))
+					if(istype(virtue, /datum/virtue/combat/rotcured) || istype(virtuetwo, /datum/virtue/combat/rotcured) || istype(extravirtue, /datum/virtue/combat/rotcured)) //Caustic Edit - Extra Virtue Handling
 						listy["Rotten"] = SKIN_COLOR_ROT
 					var/new_s_tone = tgui_input_list(user, "Choose your character's skin tone:", "SKINTONE", listy)
 					if(new_s_tone)
@@ -2948,10 +2999,13 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 								S.cd = "/character[i]"
 								var/nickname = S["nickname"]
 								var/realname = S["real_name"]
+								var/suffix = S["topjob"]
 								if(!realname)
 									name = "[i] - \[EMPTY SLOT\]"
 								else
 									name = "[i] - [realname][nickname ? " ([nickname])" : ""]"
+									if(suffix)
+										name += " - [suffix]"
 								if(loaded_slot == i)
 									choices_default = name
 								choices[name] = i
@@ -3289,8 +3343,6 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 /datum/preferences/proc/LorePopup(mob/user)
 	if(!user || !user.client)
 		return
-	var/list/dat = list()
 	var/datum/browser/noclose/popup  = new(user, "lore_primer", "<div align='center'>Lore Primer</div>", 650, 900)
-	dat += GLOB.roleplay_readme
-	popup.set_content(dat.Join())
+	popup.set_content(build_lore_primer_content())
 	popup.open(FALSE)

@@ -25,7 +25,7 @@
 	releasedrain = 30
 	chargedrain = 0
 	chargetime = 0
-	range = 4
+	range = SPELL_RANGE_GROUND //Caustic Edit - Lets make this on parity with and using the new Spell Defines?
 	warnie = "sydwarning"
 	movement_interrupt = FALSE
 	sound = 'sound/magic/heal.ogg'
@@ -99,11 +99,17 @@
 		playsound(target, 'sound/combat/dismemberment/dismem (2).ogg', 100)
 		human.emote("agony")
 		return FALSE
-	//cc edit
+
 	target.apply_status_effect(/datum/status_effect/buff/healing, healing)
+
+	// Edit - Overwriting the outgoing message here to prevent metagaming faith via message.
+	// Not getting rid of the messages in the code, we might want them for something else later.
+	message_out = span_info("Healing energies envelop [target]!")
+	if(HAS_TRAIT(user, TRAIT_DECEIVING_MEEKNESS))
+		message_self = "Healing energies envelop me!"
 	target.visible_message(message_out, message_self)
 
-	return TRUE//cc edit end
+	return TRUE
 
 // Miracle
 /obj/effect/proc_holder/spell/invoked/heal
@@ -114,7 +120,7 @@
 	releasedrain = 30
 	chargedrain = 0
 	chargetime = 0
-	range = 4
+	range = SPELL_RANGE_GROUND //Caustic Edit - Lets make this on parity with and using the Spell Defines?
 	warnie = "sydwarning"
 	movement_interrupt = FALSE
 //	chargedloop = /datum/looping_sound/invokeholy
@@ -177,7 +183,7 @@
 	releasedrain = 15
 	chargedrain = 0
 	chargetime = 3
-	range = 1
+	range = SPELL_RANGE_ADJACENT //Caustic Edit - Lets start using Spell Defines instead.
 	ignore_los = FALSE
 	warnie = "sydwarning"
 	movement_interrupt = TRUE
@@ -253,7 +259,7 @@
 	releasedrain = 30
 	chargedrain = 0
 	chargetime = 0
-	range = 7
+	range = SPELL_RANGE_GROUND //Caustic Edit - Lets use the spell defines instead of hard-coding it.
 	ignore_los = FALSE
 	warnie = "sydwarning"
 	movement_interrupt = TRUE

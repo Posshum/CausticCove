@@ -37,7 +37,7 @@
 	switch(caster.used_intent.type)
 		if(INTENT_HELP)
 			//Caustic Edit - Re-add gathering Mana Crystals and Obsidian!
-			if(istype(target, /obj/structure/well/fountain/mana) || istype(target, /turf/open/lava))
+			if(istype(victim, /obj/structure/well/fountain/mana) || istype(victim, /turf/open/lava))
 				var/skill_level = caster.get_skill_level(associated_skill)
 				presti_hand.gather_thing(victim, caster, skill_level)
 				handle_presti_cost(caster, PRESTI_CLEAN)
@@ -80,7 +80,7 @@
 
 /obj/item/melee/new_touch_attack/prestidigitation
 	name = "\improper prestidigitating touch"
-	possible_item_intents = list(INTENT_HELP, INTENT_DISARM, /datum/intent/use, INTENT_GRAB)
+	possible_item_intents = list(INTENT_HELP, INTENT_DISARM, /datum/intent/use) //Caustic Edit - We don't have the leylines so no need to have a dead intent -- , INTENT_GRAB
 	icon = 'icons/mob/roguehudgrabs.dmi'
 	icon_state = "grabbing_greyscale"
 	color = "#3FBAFD"
@@ -250,8 +250,8 @@
 			var/turf/T = get_turf(target)
 			new /obj/effect/temp_visual/cleaning_pulse(T)
 			for(var/obj/effect/decal/cleanable/C in T)
-				if(should_clean_rune(target))
-					wash_atom(C, CLEAN_MEDIUM)
+				if(!should_clean_rune(target))
+					return FALSE
 			wash_atom(T, CLEAN_MEDIUM)
 			to_chat(user, span_notice("I expunge \the [target.name] with my mana."))
 			return TRUE
@@ -263,8 +263,9 @@
 			var/turf/T = get_turf(target)
 			new /obj/effect/temp_visual/cleaning_pulse(T)
 			for(var/obj/effect/decal/cleanable/C in T)
-				if(should_clean_rune(C))
-					wash_atom(C, CLEAN_MEDIUM)
+				if(!should_clean_rune(C))
+					return FALSE
+			wash_atom(target, CLEAN_MEDIUM)
 			to_chat(user, span_notice("I render [clean_name] clean."))
 			return TRUE
 		return FALSE

@@ -166,7 +166,8 @@
 /obj/structure/fluff/traveltile/proc/has_access(atom/movable/AM)
 	if(required_jobs && ishuman(AM))
 		var/mob/living/carbon/human/H = AM
-		return (H.job in required_jobs)
+		if(H.job in required_jobs) //Caustic Edit - Does this fix the Wretch Coast Teleports?
+			return TRUE
 	if(required_trait && isliving(AM))
 		return HAS_TRAIT(AM, required_trait)
 	return TRUE

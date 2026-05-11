@@ -118,7 +118,8 @@
 		/obj/item/reagent_containers/glass/bottle/rogue/healthpot,
 		/obj/item/book/spellbook,
 		/obj/item/rogueweapon/huntingknife/idagger/silver/arcyne,
-		/obj/item/chalk
+		/obj/item/chalk,
+		/obj/item/mini_flagpole/university, //Caustic Edit - Add mini-flagpole!
 	)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_RICH, H)

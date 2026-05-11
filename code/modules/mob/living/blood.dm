@@ -82,10 +82,14 @@
 		return
 	
 	blood_volume = min(blood_volume, BLOOD_VOLUME_MAXIMUM)
-	if(dna?.species)
-		if(NOBLOOD in dna.species.species_traits)
-			blood_volume = BLOOD_VOLUME_NORMAL
-			return
+
+	if(dna?.species && (NOBLOOD in dna.species.species_traits))
+		blood_volume = BLOOD_VOLUME_NORMAL
+
+		for(var/datum/wound/W in src.get_wounds())
+			W.bleed_rate = 0 // should stop bleeding from appearing! :D
+
+		return
 
 	// if we're dead and have no blood left, then there's nothing to do here: we can't regen it ourselves (in this proc), so...
 	// we'll continue to bleed out for as long as we have blood, but that's it
@@ -96,6 +100,9 @@
 		else
 			// handle just the oxyloss, and then abort. nothing else in here is relevant to us
 			adjustOxyLoss(blood_volume <= BLOOD_VOLUME_SURVIVE ? 3 : 1)
+			if(prob(40) && !HAS_TRAIT(src, TRAIT_NOBREATH))
+				if(!stat == CONSCIOUS || !stat == DEAD)
+					emote("gasp")		
 			return
 
 	//Blood regeneration if there is some space
@@ -167,6 +174,9 @@
 
 			if(blood_volume <= BLOOD_VOLUME_BAD)
 				adjustOxyLoss(blood_volume <= BLOOD_VOLUME_SURVIVE ? 3 : 1)
+				if(prob(40) && !HAS_TRAIT(src, TRAIT_NOBREATH))
+					if(stat != DEAD)
+						emote("gasp")
 			else if((blood_volume > BLOOD_VOLUME_SURVIVE) || HAS_TRAIT(src, TRAIT_BLOODLOSS_IMMUNE))
 				if(getOxyLoss())
 					adjustOxyLoss(-1.6)
@@ -447,6 +457,12 @@
 		else
 			new /obj/effect/decal/cleanable/blood/drip(T)
 
+//OV edit
+/mob/living/carbon/human/add_drip_floor(turf/T, amt)
+	if(!(NOBLOOD in dna.species.species_traits) && !(INVISBLOOD in dna.species.species_traits))
+		..()
+//OV edit end
+
 /mob/living/carbon/human/add_splatter_floor(turf/T, small_drip)
-	if(!(NOBLOOD in dna.species.species_traits))
+	if(!(NOBLOOD in dna.species.species_traits) && !(INVISBLOOD in dna.species.species_traits)) //OV EDIT
 		..()

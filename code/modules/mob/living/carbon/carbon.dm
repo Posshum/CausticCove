@@ -82,7 +82,6 @@
 		H = hud_used.hand_slots["[held_index]"]
 		if(H)
 			H.update_hand_vis()
-		H = hud_used.action_intent
 	oactive = FALSE
 	update_a_intents()
 	return TRUE
@@ -585,15 +584,12 @@
 		return 0
 	return ..()
 
-/mob/living/carbon
-	var/nausea = 0
-	var/bleeding_tier = 0
 
 /mob/living/carbon/proc/add_nausea(amt)
 	nausea = clamp(nausea + amt, 0, 300)
 
 /mob/living/carbon/proc/handle_nausea()
-	if(HAS_TRAIT(src, TRAIT_ROTMAN))
+	if(HAS_TRAIT(src, TRAIT_ROTMAN)||HAS_TRAIT(src, TRAIT_IRONMAN)) // constructs shouldn't feel nauseous, makes no sense, this fixes it
 		return TRUE
 	if(stat == DEAD)
 		return TRUE
@@ -616,6 +612,9 @@
 
 
 /mob/living/carbon/proc/vomit(lost_nutrition = 50, blood = FALSE, stun = TRUE, distance = 1, message = TRUE, toxic = FALSE, harm = FALSE, force = FALSE)
+	if(HAS_TRAIT(src, TRAIT_IRONMAN))
+		return TRUE
+
 	if(HAS_TRAIT(src, TRAIT_TOXINLOVER) && !force)
 		return TRUE
 
@@ -665,7 +664,7 @@
 					var/mob/living/carbon/C = src
 					C.add_stress(/datum/stressevent/vomit)
 	else
-		if(NOBLOOD in dna?.species?.species_traits)
+		if(NOBLOOD in dna?.species?.species_traits || (INVISBLOOD in dna.species.species_traits)) //OV EDIT
 			return TRUE
 		if(message)
 			visible_message("<span class='danger'>[vomit_source] coughs up blood!</span>", "<span class='danger'>I cough up blood!</span>")
@@ -788,10 +787,6 @@
 	else
 		remove_movespeed_modifier(MOVESPEED_ID_CARBON_SOFTCRIT, TRUE)
 	SEND_SIGNAL(src, COMSIG_LIVING_HEALTH_UPDATE)
-
-/mob/living/carbon
-	var/lightning_flashing = FALSE
-	var/burn_warning_shown = FALSE
 
 /mob/living/carbon/update_sight()
 	if(!client)

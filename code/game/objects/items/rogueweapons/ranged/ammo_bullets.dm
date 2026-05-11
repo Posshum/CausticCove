@@ -322,7 +322,8 @@
 	name = "lead ball"
 	damage = 30
 	damage_type = BRUTE
-	icon_state = "musketball_proj"
+	icon = 'icons/roguetown/weapons/ranged/sling_proj.dmi' //Caustic Edit - Re-add the icon file
+	icon_state = "scatter_proj" //Caustic Edit - Make it visible again! It got renamed and likely reused to be the Scattershot Sling Projectile
 	ammo_type = /obj/item/ammo_casing/caseless/rogue/bullet
 	range = 30
 	hitsound = 'sound/combat/hits/hi_arrow2.ogg'
@@ -338,6 +339,7 @@
 	desc = "A small lead sphere. This should go well with gunpowder."
 	projectile_type = /obj/projectile/bullet/reusable/bullet
 	caliber = "musketball"
+	icon = 'icons/roguetown/weapons/ranged/sling_mob.dmi' //Caustic Edit - Re-add the icon file
 	icon_state = "musketball"
 	dropshrink = 0.5
 	possible_item_intents = list(/datum/intent/use)

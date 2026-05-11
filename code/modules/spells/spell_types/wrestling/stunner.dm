@@ -39,6 +39,15 @@
 	tracker.channeling_throw = TRUE
 	user.emote("attack")
 	
+	//Caustic Edit - Moved these up here to hopefully prevent any weirdness with the Transform not being properly applied. Could have been saved too late?
+	var/original_user_pixel_x = user.pixel_x
+	var/original_user_pixel_y = user.pixel_y
+	var/original_user_pixel_z = user.pixel_z
+	var/original_user_transform = user.transform
+	var/original_target_pixel_z = target.pixel_z
+	var/original_target_transform = target.transform
+	//Caustic Edit End
+
 	// User faces away from target
 	var/dir_to_target = get_dir(user, target)
 	user.setDir(turn(dir_to_target, 180))
@@ -63,14 +72,6 @@
 			animate(user, pixel_x = user.pixel_x + close_offset, pixel_y = user.pixel_y - close_offset, time = close_time)
 		if(SOUTHWEST)
 			animate(user, pixel_x = user.pixel_x - close_offset, pixel_y = user.pixel_y - close_offset, time = close_time)
-	
-
-	var/original_user_pixel_x = user.pixel_x
-	var/original_user_pixel_y = user.pixel_y
-	var/original_user_pixel_z = user.pixel_z
-	var/original_user_transform = user.transform
-	var/original_target_pixel_z = target.pixel_z
-	var/original_target_transform = target.transform
 	
 	
 	// lifting both user and target upwards

@@ -42,7 +42,7 @@
 	contains = list(/obj/item/clothing/neck/roguetown/psicross/silver/astrata)
 
 /datum/supply_pack/rogue/luxury/silvertencross
-	name = "Silver Amulet of the Pantheon"
+	name = "Silver Amulet of Ten"
 	cost = 250
 	contains = list(/obj/item/clothing/neck/roguetown/psicross/silver/undivided)
 
@@ -52,7 +52,7 @@
 	contains = list(/obj/item/clothing/neck/roguetown/psicross/silver/necra)
 
 /datum/supply_pack/rogue/luxury/silvernoccross
-	name = "Silver Amulet of Noc"
+	name = "Blessed Amulet of Noc"
 	cost = 250
 	contains = list(/obj/item/clothing/neck/roguetown/psicross/silver/noc)
 
@@ -176,4 +176,4 @@
 /datum/supply_pack/rogue/luxury/sizescroll
 	name = "Scroll of Reduce/Enlarge"
 	cost = 15
-	contains = list(/obj/item/book/granter/spell/blackstone/sizespell)
+	contains = list(/obj/item/book/granter/spell/sizespell)

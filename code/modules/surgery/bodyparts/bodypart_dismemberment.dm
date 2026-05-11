@@ -66,8 +66,10 @@
 			return FALSE
 
 	var/obj/item/bodypart/affecting = C.get_bodypart(BODY_ZONE_CHEST)
-	if(affecting && dismember_wound)
+	if(affecting && dismember_wound && !isooze(C)) //OV EDIT - Oozes don't get wounds left behind when bits fall off
 		affecting.add_wound(dismember_wound)
+	else if(affecting && dismember_wound && isooze(C)) //OV Edit
+		C.visible_message(span_danger("[C]'s wound closes rapidly to stem the flow of plasm.")) //OV Edit
 	playsound(C, pick(dismemsound), 50, FALSE, -1)
 
 	var/stress2give = /datum/stressevent/viewdismember
@@ -84,8 +86,8 @@
 		// if they're already spinal-severed, THEN the head is removed.
 		// extra note: we only do this for mobs with a mind, aka not NPCS. npcs always get insta-decapped as before
 		if (owner?.client && !vorpal && !guillotine_execution && two_stage_death && !grievously_wounded)
-			if (owner?.construct)
-				C.visible_message(span_danger("<b>[C]'s wrought skull is <span class='crit'>CLEFT NIGH IN TWAIN</span> by a fearsome blow, crumbling into a <span class='crit'>CLOUD of DUST!</span></b>"))
+			if (HAS_TRAIT(owner, TRAIT_IRONMAN))
+				C.visible_message(span_danger("<B>[C] is <span class='crit'>[pick("ENDED", "TERMINATED", "DEPRECATED","SCRAPPED","DESTROYED","UNDONE","WRECKED","REKT","FRAGGED")]</span> as [C.p_their()] ravaged neck <span class='crit'>BLOSSOMS</span> into wisps of <span class='crit'>SCRAP and MAGIC DUST!</span></B>"))
 				C.death()
 				return
 
@@ -106,7 +108,7 @@
 	if(!HAS_TRAIT(C, TRAIT_NOPAIN))
 		C.emote("painscream")
 
-	if(!(NOBLOOD in C.dna?.species?.species_traits))
+	if(!(NOBLOOD in C.dna?.species?.species_traits) && !(INVISBLOOD in C.dna?.species?.species_traits)) //OV EDIT
 		add_mob_blood(C)
 
 	if(stress2give && C.mind) //Shouldn't be freaking out over a boglin getting their shit rocked.
@@ -292,6 +294,10 @@
 /obj/item/bodypart/r_arm/drop_limb(special)
 	var/mob/living/carbon/C = owner
 	. = ..()
+	//OV edit
+	if(isooze(C))
+		qdel(src)
+	//OV edit end
 	if(C && !special)
 		if(C.handcuffed)
 			C.handcuffed.forceMove(drop_location())
@@ -301,7 +307,7 @@
 		if(C.hud_used)
 			var/atom/movable/screen/inventory/hand/R = C.hud_used.hand_slots["[held_index]"]
 			if(R)
-				R.update_icon()
+				R.update_hand_vis()
 		if(C.gloves && (C.get_num_arms(FALSE) < 1))
 			C.dropItemToGround(C.gloves, force = TRUE)
 		C.update_inv_gloves() //to remove the bloody hands overlay
@@ -311,6 +317,10 @@
 /obj/item/bodypart/l_arm/drop_limb(special)
 	var/mob/living/carbon/C = owner
 	. = ..()
+	//OV edit
+	if(isooze(C))
+		qdel(src)
+	//OV edit end
 	if(C && !special)
 		if(C.handcuffed)
 			C.handcuffed.forceMove(drop_location())
@@ -320,7 +330,7 @@
 		if(C.hud_used)
 			var/atom/movable/screen/inventory/hand/L = C.hud_used.hand_slots["[held_index]"]
 			if(L)
-				L.update_icon()
+				L.update_hand_vis()
 		if(C.gloves && (C.get_num_arms(FALSE) < 1))
 			C.dropItemToGround(C.gloves, force = TRUE)
 		C.update_inv_gloves() //to remove the bloody hands overlay
@@ -329,6 +339,10 @@
 /obj/item/bodypart/r_leg/drop_limb(special)
 	var/mob/living/carbon/C = owner
 	. = ..()
+	//OV edit
+	if(isooze(C))
+		qdel(src)
+	//OV edit end
 	if(C && !special)
 		if(C.legcuffed)
 			C.legcuffed.forceMove(C.drop_location()) //At this point bodypart is still in nullspace
@@ -343,6 +357,10 @@
 /obj/item/bodypart/l_leg/drop_limb(special) //copypasta
 	var/mob/living/carbon/C = owner
 	. = ..()
+	//OV edit
+	if(isooze(C))
+		qdel(src)
+	//OV edit end
 	if(C && !special)
 		if(C.legcuffed)
 			C.legcuffed.forceMove(C.drop_location())

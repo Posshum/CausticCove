@@ -135,7 +135,8 @@
 		if(carbon_owner)
 			carbon_owner.handle_dreams()
 			if(prob(10) && owner.health > owner.crit_threshold && !istype(owner.loc, /obj/belly)) //Cove edit
-				owner.emote("snore")
+				if(!HAS_TRAIT(owner, TRAIT_NOBREATH)) // how do you snore soundly when you don't need to breathe son?
+					owner.emote("snore")
 
 /atom/movable/screen/alert/status_effect/asleep
 	name = "Asleep"
@@ -776,7 +777,7 @@
 /datum/status_effect/debuff/baited
 	id = "bait"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/baited
-	duration = 20 SECONDS
+	duration = 15 SECONDS
 
 /atom/movable/screen/alert/status_effect/debuff/baited
 	name = "Baited"
@@ -791,7 +792,7 @@
 /datum/status_effect/debuff/baitcd
 	id = "baitcd"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/baitedcd
-	duration = 30 SECONDS
+	duration = BAIT_RCLICK_CD
 
 /datum/status_effect/debuff/baitcd/on_creation(mob/living/new_owner, new_dur)
 	if(new_dur)
@@ -979,6 +980,21 @@
 	name = "Knockback Cooldown"
 	desc = "I have been knocked back recently by an attack and cannot be knocked back again"
 	icon_state = "debuff" // Placeholder
+
+/datum/status_effect/debuff/bindcd
+	id = "bindcd"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/bindcd
+	duration = 15 SECONDS
+
+/datum/status_effect/debuff/bindcd/on_creation(mob/living/new_owner, new_dur)
+	if(new_dur)
+		duration = new_dur
+	return ..()
+
+/atom/movable/screen/alert/status_effect/debuff/bindcd
+	name = "Bind Cooldown"
+	desc = "Can't expect the magic to work every time."
+	icon_state = "bindcd"
 
 /datum/status_effect/debuff/specialcd
 	id = "specialcd"

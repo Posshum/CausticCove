@@ -212,6 +212,7 @@ GLOBAL_PROTECT(admin_verbs_debug)
 	/client/proc/toggle_medal_disable,
 	/client/proc/view_runtimes,
 	/client/proc/pump_random_event,
+	/client/proc/show_tip,
 	/client/proc/cmd_display_init_log,
 	/client/proc/cmd_display_overlay_log,
 	/client/proc/reload_configuration,
@@ -221,6 +222,8 @@ GLOBAL_PROTECT(admin_verbs_debug)
 	/client/proc/stresstest_chat,
 	/client/proc/performance_stress_test, // Uncomment these if you tick the performance stress test .dm file
 	/client/proc/cleanup_stress_test_mobs,
+	/client/proc/cmd_admin_economic_panel,
+	/client/proc/cmd_admin_view_chronicle,
 	//CC Edit
 	/client/proc/allow_broser_inspect
 	//CC Edit End
@@ -714,11 +717,17 @@ GLOBAL_PROTECT(admin_verbs_hideable)
 
 	var/list/spell_list = list()
 	var/type_length = length("/obj/effect/proc_holder/spell") + 2
+	var/action_type_length = length("/datum/action/cooldown/spell") + 2
+
+	//Caustic Edit - Lets see if we can't get the admin menu to grant action-based spells as well
+	for(var/A in GLOB.action_spells)
+		spell_list[copytext("[A]", action_type_length)] = A
 	for(var/A in GLOB.spells)
 		spell_list[copytext("[A]", type_length)] = A
-	var/obj/effect/proc_holder/spell/S = input("Choose the spell to give to that guy", "ABRAKADABRA") as null|anything in sortList(spell_list)
+	var/S = input("Choose the spell to give to that guy", "ABRAKADABRA") as null|anything in sortList(spell_list)
 	if(!S)
 		return
+	//Caustic Edit End
 
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Give Spell") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 	log_admin("[key_name(usr)] gave [key_name(T)] the spell [S].")

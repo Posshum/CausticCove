@@ -35,5 +35,5 @@
 	min_players = CHARACTER_INJECTION_MIN_POP
 	base_antags = 2
 	maximum_antags = 2
-	max_occurrences = 1
+	max_occurrences = 0 //Caustic Cove Edit - Disable Dreamwalker spawns entirely. While this is 0, it can never spawn.
 	allowed_storytellers = list(/datum/storyteller/abyssor)

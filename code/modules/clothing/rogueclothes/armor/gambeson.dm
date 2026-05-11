@@ -8,7 +8,6 @@
 	body_parts_covered = COVERAGE_ALL_BUT_HANDFEET
 	armor = ARMOR_PADDED
 	blocksound = SOFTUNDERHIT
-	blade_dulling = DULLING_BASHCHOP
 	max_integrity = ARMOR_INT_CHEST_LIGHT_MEDIUM
 	break_sound = 'sound/foley/cloth_rip.ogg'
 	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
@@ -25,6 +24,8 @@
 /obj/item/clothing/suit/roguetown/armor/gambeson/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+	if(armor_class > ARMOR_CLASS_LIGHT)
+		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 /obj/item/clothing/suit/roguetown/armor/gambeson/dark
 	color = "#646464"
@@ -161,7 +162,6 @@
 	max_integrity = ARMOR_INT_CHEST_LIGHT_MASTER + 35
 	sellprice = 25
 	blocksound = SOFTUNDERHIT
-	blade_dulling = DULLING_BASHCHOP
 	break_sound = 'sound/foley/cloth_rip.ogg'
 	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
 	sewrepair = TRUE
@@ -170,6 +170,8 @@
 /obj/item/clothing/suit/roguetown/shirt/freifechter/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+	if(armor_class > ARMOR_CLASS_LIGHT)
+		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 /obj/item/clothing/suit/roguetown/shirt/freifechter/shepherd
 	name = "shepherd's shirt"

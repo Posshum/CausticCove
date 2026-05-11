@@ -33,18 +33,24 @@ GLOBAL_LIST_INIT(named_butt_sizes, list(
 /datum/sprite_accessory/butt
 	icon = 'modular_causticcove/icons/mob/merp_organs/butt.dmi'
 	color_key_name = "Butt"
-	relevant_layers = list(ASS_LAYER/*, BODY_FRONT_LAYER*/)
+	relevant_layers = list(ASS_LAYER, BODY_BEHIND_LAYER)
+	always_shown_layers = list(BODY_FRONT_LAYER, BODY_BEHIND_LAYER)
 
 /datum/sprite_accessory/butt/adjust_appearance_list(list/appearance_list, obj/item/organ/organ, obj/item/bodypart/bodypart, mob/living/carbon/owner)
 	if(!isdwarf(owner) && !isgoblinp(owner) && !iskobold(owner) && !isvermin(owner))
 		generic_gender_feature_adjust(appearance_list, organ, bodypart, owner, OFFSET_PANTS, OFFSET_PANTS_F)
 	else
 		generic_gender_feature_adjust(appearance_list, organ, bodypart, owner, OFFSET_BUTT, OFFSET_BUTT)
+
 /datum/sprite_accessory/butt/get_icon_state(obj/item/organ/organ, obj/item/bodypart/bodypart, mob/living/carbon/owner)
 	var/obj/item/organ/butt/buttie = organ
-	return "butt_[icon_state]_[buttie.organ_size]"
+	return "butt_[icon_state]_[buttie.organ_size]_[buttie.always_show ? "show" : "hide"]"
 
 /datum/sprite_accessory/butt/is_visible(obj/item/organ/organ, obj/item/bodypart/bodypart, mob/living/carbon/owner)
+	//Caustic Edit - Support to always show/hide parts!
+	if(organ.visible_organ && organ.always_show)
+		return TRUE
+	//Caustic Edit End
 	var/obj/item/organ/butt/buttie = organ
 	if(owner.underwear)
 		return FALSE

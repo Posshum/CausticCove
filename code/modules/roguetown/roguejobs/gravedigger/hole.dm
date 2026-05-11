@@ -514,18 +514,30 @@
 			else
 				stage++
 		if(stage == 4)
-			stage = 3
-			climb_offset = 0
-			locked = FALSE
-			open()
-			for(var/obj/structure/gravemarker/G in loc)
+			//Caustic Edit - Make it so that even the loot graves give the curse and count to the statistics
+			var/should_curse = FALSE
+			for(var/obj/structure/gravemarker/G in loc) //Technically this could mean that multiple markers on one grave would have counted multiple times? Since the Stats were in this bit.
+				should_curse = TRUE
+				qdel(G)
+			
+			if(istype(src, /obj/structure/closet/dirthole/closed/loot)) //If it's a Loot Grave, cast it as such and check the looted status. Non-looted ones should curse the digger!
+				var/obj/structure/closet/dirthole/closed/loot/lootgrave = src
+				if(!lootgrave.looted)
+					should_curse = TRUE
+
+			if(should_curse)
 				record_featured_stat(FEATURED_STATS_CRIMINALS, user)
 				record_round_statistic(STATS_GRAVES_ROBBED)
-				qdel(G)
 				if(isliving(user))
 					var/mob/living/L = user
 					if(!HAS_TRAIT(L, TRAIT_GRAVEROBBER))
 						L.apply_status_effect(/datum/status_effect/debuff/cursed)
+			
+			stage = 3
+			climb_offset = 0
+			locked = FALSE
+			open()
+			//Caustic Edit End
 		update_icon()
 		attacking_shovel.heldclod = new(attacking_shovel)
 		attacking_shovel.update_icon()

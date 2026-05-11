@@ -1,11 +1,9 @@
-//Rememeber CC folk, if we are cherry picking we are using the OLD vault system. Not the new minting one!
-
 /datum/roguestock/bounty/treasure
 	name = "Collectable Treasures"
 	//Caustic Edit - Re-add sending treasures to the Keep's Vault! Similar mechanics to the Bathmaster!
 	desc = "Treasures are sent to the vault, where they accrue value over time. Payout is a percentage is based on the price of the treasure, with taxes removed from the payout after."
 	item_type = /obj
-	payout_price = 66
+	payout_price = 60
 	transport_item = /area/rogue/indoors/town/vault
 	//Caustic Edit End
 	percent_bounty = TRUE
@@ -74,6 +72,26 @@
 		return FALSE
 	if(istype(I, /obj/item/rogueweapon/scabbard))
 		return FALSE // If you have to sell your decorated scabbards for ozium-money, you'll have to barter.
+	if(istype(I, /obj/item/ingot/avantyne))
+		return FALSE //Do you think the Police Department'd purchase a fresh baggie of crack from you?
+	if(istype(I, /obj/item/ingot/component/threadavantyne))
+		return FALSE
+	if(istype(I, /obj/item/ingot/component/berserkswordgrip))
+		return FALSE //Components for a superweapon - shouldn't accidentally be sellable, in most cases. The glut crystal can always be smelted back down into a proper blood diamond, if profit's on one's mind.
+	if(istype(I, /obj/item/ingot/component/berserkswordblade))
+		return FALSE
+	if(istype(I, /obj/item/ingot/component/heapofrawiron))
+		return FALSE
+	if(istype(I, /obj/item/ingot/component/glutcrystal))
+		return FALSE
+	if(istype(I, /obj/item/ingot/component/zizo))
+		return FALSE //Same reason as the Avantyne stuff.
+	if(istype(I, /obj/item/ingot/component/graggar))
+		return FALSE
+	if(istype(I, /obj/item/ingot/component/matthios))
+		return FALSE
+	if(istype(I, /obj/item/ingot/component/baotha))
+		return FALSE
 	if(I.get_real_price() > 0)
 		if(istype(I, /obj/item/reagent_containers/glass/cup)) //As Randall explained, these statements allow any item in the codepath to be sold, regardless of their value.
 			return TRUE
@@ -99,3 +117,5 @@
 			return TRUE
 	if(I.get_real_price() >= 30) //The numerical value here determines how much mammons an item needs to be worth, at the minimum, to be automatically accepted into the Stockpile.
 		return TRUE
+
+	return FALSE

@@ -90,6 +90,8 @@ GLOBAL_LIST_EMPTY(last_words)
 
 /mob/living/death(gibbed, nocutscene = FALSE)
 	var/was_dead_before = stat == DEAD
+	if(blood_toll_bucket && !was_dead_before && !mind?.assigned_role && !client)
+		record_round_statistic(blood_toll_bucket)
 	set_stat(DEAD)
 	unset_machine()
 	timeofdeath = world.time
@@ -169,7 +171,7 @@ GLOBAL_LIST_EMPTY(last_words)
 			return
 		//Caustic Edit End
 		// Stop necrans from freaking out from digestion and unrevivable simplemob deaths
-		if (!gibbed && !( (src.mind && src.mind.has_antag_datum(/datum/antagonist/zombie)) || (src.mind && src.mind.has_antag_datum(/datum/antagonist/skeleton)) || HAS_TRAIT(src, TRAIT_SECONDLIFE) )) // because I hate being jumpscared by "OOH SOMEONE DIED IN THE CHURCH" when they're just killing a deadite with burn rot to rez them
+		if (!gibbed) //Caustic Edit - Getting rid of this check cause EH. It's silly. Also it was kinda not working either lol.  && !( (src.mind && src.mind.has_antag_datum(/datum/antagonist/zombie)) || (src.mind && src.mind.has_antag_datum(/datum/antagonist/skeleton)) || HAS_TRAIT(src, TRAIT_SECONDLIFE) ) // because I hate being jumpscared by "OOH SOMEONE DIED IN THE CHURCH" when they're just killing a deadite with burn rot to rez them
 			var/locale = prepare_deathsight_message()
 			for (var/mob/living/player in GLOB.player_list)
 				if (player.stat == DEAD || isbrain(player))

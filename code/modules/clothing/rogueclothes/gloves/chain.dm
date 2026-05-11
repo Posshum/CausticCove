@@ -6,7 +6,6 @@
 	resistance_flags = FIRE_PROOF
 	blocksound = CHAINHIT
 	max_integrity = ARMOR_INT_SIDE_STEEL
-	blade_dulling = DULLING_BASHCHOP
 	break_sound = 'sound/foley/breaksound.ogg'
 	drop_sound = 'sound/foley/dropsound/chain_drop.ogg'
 	pickup_sound = 'sound/foley/equip/equip_armor_chain.ogg'
@@ -19,6 +18,8 @@
 /obj/item/clothing/gloves/roguetown/chain/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_HONORBOUND)
+	if(armor_class > ARMOR_CLASS_LIGHT)
+		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 /obj/item/clothing/gloves/roguetown/chain/aalloy
 	name = "decrepit chain gauntlets"

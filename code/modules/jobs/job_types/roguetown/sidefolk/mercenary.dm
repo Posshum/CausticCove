@@ -13,6 +13,7 @@
 	min_pq = 5 //CC Edit - From 3 to 5 Please don't be advent+ //Will be handled by classes if PQ limiting is needed. --But Until then, learn escalation, mercs.
 	max_pq = null
 	round_contrib_points = 1
+	townie_contract_gate_exempt = TRUE
 	outfit = null	//Handled by classes
 	outfit_female = null
 	advclass_cat_rolls = list(CTAG_MERCENARY = 20)

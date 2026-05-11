@@ -68,6 +68,7 @@
 		/obj/item/needle = 1,
 		/obj/item/storage/keyring/acolyte = 1,
 		/obj/item/natural/cloth = 1,
+		/obj/item/mini_flagpole/church = 1, //Caustic Edit - Adding Mini-Flagpole!
 	)
 	switch(H.patron?.type)
 		if(/datum/patron/divine/undivided)

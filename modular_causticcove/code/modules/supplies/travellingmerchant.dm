@@ -360,22 +360,22 @@
 /datum/supply_pack/rogue/travelling_merchant_pw/enchanting/woodcutting
 	name = "Woodcutting enchantment scroll"
 	cost = 100 
-	contains = list(/obj/item/enchantmentscroll/woodcut)
+	contains = list(/obj/item/enchantmentscroll/basic/woodcut)
 
 /datum/supply_pack/rogue/travelling_merchant_pw/enchanting/mining
 	name = "Mining enchantment scroll"
 	cost = 100 
-	contains = list(/obj/item/enchantmentscroll/mining)
+	contains = list(/obj/item/enchantmentscroll/basic/mining)
 
 /datum/supply_pack/rogue/travelling_merchant_pw/enchanting/light
 	name = "Light enchantment scroll"
 	cost = 100 
-	contains = list(/obj/item/enchantmentscroll/light)
+	contains = list(/obj/item/enchantmentscroll/basic/revealinglight)
 	
 /datum/supply_pack/rogue/travelling_merchant_pw/enchanting/holding
 	name = "Holding enchantment scroll"
 	cost = 250
-	contains = list(/obj/item/enchantmentscroll/holding)
+	contains = list(/obj/item/enchantmentscroll/basic/holding)
 
 /datum/supply_pack/rogue/travelling_merchant_pw/mats/gold
 	name = "Raw gold"

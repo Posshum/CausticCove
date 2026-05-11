@@ -751,3 +751,10 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 /obj/structure/kybraxor/psy
 	name = "Kybraxor the Vaultkeeper"
 	redstone_id = "swamp_psy_dungeon"
+
+//Caustic Edit - Added a define for the Davekeeper, maybe this fixes the collision?
+/obj/structure/kybraxor/dave
+	name = "Kybraxor the Davekeeper"
+	desc = "The one who contains the beast within."
+	redstone_id = "gatedave"
+//Caustic Edit End

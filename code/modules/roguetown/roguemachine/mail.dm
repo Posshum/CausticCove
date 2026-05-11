@@ -201,7 +201,7 @@
 						log_mail_send(user, sentfrom, send2place)
 						visible_message(span_warning("[user] sends something."))
 						playsound(loc, 'sound/misc/disposalflush.ogg', 100, FALSE, -1)
-						SStreasury.give_money_treasury(1, "Mail Income")
+						SStreasury.mint(SStreasury.discretionary_fund, 1, "Mail Income")
 						record_round_statistic(STATS_TAXES_COLLECTED, 1)
 						coin_loaded -= 1
 						if(coin_loaded <= 0)
@@ -225,7 +225,7 @@
 						log_mail_send(user, sentfrom, send2place)
 						visible_message(span_warning("[user] sends something."))
 						playsound(loc, 'sound/misc/disposalflush.ogg', 100, FALSE, -1)
-						SStreasury.give_money_treasury(1, "Mail Income")
+						SStreasury.mint(SStreasury.discretionary_fund, 1, "Mail Income")
 						record_round_statistic(STATS_TAXES_COLLECTED, 1)
 						coin_loaded -= 1
 						if(coin_loaded <= 0)

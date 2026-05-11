@@ -605,9 +605,9 @@ GLOBAL_LIST_EMPTY(soil_list)
 		adjust_plant_health(dt * PLANT_BLESS_HEAL_RATE)
 
 /obj/structure/soil/proc/process_plant_nutrition(dt)
-	var/turf/location = loc
+	/*var/turf/location = loc //Removing this so building roofs doesn't just turn off plants anymore. It's likely been broken for who knows how long and literally the map is built for this being possible.
 	if(!plant.can_grow_underground && location.can_see_sky == SEE_SKY_NO)
-		return
+		return*/
 	// If matured and produce is ready, don't process plant nutrition
 	if(matured && produce_ready)
 		return

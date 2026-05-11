@@ -116,18 +116,18 @@
 	associated_skill = /datum/skill/magic/holy
 
 //Caustic Edit - Lesser Arcyne Forge! Mostly for tools, but not all of them
-/datum/action/cooldown/spell/arcyne_forge/Lesser
+/datum/action/cooldown/spell/arcyne_forge/lesser
 	name = "Lesser Arcyne Forge"
 	desc = "A simpler form of Arcyne Forge with less variety then the original.\n\
 	Conjure a weapon or tool of your choice. Conjured items have halved durability.\n\
 	Only one conjured item can exist at a time - conjuring a new one destroys the old."
 
 	charge_required = TRUE
-	charge_time = 10 SECONDS
+	charge_time = 4 SECONDS
 	charge_drain = 1
 	charge_slowdown = CHARGING_SLOWDOWN_MEDIUM
 	charge_sound = 'sound/magic/charging.ogg'
-	cooldown_time = 7 MINUTES
+	cooldown_time = 6 MINUTES
 
 	spell_tier = 1
 	point_cost = 1

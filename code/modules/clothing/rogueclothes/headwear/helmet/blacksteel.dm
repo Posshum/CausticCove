@@ -12,6 +12,8 @@
 	AddComponent(/datum/component/adjustable_clothing, (HEAD|EARS|HAIR), (HIDEEARS|HIDEHAIR), null, 'sound/items/visor.ogg', null, UPD_HEAD)	//Standard helmet
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+	if(armor_class > ARMOR_CLASS_LIGHT)
+		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 /obj/item/clothing/head/roguetown/helmet/blacksteel/modern/attackby(obj/item/W, mob/living/user, params)
 	..()
@@ -74,6 +76,8 @@
 /obj/item/clothing/head/roguetown/helmet/blacksteel/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+	if(armor_class > ARMOR_CLASS_LIGHT)
+		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 /obj/item/clothing/head/roguetown/helmet/heavy/bucket/crusader/blacksteel
 	name = "blacksteel sugarloaf helmet"

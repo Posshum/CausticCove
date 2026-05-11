@@ -22,7 +22,7 @@
 	var/brew_required = 50
 	var/current_brew = 0
 	var/max_brew = 100
-	var/chair_skill_level = 4
+	var/chair_skill_level = 2
 
 	var/static/list/brew_overlays = list(
 		"low" = "frankenbrew_low",

@@ -6,8 +6,10 @@
 	vampcompat = FALSE
 	outfit = /datum/outfit/job/roguetown/adventurer/cleric
 	category_tags = list(CTAG_ADVENTURER, CTAG_COURTAGENT)
+	townie_contract_gate_exempt = TRUE
+	townie_contract_gate_hide_in_list = TRUE
 	class_select_category = CLASS_CAT_CLERIC
-	traits_applied = list(TRAIT_DODGEEXPERT, TRAIT_CIVILIZEDBARBARIAN, TRAIT_MARRIAGE_CAPABLE)
+	traits_applied = list(TRAIT_DODGEEXPERT, TRAIT_CIVILIZEDBARBARIAN)
 	subclass_stats = list(
 		STATKEY_STR = 1,
 		STATKEY_WIL = 2, //ALL church roles get +1 to stats. They're each expected to play an important role and should fight against the inhumen threat.
@@ -639,6 +641,8 @@
 			cloak = /obj/item/clothing/suit/roguetown/shirt/robe/dendor
 			ADD_TRAIT(H, TRAIT_SEEDKNOW, TRAIT_GENERIC)
 			H.adjust_skillrank(/datum/skill/labor/farming, SKILL_LEVEL_APPRENTICE, TRUE)
+			H.adjust_skillrank(/datum/skill/misc/hunting, SKILL_LEVEL_NOVICE, TRUE)
+			ADD_TRAIT(H, TRAIT_EXPERT_HUNTER, TRAIT_GENERIC)
 		if(/datum/patron/divine/necra)
 			head = /obj/item/clothing/head/roguetown/necrahood
 			cloak = /obj/item/clothing/suit/roguetown/shirt/robe/necra
@@ -652,12 +656,18 @@
 			H.adjust_skillrank(/datum/skill/craft/weaponsmithing, SKILL_LEVEL_NOVICE, TRUE)
 			H.adjust_skillrank(/datum/skill/craft/smelting, SKILL_LEVEL_NOVICE, TRUE)
 		if (/datum/patron/divine/eora)
-			cloak = /obj/item/clothing/suit/roguetown/shirt/robe/eora
 			head = /obj/item/clothing/head/roguetown/eoramask
 			backpack_contents[/obj/item/reagent_containers/eoran_seed] = 1
 			r_hand = /obj/item/rogueweapon/huntingknife/scissors
 			H.adjust_skillrank(/datum/skill/craft/cooking, SKILL_LEVEL_APPRENTICE, TRUE)
 			ADD_TRAIT(H, TRAIT_BEAUTIFUL, TRAIT_GENERIC)
+			var/robes = list("Modest","Exposed")
+			var/robe_choice = input(H, "Choose your ROBES.", "TAKE UP ROBES.") as anything in robes
+			switch(robe_choice) // This feels wrong to do but I am unsure how else to do it
+				if("Modest")
+					cloak = /obj/item/clothing/suit/roguetown/shirt/robe/eora
+				if("Exposed")
+					cloak = /obj/item/clothing/suit/roguetown/shirt/robe/eora/alt
 		if (/datum/patron/divine/xylix)
 			cloak = /obj/item/clothing/cloak/tabard/devotee/xylix
 			H.adjust_skillrank(/datum/skill/misc/climbing, SKILL_LEVEL_NOVICE, TRUE)

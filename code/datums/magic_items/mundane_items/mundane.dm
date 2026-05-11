@@ -73,13 +73,13 @@
 		user.STALUC -= 1
 		to_chat(user, span_notice("I feel mundane once more"))
 
-/datum/magic_item/mundane/unyieldinglight
+/datum/magic_item/mundane/revealinglight
 	name = "unyielding light"
 	description = "It emits a shining light."
 	glow_color = "#FFB347"
 	var/active = FALSE
 
-/datum/magic_item/mundane/unyieldinglight/on_use(var/obj/item/i, var/mob/living/user)
+/datum/magic_item/mundane/revealinglight/on_use(var/obj/item/i, var/mob/living/user)
 	if(!active)
 		active = TRUE
 
@@ -102,13 +102,13 @@
 		STR.max_w_class++
 	STR.screen_max_columns = STR.screen_max_columns + 2
 
-/datum/magic_item/mundane/revealing
-	name = "revealing"
+/datum/magic_item/mundane/magnifiedlight
+	name = "magnified"
 	description = "Its light is painfully bright."
 	glow_color = "#FFB347"
 	var/active = FALSE
 
-/datum/magic_item/mundane/revealing/on_apply(var/obj/item/i)
+/datum/magic_item/mundane/magnifiedlight/on_apply(var/obj/item/i)
 	.=..()
 	var/obj/item/flashlight/flare/light = i
 	light.light_outer_range = light.light_outer_range * 2

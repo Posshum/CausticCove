@@ -578,7 +578,7 @@ Inquisitorial armory down here
 	else
 		return				
 
-/obj/item/inqarticles/indexer/proc/takeblood(mob/living/M, mob/living/user)
+/obj/item/inqarticles/indexer/proc/takeblood(mob/living/carbon/human/M, mob/living/carbon/human/user)
 	if(timestaken >= 8)
 		playsound(src, 'sound/items/indexer_finished.ogg', 75, FALSE, 3)
 		working = FALSE
@@ -635,7 +635,7 @@ Inquisitorial armory down here
 		else
 			working = FALSE
 
-/obj/item/inqarticles/indexer/attack(mob/living/M, mob/living/user)
+/obj/item/inqarticles/indexer/attack(mob/living/carbon/human/M, mob/living/carbon/human/user)
 	. = ..()
 	if(HAS_TRAIT(user, TRAIT_INQUISITION))
 		if(!active)
@@ -644,11 +644,11 @@ Inquisitorial armory down here
 		if(subject)
 			if(M != subject)
 				return
-		if(HAS_TRAIT(M, TRAIT_BLOODLOSS_IMMUNE))
-			to_chat(user, span_warning("They don't have any blood to sample."))		
-			return
 		if(istype(M, /mob/living/carbon/human/species/skeleton))
 			to_chat(user, span_warning("I don't think the Inquisition values marrow much these daes."))	
+			return
+		if(M.dna?.species && (NOBLOOD in M.dna.species.species_traits))
+			to_chat(user, span_warning("They don't have any blood to sample."))		
 			return		
 		if(!M.mind)		
 			return	
@@ -733,12 +733,6 @@ Inquisitorial armory down here
 		visible_message(span_info("[user] warms [src] with [I]."))
 		update_icon()
 
-	if(istype(I, /obj/item/clothing/ring/signet))	
-		if(tallow && heatedup)	
-			var/obj/item/clothing/ring/signet/ring = I
-			ring.tallowed = TRUE
-			ring.update_icon()	
-		
 
 /obj/item/inqarticles/tallowpot/update_icon()
 	. = ..()	
@@ -753,7 +747,6 @@ Inquisitorial armory down here
     . = ..()
     . += span_info("Left click with a chunk of redtallow to fill it up.")
     . += span_info("Once filled, left-clicking the tallowpot with a torch, lamptern, candle, or any other handheld source of heat will temporarily melt the redtallow inside.")
-    . += span_info("Heated tallowpots can be left-clicked with a signet ring to prepare a stamp, which can be used to seal certain foldable letters.")
 
 /obj/item/rope/inqarticles/inquirycord
 	name = "inquiry cordage"

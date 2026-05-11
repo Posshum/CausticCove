@@ -9,7 +9,6 @@
 	sewrepair = TRUE
 	armor = ARMOR_PADDED_BAD
 	blocksound = SOFTHIT
-	blade_dulling = DULLING_BASHCHOP
 	r_sleeve_status = SLEEVE_NORMAL
 	l_sleeve_status = SLEEVE_NORMAL
 	armor_class = ARMOR_CLASS_LIGHT
@@ -28,6 +27,8 @@
 /obj/item/clothing/under/roguetown/trou/leather/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_HONORBOUND)
+	if(armor_class > ARMOR_CLASS_LIGHT)
+		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 /obj/item/clothing/under/roguetown/trou/leather/mourning
 	name = "mourning trousers"

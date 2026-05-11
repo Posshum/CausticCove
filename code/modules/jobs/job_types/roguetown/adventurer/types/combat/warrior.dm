@@ -8,6 +8,8 @@
 	traits_applied = list(TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR)
 	class_select_category = CLASS_CAT_WARRIOR
 	category_tags = list(CTAG_ADVENTURER, CTAG_COURTAGENT, CTAG_LICKER_WRETCH)
+	townie_contract_gate_exempt = TRUE
+	townie_contract_gate_hide_in_list = TRUE
 	subclass_stats = list(
 		STATKEY_STR = 2,
 		STATKEY_WIL = 1,
@@ -278,7 +280,10 @@
 			r_hand = /obj/item/rogueweapon/mace/bronze
 			gloves = /obj/item/clothing/gloves/roguetown/bandages
 		if("Bronze Spear")
+			// Boar huntah
 			H.adjust_skillrank_up_to(/datum/skill/combat/polearms, SKILL_LEVEL_JOURNEYMAN, TRUE)
+			H.adjust_skillrank(/datum/skill/misc/hunting, SKILL_LEVEL_NOVICE, TRUE)
+			ADD_TRAIT(H, TRAIT_EXPERT_HUNTER, TRAIT_GENERIC)
 			head = /obj/item/clothing/head/roguetown/helmet/leather/volfhelm
 			r_hand = /obj/item/rogueweapon/spear/bronze
 			gloves = /obj/item/clothing/gloves/roguetown/bandages
@@ -580,7 +585,7 @@
 				beltl = pick( //This only picks one of these random potions. Hope you get lucky!
 					/obj/item/reagent_containers/glass/bottle/alchemical/strpot,
 					/obj/item/reagent_containers/glass/bottle/alchemical/conpot,
-					/obj/item/reagent_containers/glass/bottle/alchemical/endpot,
+					/obj/item/reagent_containers/glass/bottle/alchemical/willpot,
 					/obj/item/reagent_containers/glass/bottle/alchemical/spdpot,
 					/obj/item/reagent_containers/glass/bottle/alchemical/perpot,
 					/obj/item/reagent_containers/glass/bottle/alchemical/intpot,

@@ -61,7 +61,7 @@
 			to_chat(src, "Your character information will no longer be viewable when masked.") //Caustic Edit End
 
 /client/verb/toggle_instruments()
-	set category = "Options"
+	set category = "OPTIONS"
 	set name = "Toggle Instrument Sounds"
 	if(prefs)
 		prefs.toggles ^= SOUND_INSTRUMENTS
@@ -69,7 +69,7 @@
 	to_chat(src, "You will[(prefs.toggles & SOUND_INSTRUMENTS) ? "" : " no longer"] hear instrument-played songs.")
 
 /client/verb/toggle_midis()
-	set category = "Options"
+	set category = "OPTIONS"
 	set name = "Toggle Admin Midis"
 	if(prefs)
 		prefs.toggles ^= SOUND_MIDI
@@ -207,6 +207,20 @@
 	set desc = ""
 	if(mob)
 		SEND_SOUND(mob, sound(null))
+
+/client/verb/toggle_area_music()
+	set category = "OPTIONS"
+	set name = "Toggle Area Music"
+	if(prefs)
+		prefs.stopdroning = !prefs.stopdroning
+		prefs.save_preferences()
+
+		if(prefs.stopdroning)
+			to_chat(src, "You will no longer hear looping area music.")
+			SSdroning.kill_droning(src)
+			SSdroning.kill_loop(src)
+		else
+			to_chat(src, "You will now hear looping area music.")
 
 /client/verb/cmode_strip()
 	set name = "Combat Mode Stripping"

@@ -56,9 +56,7 @@
 		return FALSE
 	var/mob/living/carbon/C = eater
 
-	if(!spillable)
-		to_chat(user, span_warning("How am I to drink from this while it's still corked?"))
-		return FALSE
+	//Caustic Edit - moved this spillable check from here to reagent_containers/glass
 
 	var/obj/item/bodypart/head/dullahan/eaterrelay
 	if(ishuman(src))

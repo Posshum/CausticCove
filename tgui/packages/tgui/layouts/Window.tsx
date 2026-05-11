@@ -120,7 +120,7 @@ export function Window(props: Props) {
       : config.status < UI_INTERACTIVE);
 
   return suspended ? null : (
-    <Layout className="Window" theme={config.window?.theme || theme}>
+    <Layout className="Window" theme={theme || config.window?.theme}>
       {!fitted && (
         <TitleBar
           className="Window__titleBar"

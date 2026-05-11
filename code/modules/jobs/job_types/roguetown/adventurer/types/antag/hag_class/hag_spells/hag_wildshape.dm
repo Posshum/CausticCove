@@ -113,7 +113,7 @@
 		return FALSE
 
 	var/area/A = get_area(user)
-	if(!istype(A, /area/rogue/outdoors/bog) && !istype(A, /area/rogue/indoors/shelter/bog) && !istype(A, /area/rogue/indoors/shelter/bog_hag))
+	if(!istype(A, /area/rogue/outdoors/bog) && !istype(A, /area/rogue/indoors/shelter/bog) && !istype(A, /area/rogue/indoors/shelter/bog_hag) && !istype(A, /area/underwater)) //Caustic Edit - Add Underwater to the permitted areas.
 		to_chat(user, span_warning("The air here is too pure. I can only reveal my true self within the Terrorbog or my Hut!"))
 		revert_cast(user)
 		return FALSE

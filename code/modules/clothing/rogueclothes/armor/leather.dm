@@ -5,7 +5,6 @@
 	body_parts_covered = COVERAGE_TORSO
 	armor = ARMOR_LEATHER_NPC
 	blocksound = SOFTHIT
-	blade_dulling = DULLING_BASHCHOP
 	break_sound = 'sound/foley/cloth_rip.ogg'
 	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
 	sewrepair = TRUE
@@ -20,6 +19,8 @@
 /obj/item/clothing/suit/roguetown/armor/leather/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_HONORBOUND)
+	if(armor_class > ARMOR_CLASS_LIGHT)
+		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 /obj/item/clothing/suit/roguetown/armor/leather/vest/winterjacket
 	name = "winter jacket"
@@ -107,6 +108,8 @@
 /obj/item/clothing/suit/roguetown/armor/leather/studded/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+	if(armor_class > ARMOR_CLASS_LIGHT)
+		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 
 /obj/item/clothing/suit/roguetown/armor/leather/studded/psyaltrist
@@ -283,7 +286,6 @@
 	armor = ARMOR_CLOTHING
 	blocksound = SOFTHIT
 	slot_flags = ITEM_SLOT_ARMOR|ITEM_SLOT_SHIRT
-	blade_dulling = DULLING_BASHCHOP
 	body_parts_covered = COVERAGE_TORSO
 	break_sound = 'sound/foley/cloth_rip.ogg'
 	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'

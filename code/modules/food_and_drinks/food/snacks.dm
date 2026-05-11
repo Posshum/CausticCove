@@ -219,8 +219,8 @@ All foods are distributed among various categories. Use common sense.
 				//Caustic Edit - See if this fixes the Cheese Aging in a parcel dropping it on the ground? Otherwise does what it did before!
 				if(istype(location, /obj/item/parcel))
 					var/obj/item/parcel/package = location
-					package.contained_item = null
-					package.contained_item = NU
+					package.contained_items -= src
+					package.contained_items += NU
 					NU.forceMove(package)
 				else
 					NU.forceMove(get_turf(NU.loc))
@@ -435,7 +435,7 @@ All foods are distributed among various categories. Use common sense.
 
 
 /obj/item/reagent_containers/food/snacks/attack(mob/living/M, mob/living/user, def_zone)
-	if(user.used_intent.type == INTENT_HARM)
+	if(user.used_intent.type == INTENT_HARM || user.cmode)
 		return ..()
 	if(!eatverb)
 		eatverb = pick("bite","chew","nibble","gnaw","gobble","chomp")

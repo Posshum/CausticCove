@@ -7,7 +7,6 @@
 	blocksound = SOFTHIT
 	max_integrity = ARMOR_INT_SIDE_HARDLEATHER
 	sellprice = 12
-	blade_dulling = DULLING_BASHCHOP
 	break_sound = 'sound/foley/cloth_rip.ogg'
 	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
 	anvilrepair = null
@@ -18,6 +17,8 @@
 /obj/item/clothing/gloves/roguetown/angle/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_HONORBOUND)
+	if(armor_class > ARMOR_CLASS_LIGHT)
+		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 /obj/item/clothing/gloves/roguetown/angle/grenzelgloves
 	name = "grenzelhoft gloves"
@@ -43,3 +44,15 @@
 	desc = "Paper and cloth bandages enscrybed with powerful naledian runes. They do an ample job of protecting their user's hands in combat."
 	color = "#ffffff"
 	unarmed_bonus = 5
+
+/obj/item/clothing/gloves/roguetown/angle/feld
+	name = "feldsher's gloves"
+	desc = "And when he woke up, his whole skeleton was missing, and the physicker was never heard of again! </br>Ah, anyways; that's how I lost my writ of practice."
+	icon_state = "feldgloves"
+	item_state = "feldgloves"
+
+/obj/item/clothing/gloves/roguetown/angle/phys
+	name = "physicker's gloves"
+	desc = "Are you sure this will work?! </br>I have no idea!"
+	icon_state = "surggloves"
+	item_state = "surggloves"

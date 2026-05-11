@@ -212,9 +212,16 @@
 #define TRAIT_SILVER_BLESSED "Silverblessed"
 #define TRAIT_UNLYCKERABLE "Lycker Immunity"
 #define TRAIT_OUTLAW "Outlaw"
+#define TRAIT_ALDERMAN "Alderman of the Assembly"
+#define TRAIT_ALDERMAN_CENSURED "Assembly Censure"
+#define TRAIT_TECHNOPHOBE "Technophobe"
 #define TRAIT_KNOWNCRIMINAL "Known Criminal"
 #define TRAIT_BIGGUY "Big Guy"
 #define TRAIT_RESIDENT "Resident"
+#define TRAIT_DEBTOR "Default Debtor"
+#define TRAIT_ARREARS "Poll Tax Arrears"
+#define TRAIT_DECLARED_BENEFACTOR "Ecclesiastical Benefactor"
+#define TRAIT_PATRONAGE_GRANT "patronage_grant"
 #define TRAIT_COUNTERCOUNTERSPELL "Counter Counterspell"
 #define TRAIT_UNSEEMLY "Ugly"
 #define TRAIT_HERETIC_SEER "Heretic Seer"
@@ -234,6 +241,7 @@
 #define TRAIT_GRABIMMUNE "Unstoppable"
 #define TRAIT_ROTMAN "Rotman"
 #define TRAIT_ZOMBIE_IMMUNE "Deadite Immunity" //immune to deadite infection
+#define TRAIT_IRONMAN "Construct" // basically rotman but not really, used for diff flavor of some things
 #define TRAIT_FACELESS_KNOWN "Faceless but Known" //recognizable despite having no face (skeletonized head - for skeleton) — does NOT bypass TRAIT_DISFIGURED
 #define TRAIT_NOHUNGER	"Foodless"
 #define TRAIT_DARKVISION "Darksight"
@@ -259,6 +267,7 @@
 #define TRAIT_PALLID "Pallid"
 #define TRAIT_ASSASSIN	"Assassin"
 #define TRAIT_EQUESTRIAN "Equestrian"
+#define TRAIT_REGROW_LIMBS "Regrow Limbs" //OV ADD, regrows lost limbs at cost of nutrition
 // ARMOR / CLOTHING GIVEN TRAITS (GIVEN BY WEARING CLOTHES/ARMOR PIECES)
 #define TRAIT_MONK_ROBE	"Holy Vestatures"
 #define TRAIT_BLACKOAK "Heritage Vision"
@@ -271,6 +280,7 @@
 #define TRAIT_WEATHER_PROTECTED "Weather Protected"
 #define TRAIT_VAMPIRE_SPAWN_PROTECTION "Vampire Spawn Protection"
 #define TRAIT_WHITE_STAG "Stag Protection"
+#define TRAIT_EDIT_DESCRIPTORS "Edit Descriptors"
 
 //Caustic edit
 #define TRAIT_NECRAS_ABATEMENT "Necra's Abatement" //keeps deadites from doing much of anything in town
@@ -307,6 +317,9 @@
 GLOBAL_LIST_INIT(roguetraits, list(
 	TRAIT_STEELHEARTED = span_info("I have hardened nerves, and do not waiver from the sight of violence in battle."),
 	TRAIT_OUTLAW = span_info("This land's meisters and castificos reject my touch."),
+	TRAIT_ALDERMAN = span_info("Alderman of the Assembly, voice of the respectable citizenry of Azuria. Upon my charter I may spend the Crown's Purse and commission the realm's defense within the bounds the Commons have set me."),
+	TRAIT_ALDERMAN_CENSURED = span_warning("The Assembly has censured my name. No seat, no warrant shall be mine until the week ends."),
+	TRAIT_TECHNOPHOBE = span_info("I've principles against using some forms of artificed machinery, or perhaps I'm incapable of using them."),
 	TRAIT_LEPROSY = span_necrosis("I'm a disgusting leper..."),
 	TRAIT_UNDIVIDED = span_info("I have seen past petty squabbles, and am a true follower of the Ten Undivided. I feel most comfortable around churchmen."),
 	TRAIT_TAVERN_FIGHTER = span_info("I am vigilant in my duties. The Tavern is my home, none shall dare oppose me or skip out on payment."),
@@ -452,6 +465,7 @@ GLOBAL_LIST_INIT(roguetraits, list(
 	TRAIT_CICERONE = span_info("I am well-versed in the differences of brews and spirits, and can tell them apart at a glance."),
 	TRAIT_BETTER_SLEEP = span_info("I recover more energy when sleeping."),
 	TRAIT_ROTMAN = span_info("I am partially undead. My heart does not beat."),
+	TRAIT_IRONMAN = span_info("I am an artificial being, which makes my physiology vastly different from organics. I can consume minerals to restore myself, but I am particularly vulnerable to being electrocuted."),
 	TRAIT_EASYDISMEMBER = span_info("My limbs are frail and fragile. They can be dismembered with greater ease, including my neck."),
 	TRAIT_HARDDISMEMBER = span_info("My body is strong and endurant. My limbs are not easily dismembered."),
 	TRAIT_NOPAIN = span_info("I feel no pain. I can endure more burns before collapsing."),
@@ -465,6 +479,8 @@ GLOBAL_LIST_INIT(roguetraits, list(
 	TRAIT_NITEVISION = span_info("I can see perfectly in the dark."),
 	TRAIT_NOCSHADES = span_info("The lens I look through allows me to see in the dark clear as dae, at the cost of greater vision."),
 	TRAIT_RESIDENT = span_info("I've been granted a Meister account, and the ownership of a house in Azure Peak."),
+	TRAIT_DEBTOR = span_danger("I have defaulted on a Crown loan. My name is writ red in the ledger until the Steward clears it."),
+	TRAIT_ARREARS = span_smallred("I am behind on my poll tax. The Stewardry keeps the tally; the garrison may mark my destitution."),
 	TRAIT_LIGHT_STEP = span_info("My steps are light and swift. I make less noise while sneaking and wearing armor, and can sneak much quicker."),
 	TRAIT_NOMOOD = span_info("I feel no sorrow, no joy, and no stress."),
 	TRAIT_AZURENATIVE = span_info("I've grown up and lived all my lyfe in these lands. I can only trigger ambushes if I sprint through them."),
@@ -553,6 +569,7 @@ GLOBAL_LIST_INIT(roguetraits, list(
 	TRAIT_FEYTOUCHED = span_info("I've been influenced or created by fey, after offering lux to a heartroot, I can use it to travel."),
 	TRAIT_ROOT_WALKER = span_info("After offering lux, I can now travel along heartroot trees."),
 	TRAIT_WHITE_STAG = span_info("The power of the white stag lives on inside of me!"),
+	TRAIT_EDIT_DESCRIPTORS = span_info("I can change my appearance at a magic mirror in a thorough manner."),
 ))
 
 // trait accessor defines

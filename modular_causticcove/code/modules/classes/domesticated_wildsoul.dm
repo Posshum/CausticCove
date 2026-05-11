@@ -36,7 +36,7 @@
 	shoes = /obj/item/clothing/shoes/roguetown/boots/furlinedanklets
 	beltl = /obj/item/rogueweapon/huntingknife/stoneknife
 	H.skin_armor = new /obj/item/clothing/suit/roguetown/armor/skin_armor/natural_armor/dense(H)
-	beltl = /obj/item/rogueweapon/knuckles // A bit more civilized, why not?
+	r_hand = /obj/item/clothing/gloves/roguetown/knuckles // A bit more civilized, why not?
 	beltr = /obj/item/signal_horn
 	neck = /obj/item/storage/keyring/warden
 	give_feral_eyes(H)

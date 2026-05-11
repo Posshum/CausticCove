@@ -88,13 +88,14 @@
 	backpack_contents = list(
 		/obj/item/book/spellbook = 1,
 		/obj/item/chalk = 1,
+		/obj/item/mini_flagpole/university, //Caustic Edit - Add mini-flagpole!
 		)
 	switch(H.patron?.type)
 		if(/datum/patron/inhumen/zizo)
 			H.cmode_music = 'sound/music/combat_heretic.ogg'
 	if(H.mind)
 		backr = choose_implement(H, "lesser")
-		SStreasury.give_money_account(ECONOMIC_LOWER_MIDDLE_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_LOWER_MIDDLE_CLASS, H)
 
 /datum/advclass/wapprentice/alchemist
 	name = "Alchemist Associate"
@@ -150,7 +151,7 @@
 			H.cmode_music = 'sound/music/combat_heretic.ogg'
 	if(H.mind)
 		backr = choose_implement(H, "lesser")
-		SStreasury.give_money_account(ECONOMIC_LOWER_MIDDLE_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_LOWER_MIDDLE_CLASS, H)
 
 /datum/advclass/wapprentice/apprentice
 	name = "Magician's Apprentice"
@@ -197,7 +198,7 @@
 			H.cmode_music = 'sound/music/combat_heretic.ogg'
 	if(H.mind)
 		backr = choose_implement(H, "lesser")
-		SStreasury.give_money_account(ECONOMIC_LOWER_MIDDLE_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_LOWER_MIDDLE_CLASS, H)
 
 /datum/advclass/wapprentice/spellblade
 	name = "Azurcaephan Associate"
@@ -367,4 +368,4 @@
 
 	H.cmode_music = 'sound/music/cmode/nobility/combat_courtmage.ogg'
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_LOWER_MIDDLE_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_LOWER_MIDDLE_CLASS, H)

@@ -9,7 +9,7 @@
 	releasedrain = 33
 	chargedrain = 0
 	chargetime = 0
-	range = 2 // psydon miracles should be worse than regular ones.
+	range = SPELL_RANGE_GROUND //Caustic Edit - Setting this to not be shit range. 2!?!?!? REALLY?!
 	warnie = "sydwarning"
 	movement_interrupt = FALSE
 	sound = 'sound/magic/ENDVRE.ogg'
@@ -97,6 +97,8 @@
 			user.adjustBruteLoss(25)		
 			return FALSE
 
+		if(HAS_TRAIT(target, TRAIT_IRONMAN) && istype(target.patron, /datum/patron/old_god))
+			target.add_stress(/datum/stressevent/constructendvre)
 		target.apply_status_effect(/datum/status_effect/buff/psyhealing, psyhealing)
 		return TRUE
 
@@ -111,7 +113,7 @@
 	releasedrain = 33
 	chargedrain = 0
 	chargetime = 0
-	range = 2
+	range = SPELL_RANGE_GROUND //Caustic Edit - Setting this to not be shit range. 2!?!?!? REALLY?!
 	warnie = "sydwarning"
 	desc = "Lesser lux-magicka. Endure the wounds of another, for their sake. </br>‎  </br>Siphons away lesser injuries, such as gashes and fractures, from the target. In exchange, any siphoned injuries are subsequently imposed onto you. If the target has lost any blood, they will be fully replenished through your own veins."
 	movement_interrupt = FALSE
@@ -204,7 +206,7 @@
 	releasedrain = 50
 	chargedrain = 0
 	chargetime = 0
-	range = 3 // i got a request to up this. tbh it could be 4.
+	range = SPELL_RANGE_GROUND //Caustic Edit - Setting this to not be shit range. 3!? Really!?
 	warnie = "sydwarning"
 	movement_interrupt = FALSE
 	sound = 'sound/magic/psyabsolution.ogg'
@@ -338,7 +340,7 @@
 	/obj/item/rogueweapon/huntingknife/idagger/navaja,
 	/obj/item/lockpick,
 	/obj/item/reagent_containers/glass/bottle/alchemical/strpot,
-	/obj/item/reagent_containers/glass/bottle/alchemical/endpot,
+	/obj/item/reagent_containers/glass/bottle/alchemical/willpot,
 	/obj/item/reagent_containers/glass/bottle/alchemical/conpot,
 	/obj/item/reagent_containers/glass/bottle/alchemical/lucpot,
 	/obj/item/reagent_containers/glass/bottle/rogue/poison,
@@ -420,11 +422,31 @@
 
 /obj/effect/proc_holder/spell/self/psydonprayer/cast(mob/living/carbon/human/user) ///Lesser version of 'RESPITE' and 'PERSIST', T1. Self-regenerative.
 	. = ..()
-	if(!ishuman(user))
+	if(!ishuman(user) || !(user.devotion && user.devotion.devotion > 15))
 		revert_cast()
 		return FALSE
 
 	var/mob/living/carbon/human/H = user
+	if(HAS_TRAIT(H, TRAIT_IRONMAN))
+		to_chat(H, span_info("I take a moment to collect myself..."))
+		while(H.devotion && H.devotion.devotion >= 15)
+			if(!do_after(H, 50))
+				break
+			var/percent = H.max_energy * 0.05
+			H.add_stress(/datum/stressevent/meditation_ironman)
+			H.add_stress(/datum/stressevent/constructendvre)
+			H.energy_add(percent)
+			H.adjustBruteLoss(-3)
+			H.adjustFireLoss(-3)
+			playsound(H, 'sound/magic/psydonrespite.ogg', 100, TRUE)
+			new /obj/effect/temp_visual/psyheal_rogue(get_turf(H), "#e4e4e4")
+			new /obj/effect/temp_visual/psyheal_rogue(get_turf(H), "#e4e4e4")
+			H.devotion.update_devotion(-15)
+			to_chat(H, span_info("My worries gives way to a sense of furthered clarity before returning again, eased."))
+		to_chat(H, span_warning("My thoughts and sense of quiet escape me."))
+		playsound(H, 'sound/misc/machineyes.ogg', 25)
+		return
+	
 	to_chat(H, span_info("I take a moment to collect myself..."))
 
 	for(var/i in 1 to 10)
@@ -528,11 +550,31 @@
 
 /obj/effect/proc_holder/spell/self/psydonrespite/cast(mob/living/carbon/human/user) // Greater version of 'PRAYER', T2. Requires the 'Devotee' virtue to unlock, if not playing as an Orthodoxist or Missionary.
 	. = ..()
-	if(!ishuman(user))
+	if(!ishuman(user) || !(user.devotion && user.devotion.devotion > 25))
 		revert_cast()
 		return FALSE
 
 	var/mob/living/carbon/human/H = user
+	if(HAS_TRAIT(H, TRAIT_IRONMAN))
+		to_chat(H, span_info("I take a moment to collect myself..."))
+		while(H.devotion && H.devotion.devotion >= 25)
+			if(!do_after(H, 50))
+				break
+			var/percent = H.max_energy * 0.1
+			H.add_stress(/datum/stressevent/meditation_ironman)
+			H.add_stress(/datum/stressevent/constructendvre)
+			H.energy_add(percent)
+			H.adjustBruteLoss(-5)
+			H.adjustFireLoss(-5)
+			playsound(H, 'sound/magic/psydonrespite.ogg', 100, TRUE)
+			new /obj/effect/temp_visual/psyheal_rogue(get_turf(H), "#e4e4e4")
+			new /obj/effect/temp_visual/psyheal_rogue(get_turf(H), "#e4e4e4")
+			H.devotion.update_devotion(-25)
+			to_chat(H, span_info("My worries gives way to a sense of furthered clarity before returning again, eased."))
+		to_chat(H, span_warning("My thoughts and sense of quiet escape me."))
+		playsound(H, 'sound/misc/machineyes.ogg', 25)		
+		return
+
 	to_chat(H, span_info("I take a moment to collect myself..."))
 
 	for(var/i in 1 to 10)
@@ -636,11 +678,31 @@
 
 /obj/effect/proc_holder/spell/self/psydonpersist/cast(mob/living/carbon/human/user) // Greater version of 'PRAYER' and 'RESPITE', T4. Inherently restricted to the Absolver, but potentially(?) achievable as a Missionary with the 'Devotee' virtue.
 	. = ..()
-	if(!ishuman(user))
+	if(!ishuman(user) || !(user.devotion && user.devotion.devotion > 50))
 		revert_cast()
 		return FALSE
 
 	var/mob/living/carbon/human/H = user
+	if(HAS_TRAIT(H, TRAIT_IRONMAN))
+		to_chat(H, span_info("I take a moment to collect myself..."))
+		while(H.devotion && H.devotion.devotion >= 50)
+			if(!do_after(H, 50))
+				break
+			var/percent = H.max_energy * 0.15
+			H.add_stress(/datum/stressevent/meditation_ironman)
+			H.add_stress(/datum/stressevent/constructendvre)
+			H.energy_add(percent)
+			H.adjustBruteLoss(-7) // same as hammerheal
+			H.adjustFireLoss(-7)
+			playsound(H, 'sound/magic/psydonrespite.ogg', 100, TRUE)
+			new /obj/effect/temp_visual/psyheal_rogue(get_turf(H), "#e4e4e4")
+			new /obj/effect/temp_visual/psyheal_rogue(get_turf(H), "#e4e4e4")
+			user.devotion.update_devotion(-50)
+			to_chat(H, span_info("My worries gives way to a sense of furthered clarity before returning again, eased."))
+		to_chat(H, span_warning("My thoughts and sense of quiet escape me."))
+		playsound(H, 'sound/misc/machineyes.ogg', 25)
+		return
+	
 	to_chat(H, span_info("I take a moment to collect myself..."))
 
 	for(var/i in 1 to 10)

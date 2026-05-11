@@ -105,7 +105,8 @@
 		/obj/item/paper,
 		/obj/item/paper,
 		/obj/item/paper,
-		/obj/item/book/spellbook
+		/obj/item/book/spellbook,
+		/obj/item/mini_flagpole/university, //Caustic Edit - Add University Flagpole!
 	)
 
 	if(H.mind)
@@ -115,4 +116,4 @@
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/learn)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/silence/archivist_silence)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_UPPER_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_UPPER_CLASS, H)

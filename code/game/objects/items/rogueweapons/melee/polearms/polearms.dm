@@ -244,7 +244,6 @@
 	bigboy = TRUE
 	gripsprite = TRUE
 	associated_skill = /datum/skill/combat/staves
-	implement_multiplier = 1
 	anvilrepair = /datum/skill/craft/carpentry
 	resistance_flags = FLAMMABLE
 	sellprice = 7 //BIG STICK.
@@ -623,6 +622,19 @@
 	wdefense = 6
 	throwforce = 15
 	sellprice = 38
+
+/obj/item/rogueweapon/spear/billhook/avantyne
+	name = "avantyne-threaded billhook"
+	desc = "A twisted implement of harvest, it's hooked edge festering with crystalline malice. It is a weapon of pure upheaval, designed to drag the Psydonia's false idols into the dirt."
+	icon_state = "zizobillhook"
+	force = 30
+	force_wielded = 35
+	max_blade_int = 300
+	max_integrity = 400
+	equip_delay_self = 0
+	unequip_delay_self = 0
+	slot_flags = ITEM_SLOT_BACK
+	smeltresult = /obj/item/ingot/avantyne
 
 /obj/item/rogueweapon/spear/improvisedbillhook
 	force = 12
@@ -1347,7 +1359,7 @@
 	desc = "A spear made from a shard of crystallized mana fixed atop a staff. This either the creation of a genius, a madman, or someone who heard the term 'magic spear' and went from there."
 	icon_state = "magicstonespear"
 	implement_tier = IMPLEMENT_TIER_LESSER
-	implement_multiplier = IMPLEMENT_MULT_LESSER
+	implement_refund = IMPLEMENT_REFUND_LESSER
 	max_blade_int = 20
 	associated_skill = /datum/skill/combat/polearms
 	max_integrity = 50

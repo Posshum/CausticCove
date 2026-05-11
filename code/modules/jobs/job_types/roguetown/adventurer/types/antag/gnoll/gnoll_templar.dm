@@ -24,7 +24,8 @@
 		/datum/skill/craft/crafting = SKILL_LEVEL_NOVICE,
 		/datum/skill/labor/butchering = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/craft/tanning = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/craft/sewing = SKILL_LEVEL_APPRENTICE
+		/datum/skill/craft/sewing = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/misc/hunting = SKILL_LEVEL_JOURNEYMAN,
 	) //Caustic Edit end.
 	cmode_music = 'sound/music/combat_graggar.ogg'
 

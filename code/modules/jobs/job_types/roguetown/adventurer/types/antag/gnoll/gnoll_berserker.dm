@@ -16,6 +16,7 @@
 		STATKEY_INT = -3,
 		STATKEY_PER = -1
 	)
+	// Messy butchers, alright hunters
 	subclass_skills = list(
 		/datum/skill/combat/wrestling = SKILL_LEVEL_EXPERT,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_MASTER,
@@ -26,7 +27,8 @@
 		/datum/skill/craft/crafting = SKILL_LEVEL_NOVICE,
 		/datum/skill/labor/butchering = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/craft/tanning = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/craft/sewing = SKILL_LEVEL_APPRENTICE
+		/datum/skill/craft/sewing = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/misc/hunting = SKILL_LEVEL_JOURNEYMAN,
 	) //Caustic Edit end.
 
 /datum/outfit/job/roguetown/gnoll/berserker/pre_equip(mob/living/carbon/human/H)

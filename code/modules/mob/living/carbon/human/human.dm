@@ -142,9 +142,23 @@
 	dna.initialize_dna()
 
 /mob/living/carbon/human/Destroy()
+	if(SScity_assembly?.is_alderman(src))
+		var/departing_name = real_name
+		var/departing_job = job
+		SScity_assembly.demote_alderman("Alderman's mob was deleted")
+		SScity_assembly.notify_alderman_lost_ref(departing_name, departing_job, "disconnected")
 	QDEL_NULL(physiology)
 	QDEL_NULL(sunder_light_obj)
 	GLOB.human_list -= src
+	if(current_fellowship)
+		current_fellowship.remove_member(src, reason = FELLOWSHIP_REASON_DESTROYED)
+		current_fellowship = null
+	if(length(incoming_fellowship_invites))
+		for(var/datum/weakref/W as anything in incoming_fellowship_invites)
+			var/datum/fellowship/F = W.resolve()
+			if(F)
+				F.remove_pending_invite(real_name)
+		incoming_fellowship_invites.Cut()
 	return ..()
 
 /mob/living/carbon/human/Stat()
@@ -694,7 +708,7 @@
 /mob/living/carbon/human/can_hold_items()
 	return TRUE
 
-/mob/living/carbon/human/vomit(lost_nutrition = 10, blood = 0, stun = 1, distance = 0, message = 1, toxic = 0)
+/*/mob/living/carbon/human/vomit(lost_nutrition = 10, blood = 0, stun = 1, distance = 0, message = 1, toxic = 0)
 	if(blood && (NOBLOOD in dna.species.species_traits) && !HAS_TRAIT(src, TRAIT_TOXINLOVER))
 		if(message)
 			visible_message(span_warning("[src] dry heaves!"), \
@@ -702,7 +716,7 @@
 		if(stun)
 			Immobilize(200)
 		return 1
-	..()
+	..()*/ // why the FUC we have two vomit procs???? just call the real parent, this was causing noblood things to stunlock permanently 
 
 /mob/living/carbon/human/vv_get_dropdown()
 	. = ..()

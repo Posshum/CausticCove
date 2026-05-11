@@ -826,17 +826,17 @@ SUBSYSTEM_DEF(gamemode)
 	var/list/final_choices = list()
 	var/list/pick_from = list()
 	var/list/valid_storytellers = get_valid_storytellers()
-	var/previous_storyteller = get_last_storyteller_vote()
-	var/previous_pool = get_story_pool(previous_storyteller)
+	//var/previous_storyteller = get_last_storyteller_vote() //Caustic Edit - Remove the removing of the last-voted pool
+	//var/previous_pool = get_story_pool(previous_storyteller)
 	var/list/available_pools = list()
 	for(var/datum/storyteller/storyboy in valid_storytellers)
 		var/pool_name = get_story_pool(storyboy.type)
 		if(pool_name)
 			available_pools[pool_name] = TRUE
-	var/can_exclude_previous_pool = previous_pool && length(available_pools) > 1
+	//var/can_exclude_previous_pool = previous_pool && length(available_pools) > 1
 	for(var/datum/storyteller/storyboy in valid_storytellers)
-		if(can_exclude_previous_pool && get_story_pool(storyboy.type) == previous_pool)
-			continue
+		//if(can_exclude_previous_pool && get_story_pool(storyboy.type) == previous_pool)
+		//	continue //Caustic Edit End
 		if(storyboy.always_votable)
 			final_choices[storyboy.name] = 0
 		else

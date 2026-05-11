@@ -29,7 +29,8 @@
 		/datum/skill/craft/alchemy = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/labor/butchering = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/craft/tanning = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/craft/sewing = SKILL_LEVEL_APPRENTICE
+		/datum/skill/craft/sewing = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/misc/hunting = SKILL_LEVEL_EXPERT,
 	) //Caustic Edit end.
 	category_tags = list(CTAG_GNOLL)
 	cmode_music = 'sound/music/combat_graggar.ogg'

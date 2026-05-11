@@ -53,9 +53,9 @@
 	switch(user.job)
 		if("Warden")
 			playsound(src, 'sound/items/horn/bogguardhorn.ogg', 100, TRUE)
-		if("Watchman", "Sergeant", "Man at Arms")
+		if("Town Sheriff", "Watchman", "Sergeant", "Man at Arms")
 			playsound(src, 'sound/items/horn/wardenhorn.ogg', 100, TRUE)
-		if("Knight", "Marshal")
+		if("Royal Guard")
 			playsound(src, 'sound/items/horn/rghorn.ogg', 100, TRUE)
 		else
 			playsound(src, 'sound/items/horn/signalhorn.ogg', 100, TRUE)
@@ -96,9 +96,9 @@
 		switch(user.job)
 			if("Warden")
 				player.playsound_local(get_turf(player), 'sound/items/horn/bogguardhorn.ogg', 35, FALSE, pressure_affected = FALSE)
-			if("Watchman", "Sergeant", "Man at Arms")
+			if("Marshall", "Watchman", "Sergeant", "Man at Arms")
 				player.playsound_local(get_turf(player), 'sound/items/horn/wardenhorn.ogg', 35, FALSE, pressure_affected = FALSE)
-			if("Knight", "Marshal")
+			if("Knight")
 				player.playsound_local(get_turf(player), 'sound/items/horn/rghorn.ogg', 35, FALSE, pressure_affected = FALSE)
 			else
 				player.playsound_local(get_turf(player), 'sound/items/horn/signalhorn.ogg', 35, FALSE, pressure_affected = FALSE)
@@ -106,7 +106,7 @@
 
 	// Single budget call — the budget system already scales with player count and latent threat.
 	// budget_floor = 2 guarantees at least 20 TP budget, so solo wardens in tamed regions still get a fight.
-	return user.consider_ambush(always = TRUE, ignore_cooldown = TRUE, min_dist = WARDEN_AMBUSH_MIN, max_dist = WARDEN_AMBUSH_MAX, budget_floor = 2)
+	return user.consider_ambush(always = TRUE, ignore_cooldown = TRUE, min_dist = WARDEN_AMBUSH_MIN, max_dist = WARDEN_AMBUSH_MAX, budget_multiplier_floor = rand(3, 6))
 
 #undef WARDEN_AMBUSH_MIN
 #undef WARDEN_AMBUSH_MAX

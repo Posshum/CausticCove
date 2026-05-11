@@ -843,7 +843,7 @@ var/global/mob/_corpse_sort_ref = null
 /obj/effect/proc_holder/spell/invoked/necra_vow/cast(list/targets, mob/living/user = usr)
 	if(ishuman(targets[1]))
 		var/mob/living/carbon/human/H = targets[1]
-		if(HAS_TRAIT(H, TRAIT_ROTMAN) || HAS_TRAIT(H, TRAIT_NOBREATH) || H.mob_biotypes & MOB_UNDEAD)	//No Undead, no Rotcured, no Deathless
+		if(HAS_TRAIT(H, TRAIT_DEATHLESS) || H.mob_biotypes & MOB_UNDEAD)	//No Undead, no Rotcured, no Deathless //Caustic Edit - Remove the Rotcured and Breathless trait checking, this should mean Rotcured and Pallid individuals can be Vow'd
 			to_chat(user, span_warning("Necra cares not for the vows of the corrupted."))
 			revert_cast()
 			return FALSE

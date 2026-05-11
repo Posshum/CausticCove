@@ -79,7 +79,7 @@
 			return
 		var/O = text2path(href_list["buy"])
 		if(held_items[O]["PRICE"])
-			var/tax_amt = FLOOR(SStreasury.tax_value * held_items[O]["PRICE"], 1)
+			var/tax_amt = FLOOR(SStreasury.get_tax_rate(TAX_CATEGORY_IMPORT_TARIFF) * held_items[O]["PRICE"], 1)
 			var/full_price = held_items[O]["PRICE"] + tax_amt
 			if(drugrade_flags & DRUGRADE_NOTAX)
 				full_price = held_items[O]["PRICE"]
@@ -88,9 +88,10 @@
 				record_round_statistic(STATS_PURITY_VALUE_SPENT, full_price)
 				recent_payments += held_items[O]["PRICE"]
 				if(!(drugrade_flags & DRUGRADE_NOTAX))
-					SStreasury.give_money_treasury(tax_amt, "purity import tax")
+					SStreasury.mint(SStreasury.discretionary_fund, tax_amt, "[TAX_CATEGORY_IMPORT_TARIFF] (purity)")
 					record_featured_stat(FEATURED_STATS_TAX_PAYERS, human_mob, tax_amt)
 					record_round_statistic(STATS_TAXES_COLLECTED, tax_amt)
+					record_round_statistic(STATS_REVENUE_IMPORT_TARIFF, tax_amt)
 				else
 					record_round_statistic(STATS_TAXES_EVADED, tax_amt)
 			else
@@ -207,7 +208,7 @@
 	contents += "</center>"
 
 	for(var/I in held_items)
-		var/price = FLOOR(held_items[I]["PRICE"] + (SStreasury.tax_value * held_items[I]["PRICE"]), 1)
+		var/price = FLOOR(held_items[I]["PRICE"] + (SStreasury.get_tax_rate(TAX_CATEGORY_IMPORT_TARIFF) * held_items[I]["PRICE"]), 1)
 		var/namer = held_items[I]["NAME"]
 		if(!price)
 			price = "0"
@@ -267,7 +268,7 @@
 	held_items[/obj/item/clothing/mask/cigarette/rollie/ziggara] = list("PRICE" = rand(20,35),"NAME" = "ziggara")
 	// Caustic Edit - Sui Dust, Mirror Transform
 	held_items[/obj/item/alch/transisdust] = list("PRICE" = rand(25,37),"NAME" = "sui dust")
-	held_items[/obj/item/book/granter/spell/blackstone/mirror_transform] = list("PRICE" = rand(30,40), "NAME" = "scroll of mirror transform")
+	held_items[/obj/item/book/granter/spell/mirror_transform] = list("PRICE" = rand(30,40), "NAME" = "scroll of mirror transform")
 	// Caustic Edit End
 	// azure peak addition start - lipstick
 	held_items[/obj/item/lipstick] = list("PRICE" = rand(33,50),"NAME" = "red lipstick")

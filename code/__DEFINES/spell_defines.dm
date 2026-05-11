@@ -85,6 +85,7 @@
 // Standardized spell ranges
 #define SPELL_RANGE_PROJECTILE 10  // Standard projectile travel distance and projectile spell cast range
 #define SPELL_RANGE_GROUND     7   // Standard ground-targeted / AOE spell cast range
+#define SPELL_RANGE_ADJACENT   1   // One tile range is your own tile and the ones adjacent!
 
 // Charging slowdown tiers — how much the caster is slowed while charging
 #define CHARGING_SLOWDOWN_NONE 0       // Spellblade abilities, no movement penalty
@@ -154,9 +155,10 @@
 #define IMPLEMENT_TIER_GREATER 2
 #define IMPLEMENT_TIER_GRAND   3
 
-#define IMPLEMENT_MULT_LESSER  1.2   // 20% poke damage bonus
-#define IMPLEMENT_MULT_GREATER 1.225 // 22.5% poke damage bonus
-#define IMPLEMENT_MULT_GRAND   1.25  // 25% poke damage bonus
+// Fraction of a spell's resource cost that the Residual Focus buff returns over 20 seconds.
+#define IMPLEMENT_REFUND_LESSER  0.20
+#define IMPLEMENT_REFUND_GREATER 0.275
+#define IMPLEMENT_REFUND_GRAND   0.35
 
 // Lightning Specific constants
 #define LIGHTNING_ADAPTATION_COOLDOWN 15 SECONDS

@@ -57,5 +57,10 @@ GLOBAL_LIST_EMPTY(sizecats)
 		return
 	if (!player.prefs)
 		return
-	var/datum/sizecat/sizecat_type = player.prefs.sizecat
-	character.resize(sizecat_type.starting_scale)
+	
+	var/actual_size = player.prefs.sizescale
+	if(actual_size)
+		actual_size = actual_size / 100
+		character.resize(actual_size)
+	else
+		character.resize(1) //If there is somehow no sizescale, just run the default so everything is set.

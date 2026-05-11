@@ -29,6 +29,9 @@
 
 	/// Whether the organ is fully internal and should not be seen by bare eyes.
 	var/visible_organ = FALSE
+	//Caustic Edit - Add ability to reveal any organs regardless of if it's covered or not
+	var/always_show = FALSE
+	//Caustic Edit End
 	/// Description when the organ is visible and examined while it's attached to a bodypart.
 	var/bodypart_desc = "This is an organ."
 	/// Icon of the organ when it's on a bodypart.
