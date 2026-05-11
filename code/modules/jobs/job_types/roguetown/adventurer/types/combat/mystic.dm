@@ -10,8 +10,8 @@
 	townie_contract_gate_hide_in_list = TRUE
 	traits_applied = list(TRAIT_SEEDKNOW, TRAIT_ARCYNE, TRAIT_ALCHEMY_EXPERT) //so they can produce red+ and blue+
 	subclass_stats = list(
-			STATKEY_INT = 1,
-			STATKEY_CON = 1,
+			STATKEY_INT = 2,
+			STATKEY_CON = 1, //Religous role, 5 points over 4
 			STATKEY_WIL = 2,
 	)
 	age_mod = /datum/class_age_mod/mystic
@@ -45,8 +45,6 @@
 	l_hand = /obj/item/rogueweapon/scabbard/gwstrap
 	H.dna.species.soundpack_m = new /datum/voicepack/male/wizard()
 	backpack_contents = list(
-		/obj/item/flashlight/flare/torch = 1,
-		/obj/item/recipe_book/survival = 1,
 		/obj/item/book/spellbook = 1,
 		/obj/item/chalk = 1,
 		)
@@ -108,7 +106,7 @@
 	traits_applied = list(TRAIT_SEEDKNOW, TRAIT_ARCYNE, TRAIT_ALCHEMY_EXPERT)
 	subclass_stats = list(
 			STATKEY_INT = 1,
-			STATKEY_CON = 3,
+			STATKEY_CON = 2,
 			STATKEY_WIL = 2,
 	)
 	age_mod = /datum/class_age_mod/mystic
@@ -141,8 +139,6 @@
 	backr = /obj/item/rogueweapon/woodstaff
 	H.dna.species.soundpack_m = new /datum/voicepack/male/wizard()
 	backpack_contents = list(
-		/obj/item/flashlight/flare/torch = 1,
-		/obj/item/recipe_book/survival = 1,
 		/obj/item/folding_alchcauldron_stored = 1,
 		/obj/item/reagent_containers/glass/bottle = 3,
 		/obj/item/reagent_containers/glass/bottle/alchemical = 3,
@@ -371,7 +367,7 @@
 	subclass_stats = list(
 			STATKEY_INT = 3,
 			STATKEY_CON = 1,
-			STATKEY_WIL = 2,
+			STATKEY_WIL = 1,
 	)
 	age_mod = /datum/class_age_mod/mystic
 	subclass_mage_aspects = list("mastery" = FALSE, "major" = 0, "minor" = 1, "utilities" = 3)
@@ -403,8 +399,6 @@
 	backr = /obj/item/rogueweapon/woodstaff
 	H.dna.species.soundpack_m = new /datum/voicepack/male/wizard()
 	backpack_contents = list(
-		/obj/item/flashlight/flare/torch = 1,
-		/obj/item/recipe_book/survival = 1,
 		/obj/item/book/spellbook = 1,
 		/obj/item/chalk = 1,
 		)

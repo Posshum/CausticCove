@@ -98,11 +98,11 @@
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson
 	gloves = /obj/item/clothing/gloves/roguetown/angle
 	belt = /obj/item/storage/belt/rogue/leather
-	neck = /obj/item/clothing/neck/roguetown/chaincoif
+	neck = /obj/item/clothing/neck/roguetown/chaincoif/iron
 	backl = /obj/item/storage/backpack/rogue/satchel
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/poor
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/leather
-	backpack_contents = list(/obj/item/flashlight/flare/torch = 1, /obj/item/chalk = 1, /obj/item/book/spellbook = 1)
+	backpack_contents = list(/obj/item/chalk = 1, /obj/item/book/spellbook = 1)
 
 	to_chat(H, span_warning("You start with Bind Weapon. Remember to Bind your weapon so you can use your abilities and build up Arcyne Momentum."))
 
@@ -177,7 +177,7 @@
 					r_hand = /obj/item/rogueweapon/spear/spellblade
 			H.adjust_skillrank_up_to(/datum/skill/combat/polearms, SKILL_LEVEL_JOURNEYMAN, TRUE)
 		if("macebearer")
-			var/mace_weapons = list("Mace", "Warhammer", "Goedendag", "Iron Axe", "Greataxe")
+			var/mace_weapons = list("Mace", "Warhammer", "Goedendag", "Iron Axe")
 			var/mace_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in mace_weapons
 			var/picked_axe = FALSE
 			switch(mace_choice)
@@ -210,7 +210,6 @@
 		STATKEY_SPD = 2,
 		STATKEY_WIL = 1,
 	)
-	// TODO // FULL ON REWORK Bard.
 	subclass_mage_aspects = list("mastery" = FALSE, "major" = 0, "minor" = 2, "utilities" = 6)
 	subclass_skills = list(
 		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
@@ -297,8 +296,8 @@
 	traits_applied = list(TRAIT_CIVILIZEDBARBARIAN, TRAIT_ARCYNE)
 	subclass_stats = list(
 		STATKEY_SPD = 1,
-		STATKEY_WIL = 2,
-		STATKEY_PER = 2,
+		STATKEY_WIL = 1,
+		STATKEY_PER = 1,
 		STATKEY_CON = 1
 	)
 	subclass_mage_aspects = list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 4)
@@ -336,7 +335,6 @@
 	beltr = /obj/item/rogueweapon/huntingknife
 	var/naledi_book = pick(/obj/item/book/rogue/naledi1, /obj/item/book/rogue/naledi2, /obj/item/book/rogue/naledi3, /obj/item/book/rogue/naledi4)
 	backpack_contents = list(
-		/obj/item/flashlight/flare/torch = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1,
 		(naledi_book) = 1,
 		/obj/item/book/spellbook = 1,

@@ -10,11 +10,11 @@
 	cmode_music = 'sound/music/cmode/antag/combat_thewall.ogg'
 	reset_stats = TRUE
 	subclass_stats = list( //Caustic Edit start. 
-		STATKEY_STR = 2,
+		STATKEY_STR = 3,
 		STATKEY_WIL = 3,
 		STATKEY_CON = 5,
 		STATKEY_SPD = 2,
-		STATKEY_INT = 1
+		STATKEY_INT = 2
 	)
 	subclass_skills = list(
 		/datum/skill/combat/wrestling = SKILL_LEVEL_JOURNEYMAN,

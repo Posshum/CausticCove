@@ -9,7 +9,7 @@
 		STATKEY_PER = 2,
 		STATKEY_WIL = 2,
 		STATKEY_SPD = 3,
-		STATKEY_CON = 2,
+		STATKEY_CON = 3,
 		STATKEY_INT = 3
 	)
 	subclass_skills = list(

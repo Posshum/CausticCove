@@ -12,7 +12,7 @@
 		//Caustic edit
 		STATKEY_STR = 2,
 		STATKEY_WIL = 3,
-		STATKEY_LCK = 1,
+		STATKEY_LCK = 2, //CHOSEN OF MATTHIOS! Earn +1 to stats thanks to your patron.
 		STATKEY_CON = 2
 		//Caustic edit end
 	)

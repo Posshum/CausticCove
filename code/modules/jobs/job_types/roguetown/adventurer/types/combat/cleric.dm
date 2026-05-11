@@ -221,10 +221,10 @@
 	backl = /obj/item/storage/backpack/rogue/satchel
 	backr = /obj/item/rogueweapon/shield/iron
 	shirt = /obj/item/clothing/suit/roguetown/shirt/tunic
-	neck = /obj/item/clothing/neck/roguetown/chaincoif
-	pants = /obj/item/clothing/under/roguetown/chainlegs
+	neck = /obj/item/clothing/neck/roguetown/chaincoif/iron //CC Edit - Iron
+	pants = /obj/item/clothing/under/roguetown/chainlegs/iron //CC Edit - Iron
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather/reinforced
-	gloves = /obj/item/clothing/gloves/roguetown/chain
+	gloves = /obj/item/clothing/gloves/roguetown/chain/iron //CC Edit - Iron
 	backpack_contents = list(
 		/obj/item/storage/belt/rogue/pouch/coins/poor = 1,
 		)
@@ -466,7 +466,7 @@
 	pants = /obj/item/clothing/under/roguetown/trou/leather
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather
 	belt = /obj/item/storage/belt/rogue/leather/knifebelt/iron
-	beltr = /obj/item/rogueweapon/huntingknife/idagger/stake //Don't have a proper dagger/weapon, but you do have SOMETHING that can scare and pose a threat.
+	beltr = /obj/item/rogueweapon/huntingknife/idagger/stake //CC Edit - Iron, and you don't have a proper dagger/weapon, but you do have SOMETHING that can scare and pose a threat.
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/poor
 	var/datum/devotion/C = new /datum/devotion(H, H.patron)
 	C.grant_miracles(H, cleric_tier = CLERIC_T2, passive_gain = CLERIC_REGEN_DEVOTEE, devotion_limit = CLERIC_REQ_2)	//Capped to T2 miracles.
@@ -593,7 +593,7 @@
 		/datum/skill/misc/climbing = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/athletics = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/reading = SKILL_LEVEL_EXPERT,
-		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN, //Missionary; Should know some good healing techniques.
+		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN, //CC Edit - Missionary; Should know some good healing techniques.
 	)
 	subclass_stashed_items = list(
 		"The Verses and Acts of the Ten" = /obj/item/book/rogue/bibble,
@@ -698,7 +698,7 @@
 			if("Woodstaff")
 				backr = /obj/item/rogueweapon/woodstaff
 			if("Quarterstaff")
-				r_hand = /obj/item/rogueweapon/woodstaff/quarterstaff //Play monk for the iron Quarterstaff; You are primarily a miracle caster so you shouldn't be up close or near anyways.
+				r_hand = /obj/item/rogueweapon/woodstaff/quarterstaff //CC Edit - Play monk for the iron Quarterstaff; You are primarily a miracle caster so you shouldn't be up close or near anyways.
 				l_hand = /obj/item/rogueweapon/scabbard/gwstrap
 	if(istype(H.patron, /datum/patron/divine))
 		// For now, only Tennites get this. Heretics can have a special treat later

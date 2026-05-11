@@ -58,7 +58,7 @@
 		switch(weapon_choice)
 			if("Recurve Bow")
 				H.adjust_skillrank_up_to(/datum/skill/combat/bows, SKILL_LEVEL_EXPERT, TRUE)
-				backr = /obj/item/gun/ballistic/revolver/grenadelauncher/bow //You may wanna upgrade this, dear ranger!
+				backr = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/classic //You may wanna upgrade this, dear ranger!
 				beltl = /obj/item/quiver/arrows
 			if("Crossbow")
 				H.adjust_skillrank_up_to(/datum/skill/combat/crossbows, SKILL_LEVEL_EXPERT, TRUE)

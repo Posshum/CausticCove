@@ -37,7 +37,7 @@
 	H.dna.species.soundpack_m = new /datum/voicepack/male/warrior()
 	H.set_blindness(0)
 	if(H.mind)
-		var/weapons = list("Short Sword & Iron Shield","Arming Sword & Wood Shield","Longsword & +1 Wrestling","Broadsword & +1 Wrestling","Battle Axe & Wood Shield","Mace & Iron Shield","Flail & Iron Shield","Billhook","Greatflail")
+		var/weapons = list("Iron Short Sword & Iron Shield","Iron Arming Sword & Wood Shield","Longsword & +1 Wrestling","Broadsword & +1 Wrestling","Bronze Battle Axe & Wood Shield","Iron Mace & Iron Shield","Iron Flail & Iron Shield","Improvised Billhook","Iron Greatflail")
 		var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 		switch(weapon_choice)
 			if("Iron Short Sword & Iron Shield")
@@ -52,12 +52,12 @@
 				beltr = /obj/item/rogueweapon/scabbard/sword
 				backr = /obj/item/rogueweapon/shield/wood
 				r_hand = /obj/item/rogueweapon/sword/iron
-			if("Iron Longsword & +1 Wrestling")
+			if("Longsword & +1 Wrestling") //Decent weapons but lacks in defensive power, learn to wrestle!
 				H.adjust_skillrank_up_to(/datum/skill/combat/swords, SKILL_LEVEL_EXPERT, TRUE)
 				H.adjust_skillrank_up_to(/datum/skill/combat/wrestling, SKILL_LEVEL_JOURNEYMAN, TRUE)
 				backr = /obj/item/rogueweapon/sword/long
 				beltr = /obj/item/rogueweapon/scabbard/sword
-			if("Iron Broadsword & +1 Wrestling")
+			if("Broadsword & +1 Wrestling")
 				H.adjust_skillrank_up_to(/datum/skill/combat/swords, SKILL_LEVEL_EXPERT, TRUE)
 				H.adjust_skillrank_up_to(/datum/skill/combat/wrestling, SKILL_LEVEL_JOURNEYMAN, TRUE)
 				backr = /obj/item/rogueweapon/sword/long/broadsword

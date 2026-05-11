@@ -9,8 +9,8 @@
 	reset_stats = TRUE
 	subclass_stats = list( //Caustic Edit start. 
 		STATKEY_STR = 4,
-		STATKEY_CON = 3,
-		STATKEY_WIL = 2,
+		STATKEY_CON = 4,
+		STATKEY_WIL = 4,
 		STATKEY_SPD = 2
 	)
 	subclass_skills = list(

@@ -390,7 +390,7 @@
 		STATKEY_STR = 1, //Abbreviated to +1/+3/+2/-2 for short. Seven statpoints weighed against a two- (or rather, four-) point penalty in Speed. This is intentional, as the Thespian has a lot of room to stretch their proverbial wings. 
 		STATKEY_WIL = 2, 
 		STATKEY_CON = 2, 
-		STATKEY_SPD = -2,
+		STATKEY_SPD = -3, // CC Edit - Made it 3 now.
 	)
 	subclass_skills = list(
 		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
@@ -539,10 +539,10 @@
 		var/bronzediscipline = list("Thespian - Dodge Expert, -I CON / +I SPD","Gladiator - Skin-Armored & Immunity To Pain","Shieldbearer - Well-Armored & Maille Training","Bulwark - Fully-Armored & Plate Training")
 		var/bronzediscipline_choice = input(H, "Choose your DISCIPLINE.", "EMBRACE GLORY AND DEATH.") as anything in bronzediscipline
 		switch(bronzediscipline_choice)
-			if("Thespian - Dodge Expert, -2 CON / +1 SPD")
+			if("Thespian - Dodge Expert, -I CON / +I SPD")
 				ADD_TRAIT(H, TRAIT_DODGEEXPERT, TRAIT_GENERIC)
 				H.change_stat(STATKEY_SPD, 1)
-				H.change_stat(STATKEY_CON, -2)
+				H.change_stat(STATKEY_CON, -1)
 				head = /obj/item/clothing/head/roguetown/headband/red
 				mask = /obj/item/clothing/mask/rogue/facemask/bronze
 				armor = /obj/item/clothing/suit/roguetown/armor/plate/bronze/light

@@ -176,7 +176,7 @@
 		STATKEY_INT = 1,
 		STATKEY_STR = 1,
 		STATKEY_PER = 1,
-		STATKEY_SPD = 1,
+		STATKEY_SPD = 1
 	)
 	subclass_skills = list(
 		/datum/skill/combat/polearms = SKILL_LEVEL_APPRENTICE,
