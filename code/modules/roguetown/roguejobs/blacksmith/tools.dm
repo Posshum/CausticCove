@@ -175,38 +175,46 @@
 
 	if(!user.cmode)
 		var/wCount = M.get_wounds()
-		if((M.getBruteLoss() + M.getFireLoss()) <= 0 && !length(wCount))
-			user.visible_message(
+		if(HAS_TRAIT(M, TRAIT_IRONMAN) && (M.getBruteLoss() + M.getFireLoss()) <= 0 && !length(wCount))
+			M.visible_message(
 				span_notice("[M] is good as new!"),
 				span_notice("I am good as new!")
 			)
 			playsound(user.loc, 'sound/items/bsmith4.ogg', 100, FALSE)
-			if(prob(30))
-				M.emote("whimper") // robbit aboose
-			return	
-		else		
+			return
+		else
+			if(M.has_status_effect(/datum/status_effect/debuff/integrity_rig))
+				if(M == user)
+					to_chat(user, span_warning("I can't get the right angle to fix this, I need help from someone else!"))
+					return
+				user.visible_message(span_warning("[user] begins lining up a decisive strike onto the Jury Rig!"))
+				if(!do_after(user, 4 SECONDS))
+					return
+				M.remove_status_effect(/datum/status_effect/debuff/integrity_rig)
+				playsound(M.loc, 'sound/misc/bonk.ogg', 100, FALSE, -1) // satisfying
+				for(var/datum/wound/W in wCount)
+					if(W.severity >= WOUND_SEVERITY_CRITICAL)
+						qdel(W)
+						break
 			hammerheal(M, user)
 	else
 		. = ..() //normal hit
 
 /obj/item/rogueweapon/hammer/proc/hammerheal(mob/living/M, mob/living/user)
+	var/selfheal = FALSE
+	var/qualified = FALSE
+	var/ironman = TRUE
+
 	if(!user || !M)
 		return
 
 	if(!M.can_inject(user, TRUE))
 		return
 
-	if(!ishuman(M))
-		return
-
-	if(!HAS_TRAIT(M, TRAIT_IRONMAN))
-		to_chat(user, span_warning("They are not made of metal, you can't tinker with that."))
-		return
-
-	var/qualified = FALSE
-
 	if(user == M)
 		qualified = TRUE
+		selfheal = TRUE
+
 	else
 		if(user.get_skill_level(/datum/skill/craft/armorsmithing) >= SKILL_LEVEL_JOURNEYMAN)
 			qualified = TRUE
@@ -215,6 +223,15 @@
 		if(user.get_skill_level(/datum/skill/craft/blacksmithing) >= SKILL_LEVEL_JOURNEYMAN)
 			qualified = TRUE
 
+	if(!ishuman(M))
+		return
+
+	if(!HAS_TRAIT(M, TRAIT_IRONMAN))
+		ironman = FALSE
+		if(selfheal)
+			to_chat(user, span_warning("Only constructs can properly tinker with themselves."))
+			return
+
 	var/mob/living/carbon/human/H = M
 
 	// BUILD PRIORITY LIST ONCE
@@ -222,6 +239,8 @@
 
 	for(var/obj/item/bodypart/BP in H.bodyparts)
 		if(!BP || QDELETED(BP))
+			continue
+		if(!ironman && BP.status != BODYPART_ROBOTIC)
 			continue
 
 		var/priority = BP.brute_dam + BP.burn_dam
@@ -234,6 +253,11 @@
 
 		if(priority > 0)
 			priority_limbs[BP] = priority
+
+	//if we can't heal anything, return
+	if(!priority_limbs.len)
+		to_chat(user, span_warning("They're not made of metal. I can't tinker with that!"))
+		return
 
 	// sort descending (highest priority first)
 	priority_limbs = sortTim(priority_limbs, GLOBAL_PROC_REF(cmp_numeric_dsc), TRUE)
@@ -275,14 +299,14 @@
 			if(istype(I, /obj/item/rogueweapon/tongs))
 				has_tongs = TRUE
 
-			if(istype(I, /obj/item/contraption/linker))
+			if(istype(I, /obj/item/rogueweapon/contraption/linker))
 				has_wrench = TRUE
 
 		if(has_complex_wounds && !(has_tongs || has_wrench))
 			to_chat(user, span_warning("These injuries are too severe to repair with just a hammer! Either Tongs or a Wrench on your free hand are needed."))
 			return
 
-		var/used_time = 90 
+		var/used_time = 90
 
 		if(user.mind)
 			used_time -= (user.get_skill_level(/datum/skill/craft/engineering) * 7)
@@ -331,13 +355,6 @@
 				playsound(user.loc, 'sound/items/bsmith4.ogg', 100, FALSE)
 				shake_camera(M, 2, 1)
 				shake_camera(user, 2, 1)
-
-				if(prob(30))
-					if(prob(50))
-						M.emote("whimper")
-					else
-						M.emote("cry")
-
 				continue
 
 			var/allowed_healing = current_total - minimum_allowed
@@ -363,7 +380,11 @@
 			priority_limbs.Cut(1,2)
 
 		if((M.getBruteLoss() + M.getFireLoss()) <= 0 && !length(H.get_wounds()))
-			user.visible_message(span_notice("[M] is good as new!"), span_notice("I am good as new!"))
+			M.visible_message(span_notice("[M] is good as new!"), span_notice("I am good as new!"))
+			break
+
+		if(!priority_limbs.len)//wounded, but no more injured mechanical limbs
+			M.visible_message(span_notice("[M]'s mechanical components are as good as new"), span_notice("My mechanical limbs are whole once more."))
 			break
 
 	while(do_after(user, CLICK_CD_MELEE, TRUE, M))
