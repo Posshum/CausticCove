@@ -9,7 +9,7 @@
 	spawn_positions = 6
 	advclass_cat_rolls = list(CTAG_GUILDSMEN = 20)
 
-	allowed_races = ACCEPTED_RACES
+	forbidden_races = list() //Caustic Edit - Just a global tweak to remove 'races_despised' from this check everywhere
 
 	tutorial = "You are a member of the Azure Peak Guild of Crafts, a massive guild formed to represent the interests of all craftsmen in the township of Azure Peak.\
 	As a Guildsman, you hail from the three most important constituent guilds: The Smith's Guild, the Artificer's Guild, and the Architect's Guild. The Guildsmaster has sway over you, but it is not absolute."
@@ -97,7 +97,7 @@
 		cloak = /obj/item/clothing/cloak/apron/blacksmith
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/takeapprentice)
-		SStreasury.give_money_account(ECONOMIC_UPPER_MIDDLE_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_UPPER_MIDDLE_CLASS, H)
 
 
 /datum/advclass/guildsman/artificer
@@ -106,7 +106,7 @@
 	But your true calling is the creation and enchantment of magical items, alongside feats of engineering, creating mechanical and magical wonders whose art of creation has been passed down\
 	from a certain elven Artificer..."
 	outfit = /datum/outfit/job/roguetown/guildsman/artificer
-	subclass_mage_aspects = list("mastery" = FALSE, "major" = 1, "minor" = 2, "utilities" = 4, "locked_aspects" = list(/datum/magic_aspect/battlewardry, /datum/magic_aspect/artifice), "post_aspect_spells" = list(/obj/effect/proc_holder/spell/invoked/takeapprentice), "ward" = TRUE)
+	subclass_mage_aspects = list("mastery" = FALSE, "major" = 1, "minor" = 2, "utilities" = 5, "locked_aspects" = list(/datum/magic_aspect/battlewardry, /datum/magic_aspect/artifice), "post_aspect_spells" = list(/obj/effect/proc_holder/spell/invoked/takeapprentice), "ward" = TRUE)
 
 	category_tags = list(CTAG_GUILDSMEN)
 	traits_applied = list(TRAIT_ARCYNE)
@@ -166,11 +166,11 @@
 						/obj/item/clothing/mask/rogue/spectacles/golden = 1, //putting them in the bag because bad eye sight virtue strips these
 						/obj/item/contraption/linker = 1,
 						/obj/item/mini_flagpole/artificer = 1,
-						/obj/item/book/spellbook = 1,
+						/obj/item/rogueweapon/spellbook = 1,
 						)
 	// Not a real mage, no free spell point. Take Arcyne Potential if you want it.
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_UPPER_MIDDLE_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_UPPER_MIDDLE_CLASS, H)
 
 /datum/advclass/guildsman/architect
 	name = "Architect"
@@ -240,4 +240,4 @@
 	ADD_TRAIT(H, TRAIT_MASTER_MASON, TRAIT_GENERIC)
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/takeapprentice)
-		SStreasury.give_money_account(ECONOMIC_UPPER_MIDDLE_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_UPPER_MIDDLE_CLASS, H)

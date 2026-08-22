@@ -6,7 +6,7 @@
 	total_positions = 6
 	spawn_positions = 6
 
-	allowed_races = ACCEPTED_RACES
+	forbidden_races = list() //Caustic Edit - Just a global tweak to remove 'races_despised' from this check everywhere
 	allowed_patrons = ALL_DIVINE_PATRONS
 	allowed_sexes = list(MALE, FEMALE)
 	outfit = /datum/outfit/job/roguetown/monk
@@ -23,7 +23,8 @@
 	job_traits = list(TRAIT_RITUALIST, TRAIT_GRAVEROBBER, TRAIT_HOMESTEAD_EXPERT, TRAIT_CLERGY, TRAIT_MARRIAGE_CAPABLE)
 	advclass_cat_rolls = list(CTAG_ACOLYTE = 2)
 	job_subclasses = list(
-		/datum/advclass/acolyte
+		/datum/advclass/acolyte,
+		/datum/advclass/herald,
 	)
 
 /datum/advclass/acolyte
@@ -41,7 +42,7 @@
 	subclass_skills = list(
 		/datum/skill/combat/wrestling = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_JOURNEYMAN,
-		/datum/skill/combat/staves = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/combat/staves = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/craft/alchemy = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/reading = SKILL_LEVEL_JOURNEYMAN,
@@ -65,7 +66,7 @@
 /datum/outfit/job/roguetown/monk/basic/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.adjust_blindness(-3)
-	belt = /obj/item/storage/belt/rogue/leather/rope
+	belt = /obj/item/storage/belt/rogue/leather/rope/upgraded
 	beltr = /obj/item/storage/belt/rogue/pouch/coins/mid
 	beltl = /obj/item/storage/keyring/acolyte
 	backl = /obj/item/storage/backpack/rogue/satchel
@@ -128,10 +129,16 @@
 			head = /obj/item/clothing/head/roguetown/eoramask
 			neck = /obj/item/clothing/neck/roguetown/psicross/eora
 			shoes = /obj/item/clothing/shoes/roguetown/sandals
-			armor = /obj/item/clothing/suit/roguetown/shirt/robe/eora
 			cloak = /obj/item/clothing/cloak/templar/eoran
 			r_hand = /obj/item/rogueweapon/huntingknife/scissors
 			shirt = /obj/item/clothing/suit/roguetown/armor/vestments_padded
+			var/robes = list("Modest","Exposed")
+			var/robe_choice = input(H, "Choose your ROBES.", "TAKE UP ROBES.") as anything in robes
+			switch(robe_choice) // This feels wrong to do but I am unsure how else to do it
+				if("Modest")
+					armor = /obj/item/clothing/suit/roguetown/shirt/robe/eora
+				if("Exposed")
+					armor = /obj/item/clothing/suit/roguetown/shirt/robe/eora/alt
 		if(/datum/patron/divine/malum)
 			head = /obj/item/clothing/head/roguetown/roguehood
 			neck = /obj/item/clothing/neck/roguetown/psicross/malum
@@ -173,7 +180,7 @@
 	var/datum/devotion/C = new /datum/devotion(H, H.patron)
 	C.grant_miracles(H, cleric_tier = CLERIC_T4, passive_gain = CLERIC_REGEN_MAJOR, start_maxed = TRUE)	//Starts off maxed out.
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_LOWER_MIDDLE_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_LOWER_MIDDLE_CLASS, H)
 
 /datum/outfit/job/roguetown/monk/basic/choose_loadout(mob/living/carbon/human/H)
 	. = ..()

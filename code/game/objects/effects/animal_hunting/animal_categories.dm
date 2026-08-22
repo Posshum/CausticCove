@@ -11,10 +11,11 @@
 	/// Amount of bonus animals group hunts can spawn
 	var/bonus_animal_amount = 1
 
+//CC Caustic Edit - Desert Areas added to hunting categories
 /datum/hunting_category/low_tier
 	name = "Small Game"
 	skill_weights = list(100, 80, 50, 20, 10, 5, 5) // Common for beginners, rare for experts
-	bonus_animal_amount = 5
+	bonus_animal_amount = 8
 	animals = list(
 		/mob/living/simple_animal/hostile/retaliate/rogue/bigrat = 15,
 		/mob/living/simple_animal/hostile/retaliate/rogue/badger = 10,
@@ -35,13 +36,16 @@
 		/area/rogue/outdoors/woods/south = 30,
 		/area/rogue/outdoors/woods/southwest = 30,
 		/area/rogue/outdoors/woods/northwest = 30,
-		/area/rogue/outdoors/rtfield = 50
+		/area/rogue/outdoors/rtfield = 50,
+		/area/rogue/outdoors/desert = 50,
+		/area/rogue/outdoors/desert/dunepassage = 30,
+		/area/rogue/outdoors/desert/river = 50
 	)
 
 /datum/hunting_category/mid_tier
 	name = "Forest Denizens"
 	skill_weights = list(10, 40, 100, 80, 50, 30, 10)
-	bonus_animal_amount = 3
+	bonus_animal_amount = 5
 	animals = list(
 		/mob/living/simple_animal/hostile/retaliate/rogue/wolf = 15,
 		/mob/living/simple_animal/hostile/retaliate/rogue/goat = 20,
@@ -58,22 +62,29 @@
 		/area/rogue/outdoors/woods/southeast = 50,
 		/area/rogue/outdoors/woods/south = 50,
 		/area/rogue/outdoors/woods/southwest = 50,
-		/area/rogue/outdoors/woods/northwest = 50
+		/area/rogue/outdoors/woods/northwest = 50,
+		/area/rogue/outdoors/desert = 40,
+		/area/rogue/outdoors/desert/dunepassage = 40,
+		/area/rogue/outdoors/desert/river = 45
 	)
 
 /datum/hunting_category/high_tier
 	name = "Great Beasts"
 	skill_weights = list(0, 5, 20, 50, 100, 120, 150) // Only highly skilled hunters find these
-	bonus_animal_amount = 2
+	bonus_animal_amount = 8
 	animals = list(
 		/mob/living/simple_animal/hostile/retaliate/rogue/saiga/game = 20,
 		/mob/living/simple_animal/hostile/retaliate/rogue/direbear = 5,
 		/mob/living/simple_animal/hostile/retaliate/rogue/troll = 3,
-		/mob/living/simple_animal/hostile/retaliate/rogue/mole = 10
+		/mob/living/simple_animal/hostile/retaliate/rogue/mole = 5,
+		/mob/living/simple_animal/hostile/retaliate/rogue/boar = 5,
 	)
 	preferred_tracks = list(
 		/mob/living/simple_animal/hostile/retaliate/rogue/direbear = "ursine",
-		/mob/living/simple_animal/hostile/retaliate/rogue/saiga/game = "cervine"
+		/mob/living/simple_animal/hostile/retaliate/rogue/troll = "ursine",
+		/mob/living/simple_animal/hostile/retaliate/rogue/mole = "ursine",
+		/mob/living/simple_animal/hostile/retaliate/rogue/saiga/game = "cervine",
+		/mob/living/simple_animal/hostile/retaliate/rogue/boar = "suidae",
 	)
 	preferred_areas = list(
 		/area/rogue/outdoors/woods = 20,
@@ -83,21 +94,37 @@
 		/area/rogue/outdoors/woods/south = 20,
 		/area/rogue/outdoors/woods/southwest = 20,
 		/area/rogue/outdoors/woods/northwest = 20,
-		/area/rogue/outdoors/mountains/decap = 50
+		/area/rogue/outdoors/mountains/decap = 50,
+		/area/rogue/outdoors/desert = 10,
+		/area/rogue/outdoors/desert/dunepassage = 30,
+		/area/rogue/outdoors/desert/river = 5,
+		/area/rogue/outdoors/desertdeep = 50
 	)
 
 /datum/hunting_category/cursed
 	name = "Undead Signs"
 	skill_weights = list(50, 30, 20, 15, 15, 10, 10) // Low static chance
+	bonus_animal_amount = 10
 	animals = list(
-		/mob/living/simple_animal/hostile/retaliate/rogue/saiga/undead = 10,
+		/mob/living/simple_animal/hostile/retaliate/rogue/saiga/undead = 50,
 		/mob/living/simple_animal/hostile/retaliate/rogue/wolf_undead = 10,
-		/mob/living/simple_animal/hostile/retaliate/smallrat = 1
+		/mob/living/simple_animal/hostile/retaliate/smallrat = 1,
+		/mob/living/simple_animal/hostile/retaliate/rogue/fox/undead = 10,
+		// Keep these rare, for they are very dangerous.
+		/mob/living/simple_animal/hostile/retaliate/rogue/boar/undead = 2,
+		/mob/living/simple_animal/hostile/retaliate/rogue/troll/undead = 2,
+	)
+	preferred_tracks = list(
+		/mob/living/simple_animal/hostile/retaliate/rogue/saiga/undead = "cervine",
+		/mob/living/simple_animal/hostile/retaliate/rogue/wolf_undead = "canine",
+		/mob/living/simple_animal/hostile/retaliate/rogue/boar/undead = "suidae",
+		/mob/living/simple_animal/hostile/retaliate/rogue/fox/undead = "canine",
 	)
 	preferred_areas = list(
-		/area/rogue/outdoors/beach/forest = 50,
-		/area/rogue/outdoors/beach/forest/north = 50,
-		/area/rogue/outdoors/beach/forest/south = 50
+		/area/rogue/outdoors/beach/forest = 1000,
+		/area/rogue/outdoors/beach/forest/north = 1000,
+		/area/rogue/outdoors/beach/forest/south = 1000,
+		/area/rogue/outdoors/desertdeep = 50
 	)
 
 /datum/hunting_category/spiders
@@ -122,7 +149,7 @@
 	name = "Mire Dwellers"
 
 	skill_weights = list(30, 30, 30, 25, 25, 20, 20)
-	bonus_animal_amount = 2
+	bonus_animal_amount = 6
 	animals = list(
 		/mob/living/simple_animal/hostile/retaliate/rogue/mirespider = 30,
 		/mob/living/simple_animal/hostile/rogue/mirespider_lurker = 20,
@@ -145,6 +172,8 @@
 		/area/rogue/under/cavewet/bogcaves/coastcaves = 60
 	)
 
+// HUNTING MAP PREFERRED CATEGORIES
+
 /datum/hunting_category/white_stag
 	// Named the same as to make it impossible to tell when a stag is there.
 	name = "Great Beasts"
@@ -156,5 +185,17 @@
 	)
 	preferred_tracks = list(
 		/mob/living/carbon/human/species/wildshape/white_stag = "cervine"
+	)
+	preferred_areas = list()
+
+/datum/hunting_category/boars
+	name = "Fierce Boars"
+	skill_weights = list(1, 1, 1, 1, 1, 1, 1)
+	bonus_animal_amount = 10
+	animals = list(
+		/mob/living/simple_animal/hostile/retaliate/rogue/boar = 1
+	)
+	preferred_tracks = list(
+		/mob/living/simple_animal/hostile/retaliate/rogue/boar = "suidae"
 	)
 	preferred_areas = list()

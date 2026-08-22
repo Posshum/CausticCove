@@ -8,15 +8,14 @@
 	origin_default = /datum/virtue/origin/etrusca
 	origin = "Etrusca"
 	base_name = "Beastvolk"
-	desc = "<b>Axian</b><br>\
-	Axians are a proud, shark-like people that have a heritage founded in maritime trade, \
+	desc_title = "Axian"
+	desc = "Axians are a proud, shark-like people that have a heritage founded in maritime trade, \
 	tax evasion, and piracy. They have a strong distaste for the nobility and taxation, \
 	making them a target of discrimination in the Azurean lands. They are oftentimes scapegoats for crime. \
 	Due to their penchant for trade and travel, they can be found all over the world, oftentimes \
 	seeing places many could not even dream of. They look down at those they considered the 'settled' \
 	and often uproot themselves quite often in their lifetimes. However, due to the isolation in Azure, many Axians \
-	find their sanity being clawed away as they find themselves stuck in one place.<br>\
-	<span style='color: #6a8cb7;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;'><b>+1 WIL | +1 CON </b></span><br>"
+	find their sanity being clawed away as they find themselves stuck in one place."
 	species_traits = list(EYECOLOR,LIPS,STUBBLE,MUTCOLORS)
 
 	///Caustic edit
@@ -98,11 +97,11 @@
 		/datum/customizer/organ/ears/axian,
 		/datum/customizer/organ/testicles/anthro,
 		/datum/customizer/organ/penis/anthro,
-		/datum/customizer/organ/breasts/human,
+		/datum/customizer/organ/breasts/animal,
 		/datum/customizer/organ/vagina/human_anthro,
 		//Caustic edit - If the chest is human, so is the butt?
 		/datum/customizer/organ/belly/animal,
-		/datum/customizer/organ/butt/human,
+		/datum/customizer/organ/butt/animal,
 		//Caustic edit end
 		)
 	body_marking_sets = list(
@@ -139,6 +138,8 @@
 		/datum/descriptor_choice/prominent_two,
 		/datum/descriptor_choice/prominent_three,
 		/datum/descriptor_choice/prominent_four,
+		/datum/descriptor_choice/prominent_five,
+		/datum/descriptor_choice/prominent_six
 	)
 
 /datum/species/akula/check_roundstart_eligible()

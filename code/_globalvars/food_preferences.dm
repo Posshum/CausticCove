@@ -24,11 +24,26 @@ GLOBAL_LIST_EMPTY(cached_drink_flat_icons)
 		// Caustic Edit end
 		/datum/reagent/consumable/milk/salted,
 		/datum/reagent/consumable/pumpkinspice,
+		//OV Edit start: Blacklist non-tea waters
+		/datum/reagent/water,
+		/datum/reagent/water/gross,
+		/datum/reagent/water/gross/sewage,
+		/datum/reagent/water/salty,
+		/datum/reagent/water/medicine,
+		/datum/reagent/water/cursed,
+		/datum/reagent/water/bathwater,
+		/datum/reagent/water/holywater,
+		/datum/reagent/water/blessed,
+		/datum/reagent/water/bufftea,
+		//OV Edit end
 	)
 
+	//OV Edit: Since a few drinks, especially with our tea additions, are water subtypes
 	var/list/drink_types = subtypesof(/datum/reagent/consumable)\
+		+ subtypesof(/datum/reagent/water)\
 		- typesof(/datum/reagent/consumable/soup)\
 		- blacklisted_drinks
+	//OV Edit end
 
 	var/list/filtered_drink_types = list()
 	var/list/name_to_type = list()
@@ -90,10 +105,10 @@ GLOBAL_LIST_EMPTY(cached_drink_flat_icons)
 		/obj/item/reagent_containers/food/snacks/rogue/meat/fatty,
 		/obj/item/reagent_containers/food/snacks/rogue/meat/bacon,
 		/obj/item/reagent_containers/food/snacks/rogue/meat/rabbit,
-		/obj/item/reagent_containers/food/snacks/rogue/meat/steak/wolf,
+		/obj/item/reagent_containers/food/snacks/rogue/meat/wolf,
 		/obj/item/reagent_containers/food/snacks/rogue/meat/sausage,
 		/obj/item/reagent_containers/food/snacks/rogue/meat/rabbit,
-		/obj/item/reagent_containers/food/snacks/rogue/meat/steak/wolf,
+		/obj/item/reagent_containers/food/snacks/rogue/meat/bear,
 		/obj/item/reagent_containers/food/snacks/rogue/meat/poultry,
 		/obj/item/reagent_containers/food/snacks/rogue/piedough,
 		/obj/item/reagent_containers/food/snacks/rogue/ricewet,
@@ -132,6 +147,7 @@ GLOBAL_LIST_EMPTY(cached_drink_flat_icons)
 		/obj/item/reagent_containers/food/snacks/crow,
 		/obj/item/reagent_containers/food/snacks/tallow,
 		/obj/item/reagent_containers/food/snacks/tallow/red,
+		/obj/item/reagent_containers/food/snacks/tallow/black,
 		/obj/item/reagent_containers/food/snacks/veg,
 		/obj/item/reagent_containers/food/snacks/butter,
 		/obj/item/reagent_containers/food/snacks/deadmouse,

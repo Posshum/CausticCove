@@ -6,6 +6,7 @@
 	icon_living = "lamia_f"
 	icon_dead = "lamia_dead"
 	gender = FEMALE
+	blood_toll_bucket = STATS_KILLED_GREATER_BEASTS
 	emote_hear = null
 	emote_see = null
 	speak_chance = 1
@@ -47,6 +48,13 @@
 	dodgetime = 15
 	aggressive = 1
 	remains_type = null
+
+	//Caustic Edit - Lets add in the disabling of the old Lamia AI here?
+	ai_controller = /datum/ai_controller/deepone
+	AIStatus = AI_OFF
+	can_have_ai = FALSE
+	//Caustic Edit End
+
 	var/sneaking = FALSE
 	var/light_check = 0
 	var/light_check_delay = 3 SECONDS

@@ -35,10 +35,17 @@
 	var/origin_name = "<a href='?src=[REF(src)];origin_lore=1'><u>[dna.species.origin]</u></A>"
 	var/datum/antagonist/maniac/maniac = user.mind?.has_antag_datum(/datum/antagonist/maniac)
 	var/datum/antagonist/skeleton/skeleton = user.mind?.has_antag_datum(/datum/antagonist/skeleton)
+	var/datum/antagonist/zombie/zombie = user.mind?.has_antag_datum(/datum/antagonist/zombie)
+	//CC Edit - Roleplay Guidance Pref, whether you encourage PvP and wish to fight others if invited or discourage PvP and wish to avoid fighting,
+			//but does not exempt you from combat or the consequences of your own actions.
+	var/rp_guidance_preference = client?.prefs.rp_guidance
+	//CC Edit End
 	if(maniac && (user != src))
 		race_name = "disgusting pig"
 	if(skeleton && (user != src))
 		race_name = "[pick("shambling", "taut", "decrepit")]"
+	if(zombie && (user != src))
+		race_name = "[pick("shambling thing", "taut thing", "decrepit thing", "wyrd thing", "UHHHHHHH...")]" //UHHHHH... zombie has to think moment
 
 	var/m1 = "[t_He] [t_is]"
 	var/m2 = "[t_his]"
@@ -72,6 +79,8 @@
 		on_examine_face(user)
 		var/used_name = name
 		var/used_title = get_role_title()
+		if(tat_pliant_title) // CC + TA edit
+			used_title = tat_pliant_title // CC + TA edit
 		if(SSticker.regentmob == src)
 			used_title = "[used_title]" + " Regent"
 		var/display_as_wanderer = FALSE
@@ -96,14 +105,14 @@
 			displayed_headshot = src.headshot_link
 
 		if ((valid_headshot_link(src, displayed_headshot, TRUE)) && (user.client?.prefs.chatheadshot))
-			if(display_as_wanderer)
+			if(display_as_wanderer && !tat_pliant_title) // CC + TA edit
 				. = list(span_info("ø ------------ ø\n<img src=[displayed_headshot] width=100 height=100/>\nThis is <EM>[used_name]</EM>, the wandering [race_name]."))
 			else if(used_title)
 				. = list(span_info("ø ------------ ø\n<img src=[displayed_headshot] width=100 height=100/>\nThis is <EM>[used_name]</EM>, the [race_name] [used_title]."))
 			else
 				. = list(span_info("ø ------------ ø\n<img src=[displayed_headshot] width=100 height=100/>\nThis is the <EM>[used_name]</EM>, the [race_name]."))
 		else
-			if(display_as_wanderer)
+			if(display_as_wanderer && !tat_pliant_title) // CC + TA edit
 				. = list(span_info("ø ------------ ø\nThis is <EM>[used_name]</EM>, the wandering [race_name]."))
 			else if(used_title)
 				. = list(span_info("ø ------------ ø\nThis is <EM>[used_name]</EM>, the [race_name] [used_title]."))
@@ -173,6 +182,48 @@
 				. += span_notice("A fellow noble.")
 			else
 				. += span_notice("A noble!")
+
+		if(HAS_TRAIT(src, TRAIT_RESIDENT))
+			. += span_notice("A chartered resident of Azuria.")
+
+		if(HAS_TRAIT(src, TRAIT_AGENT_MERCHANT))
+			. += span_notice("An agent of the Azurian Trading Company.")
+		if(HAS_TRAIT(src, TRAIT_AGENT_BATHHOUSE))
+			. += span_notice("An agent of the Bathhouse.")
+
+		if(HAS_TRAIT(src, TRAIT_DEBTOR))
+			if(ishuman(user))
+				var/mob/living/carbon/human/viewer = user
+				var/saw_specific = FALSE
+				if(HAS_TRAIT(src, TRAIT_DEBTOR_CHURCH) && (viewer.job in GLOB.church_positions))
+					. += span_userdanger("DEFAULT DEBTOR OF THE CHURCH!")
+					saw_specific = TRUE
+				if(HAS_TRAIT(src, TRAIT_DEBTOR_MERCHANT) && (viewer.job == "Merchant" || viewer.job == "Shophand" || HAS_TRAIT(viewer, TRAIT_AGENT_MERCHANT)))
+					. += span_userdanger("DEFAULT DEBTOR OF THE TRADING COMPANY!")
+					saw_specific = TRUE
+				if(HAS_TRAIT(src, TRAIT_DEBTOR_BATHHOUSE) && (viewer.job == "Bathmaster" || viewer.job == "Bathhouse Attendant" || HAS_TRAIT(viewer, TRAIT_AGENT_BATHHOUSE)))
+					. += span_userdanger("DEFAULT DEBTOR OF THE BATHHOUSE!")
+					saw_specific = TRUE
+				if(!saw_specific && HAS_TRAIT(src, TRAIT_DEBTOR_CROWN))
+					if((viewer.job in GLOB.garrison_positions) || (viewer.job in GLOB.retinue_positions) || (viewer.job in GLOB.courtier_positions) || (viewer.job in GLOB.noble_positions))
+						. += span_userdanger("DEFAULT DEBTOR OF THE CROWN!")
+
+		if(HAS_TRAIT(src, TRAIT_ARREARS))
+			// Poll-tax arrears: a soft mark. Authority roles (garrison, retinue, courtier, noble)
+			// can read it off a subject, but only as a hint - the actual amount owed lives with
+			// the Steward, and enforcement is up to whoever spots it.
+			if(ishuman(user))
+				var/mob/living/carbon/human/viewer = user
+				if((viewer.job in GLOB.garrison_positions) || (viewer.job in GLOB.retinue_positions) || (viewer.job in GLOB.courtier_positions) || (viewer.job in GLOB.noble_positions))
+					. += span_smallred("Destitute..")
+
+		if(src.job in GLOB.church_positions)
+			. += span_notice("A member of the Church of Azuria.")
+		else if(HAS_TRAIT(src, TRAIT_AGENT_CHURCH))
+			. += span_notice("A benefactor of the Church of Azuria.")
+
+		if(src.job in GLOB.inquisition_positions)
+			. += span_notice("An adherent of the Holy Otavan Inquisition.")
 
 		if((HAS_TRAIT(user, TRAIT_BLACKOAK) && !(src.dna.species.name == "Elf" || src.dna.species.name == "Dark Elf" || src.dna.species.name == "Half-Elf")))
 			. += span_phobia("An invader...")
@@ -257,7 +308,7 @@
 
 			if(has_flaw(/datum/charflaw/addiction/thrillseeker) && user.has_flaw(/datum/charflaw/addiction/thrillseeker))
 				. += span_rose("[m1] twitching for a thrilling fight. So am I.")
-			
+
 			if(user.has_flaw(/datum/charflaw/averse))
 				var/datum/charflaw/averse/averseflaw = user.get_flaw(/datum/charflaw/averse)
 				if(averseflaw?.check_aversion(user, src))
@@ -308,9 +359,29 @@
 				if (THEY_THEM, IT_ITS)
 					. += span_redtext("[m1] repulsive!")
 
+		var/datum/antagonist/vampire/vamp_inspect_vlord = src.mind?.has_antag_datum(/datum/antagonist/vampire/lord)
+		if(vamp_inspect_vlord && (!SEND_SIGNAL(src, COMSIG_DISGUISE_STATUS)))
+			. += span_userdanger("A MONSTER!")
+
 		var/datum/antagonist/vampire/vamp_inspect = src.mind?.has_antag_datum(/datum/antagonist/vampire)
 		if(vamp_inspect && (!SEND_SIGNAL(src, COMSIG_DISGUISE_STATUS)))
-			. += span_redtext("[m3] strange glowying eyes and fangs!")
+			. += span_redtext("[m3] strange glowing eyes and fangs!")
+
+		//Blackblood Inquisition trauma
+		if(HAS_TRAIT(src, TRAIT_INQUISITION) && HAS_TRAIT(user, TRAIT_BLACKBLOOD))
+			var/mob/living/carbon/carbs = user
+			if(!HAS_TRAIT(user, TRAIT_PSYDONIAN_GRIT) && !HAS_TRAIT(user, TRAIT_NOMOOD))
+				if(!carbs.has_stress_event(/datum/stressevent/inq_trauma))
+					carbs.add_stress(/datum/stressevent/inq_trauma)
+					if(prob(20))
+						carbs.stress_freakout()
+					else if(prob(40))
+						carbs.freak_out()
+					else
+						carbs.emote("gulp")
+				if(!HAS_TRAIT(user, TRAIT_STEELHEARTED))
+					carbs.Jitter(10)
+					carbs.stuttering += 25
 
 		// Shouldn't be able to tell they are unrevivable through a mask as a Necran
 		if(HAS_TRAIT(src, TRAIT_DNR) && src != user)
@@ -334,13 +405,11 @@
 		if(item)
 			. += span_notice("You get the feeling [src]'s most valuable possession is \a [item].")
 		var/mammonsonperson = get_mammons_in_atom(src)
-		var/mammonsinbank = SStreasury.bank_accounts[src]
-		if(isnull(mammonsinbank))
-			mammonsinbank = 0
+		var/mammonsinbank = SStreasury.get_balance(src)
 		var/totalvalue = mammonsonperson + mammonsinbank
 		if(totalvalue && HAS_TRAIT(user, TRAIT_GILDED_SIGHT))
 			. += span_notice("They carry [mammonsonperson] mammons, with [mammonsinbank] stored away, totaling [totalvalue].")
-		else if(mammonsonperson && mammonsonperson >= 200)
+		else if(mammonsonperson && mammonsonperson >= 100) // worth a whole mission board!
 			. += span_notice("They carry about [mammonsonperson] mammons with them.")
 	var/obscured = check_obscured_slots()
 	var/skipface = (wear_mask && (wear_mask.flags_inv & HIDEFACE)) || (head && (head.flags_inv & HIDEFACE))
@@ -384,6 +453,13 @@
 			if(HAS_TRAIT(src, TRAIT_DECEIVING_MEEKNESS))
 				guarded = TRUE
 
+	if(HAS_TRAIT(src, TRAIT_DEADITE)) //Zombies always show up as deadites to others even behind masks
+		. += span_userdanger("DEADITE!") //Below this is an OOC hint, it AIN'T METAGAMING, you can TELL very clearly what this abomination is.
+		. += span_warning("Uneasy steps, the sound of profane flesh and bone knitting itself and a stench of rot. A walking corpse!")
+
+	if(HAS_TRAIT(user, TRAIT_DEADITE) && !HAS_TRAIT(src, TRAIT_ZOMBIE_IMMUNE) && src.stat == CONSCIOUS) //Zombies get some messed up examines on non-zombie immune people that aren't KO'd.
+		. += span_narsie(pick("KILL IT. KILL IT", "FLESH. HUNGER.", "KILL. CONSUME.", "CONSUME.", "KILL THE RASPING THING.", "HUNGER.", "EAT IT.", "MUST HAVE FLESH."))
+
 	if(user != src)
 		var/datum/mind/Umind = user.mind
 		if(Umind && mind)
@@ -394,6 +470,10 @@
 						. += shit
 		if(user.mind?.has_antag_datum(/datum/antagonist/vampire) || user.mind?.has_antag_datum(/datum/antagonist/vampire))
 			. += span_userdanger("<a href='?src=[REF(src)];task=bloodpoolinfo;'>Vitae: [(mind && !clan) ? (bloodpool * CLIENT_VITAE_MULTIPLIER) : bloodpool]; Blood: [blood_volume]</a>")
+
+
+	if(HAS_TRAIT(src, TRAIT_NPC_EXAMINE) && !mind && src.stat == CONSCIOUS) //NPCs always show up if they're mindless.
+		. += span_warning("[src]'s hollow expression is filled with mindless anger!")
 
 	if(wear_shirt && !(SLOT_SHIRT in obscured))
 		var/str = "[m3] [wear_shirt.generate_tooltip(wear_shirt.get_examine_string(user))]. "
@@ -450,7 +530,7 @@
 		//suit/armor storage
 		if(s_store && !(SLOT_S_STORE in obscured))
 			if(is_normal || is_smart)
-				. += "[m1] carrying [s_store.get_examine_string(user)] on [m2] [wear_armor.name]."
+				. += "[m1] carrying [get_item_examine_label(s_store, user)] on [m2] [wear_armor.name]."
 
 	//back
 //	if(back)
@@ -472,20 +552,20 @@
 
 	//right back
 	if(backr && !(SLOT_BACK_R in obscured))
-		var/str = "[m3] [backr.get_examine_string(user)] on [m2] back. "
+		var/str = "[m3] [get_item_examine_label(backr, user)] on [m2] back. "
 		str += backr.integrity_check(is_smart, guarded)
 		. += str
 
 	//left back
 	if(backl && !(SLOT_BACK_L in obscured))
-		var/str = "[m3] [backl.get_examine_string(user)] on [m2] back. "
+		var/str = "[m3] [get_item_examine_label(backl, user)] on [m2] back. "
 		str += backl.integrity_check(is_smart, guarded)
 		. += str
 
 	//Hands
 	for(var/obj/item/I in held_items)
 		if(!(I.item_flags & ABSTRACT))
-			var/str = "[m1] holding [I.get_examine_string(user)] in [m2] [get_held_index_name(get_held_index_of_item(I))]. "
+			var/str = "[m1] holding [get_item_examine_label(I, user)] in [m2] [get_held_index_name(get_held_index_of_item(I))]. "
 			str += I.integrity_check(is_smart, guarded)
 			. += str
 
@@ -507,19 +587,19 @@
 
 	//belt
 	if(belt && !(SLOT_BELT in obscured))
-		var/str = "[m3] [belt.get_examine_string(user)] about [m2] waist. "
+		var/str = "[m3] [get_item_examine_label(belt, user)] about [m2] waist. "
 		str += belt.integrity_check(is_smart, guarded)
 		. += str
 
 	//right belt
 	if(beltr && !(SLOT_BELT_R in obscured))
-		var/str = "[m3] [beltr.get_examine_string(user)] on [m2] belt. "
+		var/str = "[m3] [get_item_examine_label(beltr, user)] on [m2] belt. "
 		str += beltr.integrity_check(is_smart, guarded)
 		. += str
 
 	//left belt
 	if(beltl && !(SLOT_BELT_L in obscured))
-		var/str = "[m3] [beltl.get_examine_string(user)] on [m2] belt. "
+		var/str = "[m3] [get_item_examine_label(beltl, user)] on [m2] belt. "
 		str += beltl.integrity_check(is_smart)
 		. += str
 
@@ -546,7 +626,7 @@
 			var/obj/item/clothing/CM = mouth
 			str = "[m3] [CM.generate_tooltip(CM.get_examine_string(user))] in [m2] mouth. "
 		else
-			"[m3] [mouth.get_examine_string(user)] in [m2] mouth. "
+			"[m3] [get_item_examine_label(mouth, user)] in [m2] mouth. "
 		str += mouth.integrity_check(is_smart, guarded)
 		if(is_stupid)
 			str = "[m3] some kinda thing on [m2] mouth!"
@@ -563,13 +643,13 @@
 	//eyes
 	if(!(SLOT_GLASSES in obscured))
 		if(glasses)
-			. += "[m3] [glasses.get_examine_string(user)] covering [m2] eyes."
+			. += "[m3] [get_item_examine_label(glasses, user)] covering [m2] eyes."
 		else if(eye_color == BLOODCULT_EYE)
 			. += span_warning("<B>[m2] eyes are glowing an unnatural red!</B>")
 
 	//ears
 	if(ears && !(SLOT_HEAD in obscured))
-		. += "[m3] [ears.get_examine_string(user)] on [m2] ears."
+		. += "[m3] [get_item_examine_label(ears, user)] on [m2] ears."
 
 	//ID
 	if(wear_ring && !(SLOT_RING in obscured))
@@ -773,7 +853,7 @@
 		msg += "[m1] soaked."
 
 	//Status effects
-	var/list/status_examines = status_effect_examines()
+	var/list/status_examines = status_effect_examines( , user) //Caustic Edit - Sending the viewer over to the status examines!
 	if(length(status_examines))
 		msg += status_examines
 
@@ -782,6 +862,18 @@
 		for(var/i in stun_absorption)
 			if(stun_absorption[i]["end_time"] > world.time && stun_absorption[i]["examine_message"])
 				msg += "[m1][stun_absorption[i]["examine_message"]]"
+
+	//Temporary wards and/or status effects go here, just for some more clarity.
+	if(src.skin_armor && istype(src.skin_armor, /obj/item/clothing/suit/roguetown/armor/manual/arcyne_ward/bestowed))
+		var/obj/item/clothing/suit/roguetown/armor/manual/arcyne_ward/bestowed/W = src.skin_armor
+		var/time_remaining = max(0, W.expires_at - world.time)
+		var/total_seconds = round(time_remaining / 10)
+		var/minutes = floor(total_seconds / 60)
+		var/seconds = total_seconds % 60
+		if(minutes > 0)
+			msg += "<font color='#ffbd09'>A temporary ward surrounds them. It will last for [minutes] minute[minutes == 1 ? "" : "s"], [seconds] second[seconds == 1 ? "" : "s"].</font>"
+		else
+			msg += "<font color='#ffbd09'>A temporary ward surrounds them. It will last for [seconds] second[seconds == 1 ? "" : "s"].</font>"
 
 	if(!appears_dead)
 		if(!skipface)
@@ -811,9 +903,13 @@
 				if(91.01 to INFINITY)
 					msg += "[m1] a shitfaced, slobbering wreck."
 
+			//Deadened
+			if(user.has_empath_for(src) && HAS_TRAIT(src, TRAIT_DETACHED))
+				msg += "[m1] completely hollow inside, radiating a deep, tragic silence."
+
 			//Stress
 			var/stress = get_stress_amount()
-			if(HAS_TRAIT(user, TRAIT_EMPATH))
+			if(user.has_empath_for(src))
 				switch(stress)
 					if(20 to INFINITY)
 						msg += "[m1] extremely stressed."
@@ -950,7 +1046,7 @@
 		var/obj/item/organ/heart/heart = getorganslot(ORGAN_SLOT_HEART)
 		if(heart?.inscryption && (heart.inscryption_key in maniac.key_nums))
 			. += span_danger("[t_He] know[p_s()] [heart.inscryption_key], I AM SURE OF IT!")
-	
+
 	//Caustic Edit - Attempt to add a quick AFK tag to examine text!
 	if(client && away_from_keyboard && manual_afk)
 		. += span_warning("\[Away From Keyboard for [round((client.inactivity/10)/60)] minutes.\]")
@@ -1013,7 +1109,7 @@
 			showassess = TRUE
 
 	if((!obscure_name || client?.prefs.masked_examine) && (flavortext || headshot_link || ooc_notes))
-		. += "<a href='?src=[REF(src)];task=view_headshot;'>Examine closer</a> [showassess ? " | <a href='?src=[REF(src)];task=assess;'>Assess</a>" : ""]"
+		. += "<a href='?src=[REF(src)];task=view_headshot;'>Examine closer</a> [showassess ? "| <a href='?src=[REF(src)];task=assess;'>Assess</a> " : ""]| <a href='?src=[REF(src)];task=open_directory;'>Character Directory</a>"
 
 	/// Rumours & Gossip
 	if(length(rumour) || length(noble_gossip))
@@ -1052,10 +1148,12 @@
 
 		. += app_str
 
+	/* //Caustic Edit - With the Vice being changed into a Trait and used for Roleplay Guidance, lets get rid of this bit.
 	// Characters with the hunted flaw will freak out if they can't see someone's face.
 	if(!appears_dead)
-		if(skipface && user.has_flaw(/datum/charflaw/hunted) && user != src)
-			user.add_stress(/datum/stressevent/hunted)
+		if(skipface && HAS_TRAIT(user, TRAIT_HUNTED) && user != src)
+			user.add_stress(/datum/stressevent/hunted) */
+	//Caustic Edit End
 
 	if(dna?.species?.type == /datum/species/gnoll)
 		if(istype(user, /mob/living/carbon/human)) //Submitting this one upstream because not our shitcode for once
@@ -1071,10 +1169,21 @@
 	if(pose_text)
 		. += fieldset_block("Pose", pose_text, "pose_block")
 
+	//CC Edit - RP Guidance Text
+	switch(rp_guidance_preference)
+		if(0) //Discourages Conflict
+			. += span_green("This user prefers alternatives to Mechanical Conflict.")
+		if(1) //Encourages Conflict
+			. += span_red("This user is willing to include Mechanical Conflict.")
+		if(2) //Same as normal. This can be changed in the future however if people wish. Encourages Conflict + Hunted.
+			. += span_red("This user is willing to include Mechanical Conflict.")
+		//if(3), this is the default, thus has nothing when it switches to it and shouldn't show anything on examine.
+	//CC Edit End
+
 
 	SEND_SIGNAL(src, COMSIG_PARENT_EXAMINE, user, .)
 
-/mob/living/proc/status_effect_examines(pronoun_replacement) //You can include this in any mob's examine() to show the examine texts of status effects!
+/mob/living/proc/status_effect_examines(pronoun_replacement, mob/user) //You can include this in any mob's examine() to show the examine texts of status effects!
 	var/list/dat = list()
 	if(!pronoun_replacement)
 		pronoun_replacement = p_they(TRUE)
@@ -1084,6 +1193,13 @@
 			var/new_text = replacetext(E.examine_text, "SUBJECTPRONOUN", pronoun_replacement)
 			new_text = replacetext(new_text, "[pronoun_replacement] is", "[pronoun_replacement] [p_are()]") //To make sure something become "They are" or "She is", not "They are" and "She are"
 			dat += "[new_text]\n" //dat.Join("\n") doesn't work here, for some reason
+		//Caustic Edit - Adding in the Job-specific examine texts for status effects!
+		if(E.job_specific_examine && E.specific_jobs && islist(E.specific_jobs))
+			if(user.job in E.specific_jobs)
+				var/new_text = replacetext(E.job_specific_examine, "SUBJECTPRONOUN", pronoun_replacement)
+				new_text = replacetext(new_text, "[pronoun_replacement] is", "[pronoun_replacement] [p_are()]") //To make sure something become "They are" or "She is", not "They are" and "She are"
+				dat += "[new_text]\n" //dat.Join("\n") doesn't work here, for some reason
+		//Caustic Edit End
 	if(dat.len)
 		return dat.Join()
 
@@ -1151,10 +1267,15 @@
 	if(HAS_TRAIT(src, TRAIT_PURITAN) && HAS_TRAIT(examiner, TRAIT_INQUISITION))
 		inquisition_text = "My superior, sent by the Holy Otavan Inquisition to lead our sect."
 	if(HAS_TRAIT(src, TRAIT_INQUISITION) && HAS_TRAIT(examiner, TRAIT_PURITAN))
-		inquisition_text = "A subordinate to my authority, as willed by the Holy Otavan Inquisition."
+		inquisition_text = "A subordinate to my authority, within the Holy Otavan Inquisition."
 	if(HAS_TRAIT(src, TRAIT_PURITAN) && HAS_TRAIT(examiner, TRAIT_PURITAN))
 		inquisition_text = "Myself. I lead this sect of the Holy Otavan Inquisition."
-
+	if(HAS_TRAIT(src, TRAIT_MANORKEEPER) && HAS_TRAIT(examiner, TRAIT_INQUISITION))
+		inquisition_text = "Our honored priest, this estate's keeper, and my superior's confidant."
+	if(HAS_TRAIT(src, TRAIT_MANORKEEPER) && HAS_TRAIT(examiner, TRAIT_PURITAN))
+		inquisition_text = "Our honored priest, this estate's keeper, and my trusted confidant."
+	if(HAS_TRAIT(src, TRAIT_MANORKEEPER) && HAS_TRAIT(examiner, TRAIT_MANORKEEPER))
+		inquisition_text = "Myself. I am a honored priest, this estate's keeper, and the Inquisitor's confidant."
 	return inquisition_text
 
 // Used for Church tags
@@ -1182,12 +1303,6 @@
 				villain_text = span_notice("Free man!")
 			if(HAS_TRAIT(src,TRAIT_KNOWNCRIMINAL))
 				villain_text = span_userdanger("BANDIT!")
-		if(mind.special_role == "Deadite")
-			villain_text = span_userdanger("DEADITE!")
-		if(mind.special_role == "Vampire Lord")
-			var/datum/antagonist/vampire/VD = mind.has_antag_datum(/datum/antagonist/vampire)
-			if(!SEND_SIGNAL(VD.owner, COMSIG_DISGUISE_STATUS))
-				villain_text += span_userdanger("A MONSTER!")
 		if(mind.assigned_role == "Lunatic")
 			villain_text += span_userdanger("LUNATIC!")
 
@@ -1207,3 +1322,12 @@
 			return "[verbose ? "Conjured" : "(C. shaft)"]"
 		else
 			return null
+
+/mob/living/proc/get_item_examine_label(obj/item/I, mob/living/user)
+	var/examine_highlight_status = I.get_examine_highlight_status()
+	var/item_examine_string = I.get_examine_string(user)
+	if(examine_highlight_status)
+		var/severity = examine_highlight_status[1]
+		var/heresy_examine_tooltip = I.get_examine_highlight_description(examine_highlight_status) + "<br>" + I.get_examine_highlight_explanation(severity)
+		item_examine_string = SPAN_TOOLTIP_DANGEROUS_HTML(heresy_examine_tooltip, I.get_examine_highlight_labeled_string(severity, item_examine_string))
+	return item_examine_string

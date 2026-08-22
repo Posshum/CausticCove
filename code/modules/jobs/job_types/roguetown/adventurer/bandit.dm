@@ -6,7 +6,7 @@
 	total_positions = 0
 	spawn_positions = 0
 	antag_job = TRUE
-	allowed_races = RACES_ALL_KINDS
+	
 	tutorial = "Long ago you did a crime worthy of your bounty being hung on the wall outside of the local inn. You now live with your fellow freemen in the bog, and generally get up to no good."
 
 	outfit = null
@@ -16,7 +16,7 @@
 
 	display_order = JDO_BANDIT
 	announce_latejoin = FALSE
-	min_pq = 5 //CC Edit - 5 Min as opposed to 3
+	min_pq = 20 //CC Edit - 20 Min PQ as opposed to 3 PQ Default
 	max_pq = null
 	round_contrib_points = 5
 
@@ -51,7 +51,7 @@
 
 /datum/outfit/job/roguetown/bandit/pre_equip(mob/living/carbon/human/H)
 	. = ..()
-	H.verbs |= /mob/proc/haltyell_exhausting
+	add_verb(H, /mob/proc/haltyell_exhausting)
 
 /datum/outfit/job/roguetown/bandit/post_equip(mob/living/carbon/human/H)
 	..()

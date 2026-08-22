@@ -346,6 +346,7 @@
 	flags_inv = HIDEHAIR|HIDEEARS
 	icon = 'modular_deserttown/icons/clothing/easternclothes.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/easternclothes.dmi'
+	salvage_result = /obj/item/natural/cloth
 	icon_state = "turban"
 	item_state = "turban"
 
@@ -381,12 +382,13 @@
 	desc = "A long, luxurious cloth, wound around the head."
 	icon = 'modular_deserttown/icons/clothing/easternclothes.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/easternclothes.dmi'
+	salvage_result = /obj/item/natural/silk
 	icon_state = "purple_hood"
 	item_state = "purple_hood"
 
 /datum/crafting_recipe/roguetown/sewing/turban/fancy
 	name = "fancy turban"
-	result = list(/obj/item/clothing/head/roguetown/turban)
+	result = list(/obj/item/clothing/head/roguetown/turban/fancypurple)
 	reqs = list(/obj/item/natural/silk = 2)
 	craftdiff = 4
 
@@ -397,12 +399,13 @@
 	flags_inv = HIDEEARS|HIDEFACE|HIDEHAIR|HIDEFACIALHAIR
 	icon = 'modular_deserttown/icons/clothing/easternclothes.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/easternclothes.dmi'
+	salvage_result = /obj/item/natural/silk
 	icon_state = "blue_hood"
 	item_state = "blue_hood"
 
 /datum/crafting_recipe/roguetown/sewing/tagelmust
 	name = "tagelmust"
-	result = list(/obj/item/clothing/head/roguetown/turban)
+	result = list(/obj/item/clothing/head/roguetown/tagelmust)
 	reqs = list(/obj/item/natural/silk = 2)
 	craftdiff = 3
 //
@@ -461,6 +464,7 @@
 	color = null
 	icon = 'modular_deserttown/icons/clothing/pants.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/pants.dmi'
+	salvage_result = /obj/item/natural/cloth
 	icon_state = "sirwal"
 	item_state = "sirwal"
 
@@ -483,6 +487,7 @@
 	color = null
 	name = "fancy sirwal"
 	desc = "Long, baggy trousers from Zybantine dyed in expensive, exotic colours."
+	salvage_result = /obj/item/natural/silk
 
 /obj/item/clothing/under/roguetown/sirwal/fancy/red
 	color = CLOTHING_RED
@@ -505,8 +510,14 @@
 /datum/crafting_recipe/roguetown/sewing/sirwal
 	name = "sirwal"
 	result = list(/obj/item/clothing/under/roguetown/sirwal)
-	reqs = list(/obj/item/natural/cloth = 1)
+	reqs = list(/obj/item/natural/cloth = 2)
 	craftdiff = 1
+
+/datum/crafting_recipe/roguetown/sewing/fancysirwal
+	name = "fancy sirwal"
+	result = list(/obj/item/clothing/under/roguetown/sirwal/fancy)
+	reqs = list(/obj/item/natural/cloth = 1, /obj/item/natural/silk = 2)
+	craftdiff = 3
 
 /obj/item/clothing/under/roguetown/thong
 	name = "thong"
@@ -514,9 +525,12 @@
 	gender = PLURAL
 	icon = 'modular_deserttown/icons/clothing/pants.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/pants.dmi'
+	salvage_result = /obj/item/natural/cloth
+	salvage_amount = 1
 	icon_state = "thong"
 	item_state = "thong"
 	body_parts_covered = GROIN
+	flags_inv = HIDECROTCHFRONT //Caustic Edit - Change this from HIDECROTCH to HIDECROTCHFRONT to show ass still!
 
 /datum/crafting_recipe/roguetown/sewing/thong
 	name = "thong"
@@ -596,6 +610,8 @@
 	color = null
 	icon = 'modular_deserttown/icons/clothing/belts.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/belts.dmi'
+	salvage_result = /obj/item/natural/cloth
+	salvage_amount = 1
 	icon_state = "sashgrey"
 	item_state = "sashgrey"
 
@@ -630,8 +646,9 @@
 	name = "Zybantine noble sash"
 	icon = 'modular_deserttown/icons/clothing/belts.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/belts.dmi'
+	salvage_result = /obj/item/natural/silk
+	salvage_amount = 1
 	icon_state = "noblesash"
-	sellprice = 5
 
 /datum/crafting_recipe/roguetown/sewing/zybnoblesash
 	name = "sash (zybantine noble)"
@@ -644,93 +661,85 @@
 	icon = 'modular_deserttown/icons/clothing/belts.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/belts.dmi'
 	icon_state = "sultbelt"
-	sellprice = 30
+	sellprice = 60
 
 /obj/item/storage/belt/rogue/leather/jafar
 	name = "Zybantine magos Sash"
 	icon = 'modular_deserttown/icons/clothing/belts.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/belts.dmi'
 	icon_state = "jafar"
-	sellprice = 30
+	sellprice = 60
 
-/obj/item/storage/belt/rogue/leather/exoticsilkbelt/skirtgreen
-	name = "green exotic silk skirt"
-	desc = "A gold adorned belt with the softest of silk skirts barely concealing one's bits."
+/obj/item/storage/belt/rogue/leather/silkbelt/skirtgreen
+	name = "green giltsilk skirt"
 	icon = 'modular_deserttown/icons/clothing/belts.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/belts.dmi'
 	icon_state = "exoticsilkskirt2"
 	item_state = "exoticsilkskirt2"
 
-/datum/crafting_recipe/roguetown/sewing/skirtgreen
-	name = "exotic silk belt (green)"
-	result = list(/obj/item/storage/belt/rogue/leather/exoticsilkbelt/skirtgreen)
-	reqs = list(/obj/item/natural/silk = 2)
-	craftdiff = 4
+/datum/crafting_recipe/roguetown/sewing/silkbelt/green
+	name = "giltsilk belt (green)"
+	result = list(/obj/item/storage/belt/rogue/leather/silkbelt/skirtgreen)
 
-/obj/item/storage/belt/rogue/leather/exoticsilkbelt/skirtred
-	name = "red exotic silk skirt"
-	desc = "A gold adorned belt with the softest of silk skirts barely concealing one's bits."
+/obj/item/storage/belt/rogue/leather/silkbelt/skirtred
+	name = "red giltsilk skirt"
 	icon = 'modular_deserttown/icons/clothing/belts.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/belts.dmi'
 	icon_state = "exoticsilkskirt"
 	item_state = "exoticsilkskirt"
 
-/datum/crafting_recipe/roguetown/sewing/skirtred
-	name = "exotic silk belt (red)"
-	result = list(/obj/item/storage/belt/rogue/leather/exoticsilkbelt/skirtred)
-	reqs = list(/obj/item/natural/silk = 2)
-	craftdiff = 4
+/datum/crafting_recipe/roguetown/sewing/silkbelt/red
+	name = "giltsilk belt (red)"
+	result = list(/obj/item/storage/belt/rogue/leather/silkbelt/skirtred)
 
 ////////
 
-/obj/item/clothing/suit/roguetown/shirt/exoticsilkbra/green
+/obj/item/clothing/suit/roguetown/shirt/silkbra/green
+	name = "green giltsilk bra"
 	icon = 'modular_deserttown/icons/clothing/shirts.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/shirts.dmi'
 	icon_state = "exoticsilkbrag"
 	item_state = "exoticsilkbrag"
 
-/datum/crafting_recipe/roguetown/sewing/bragreen
-	name = "exotic silk bra(green)"
-	result = list(/obj/item/clothing/suit/roguetown/shirt/exoticsilkbra/green)
-	reqs = list(/obj/item/natural/silk = 2)
-	craftdiff = 4
+/datum/crafting_recipe/roguetown/sewing/silkbra/green
+	name = "giltsilk bra(green)"
+	result = list(/obj/item/clothing/suit/roguetown/shirt/silkbra/green)
 
-/obj/item/clothing/suit/roguetown/shirt/exoticsilkbra/red
+/obj/item/clothing/suit/roguetown/shirt/silkbra/red
+	name = "red giltsilk bra"
 	desc = "Fanciful gold laced silks barely able to conceal what little it covers. Long, flowing sleeves droop from the upper arms to a ring on each hand, fluttering in the wind and with every movement."
 	icon = 'modular_deserttown/icons/clothing/shirts.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/shirts.dmi'
 	icon_state = "exoticsilkbrar"
 	item_state = "exoticsilkbrar"
 
-/datum/crafting_recipe/roguetown/sewing/brared
-	name = "exotic silk bra (red)"
-	result = list(/obj/item/clothing/suit/roguetown/shirt/exoticsilkbra/red)
-	reqs = list(/obj/item/natural/silk = 2)
-	craftdiff = 4
+/datum/crafting_recipe/roguetown/sewing/silkbra/red
+	name = "giltsilk bra (red)"
+	result = list(/obj/item/clothing/suit/roguetown/shirt/silkbra/red)
 
-/obj/item/clothing/mask/rogue/exoticsilkmask/green
+/obj/item/clothing/mask/rogue/silkmask/green
+	name = "green giltsilk mask"
 	icon = 'modular_deserttown/icons/clothing/masks.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/masks.dmi'
 	icon_state = "exoticsilkmaskg"
 	item_state = "exoticsilkmaskg"
 
-/datum/crafting_recipe/roguetown/sewing/maskgreen
-	name = "exotic silk mask (green)"
-	result = list(/obj/item/clothing/mask/rogue/exoticsilkmask/green)
+/datum/crafting_recipe/roguetown/sewing/silkmaskgreen
+	name = "giltsilk mask (green)"
+	result = list(/obj/item/clothing/mask/rogue/silkmask/green)
 	reqs = list(/obj/item/natural/silk = 2)
 	craftdiff = 4
 
-/obj/item/clothing/mask/rogue/exoticsilkmask/red
+/obj/item/clothing/mask/rogue/silkmask/red
+	name = "red giltsilk mask"
 	icon = 'modular_deserttown/icons/clothing/masks.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/masks.dmi'
 	icon_state = "exoticsilkmaskr"
 	item_state = "exoticsilkmaskr"
 
-/datum/crafting_recipe/roguetown/sewing/maskred
-	name = "exotic silk mask (red)"
-	result = list(/obj/item/clothing/mask/rogue/exoticsilkmask/red)
-	reqs = list(/obj/item/natural/silk = 2)
-	craftdiff = 4
+/datum/crafting_recipe/roguetown/sewing/silkmask/red
+	name = "giltsilk mask (red)"
+	result = list(/obj/item/clothing/mask/rogue/silkmask/red)
 
 //Because some people can't live without BiS
 /obj/item/clothing/shoes/roguetown/shalal/reinforced

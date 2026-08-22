@@ -9,7 +9,7 @@
 		return
 
 	var/area/A = get_area(H)
-	if(!istype(A, /area/rogue/outdoors/bog) && !istype(A, /area/rogue/indoors/shelter/bog) && !istype(A, /area/rogue/indoors/shelter/bog_hag))
+	if(!istype(A, /area/rogue/outdoors/bog) && !istype(A, /area/rogue/indoors/shelter/bog) && !istype(A, /area/rogue/indoors/shelter/bog_hag) && !istype(A, /area/underwater) && !istype(A, /area/rogue/outdoors/desertdeep) && !istype(A, /area/rogue/indoors/shelter/desertdeep) && !istype(A, /area/rogue/under/desertbog)) //Caustic Edit - Add Underwater and Desert Town Specifics to the permitted areas.
 		to_chat(H, span_userdanger("The purity of the air shatters my form!"))
 
 		// Grab the human inside before we untransform
@@ -24,6 +24,8 @@
 
 /mob/living/carbon/human/species/wildshape/hag
 	name = "True Hag"
+	gender = NEUTER
+	pronouns = IT_ITS
 	race = /datum/species/hag_true_form
 	footstep_type = FOOTSTEP_MOB_CLAW
 	ambushable = FALSE
@@ -31,6 +33,11 @@
 	wildshape_icon = 'icons/mob/unique_shapeshifts/hag_shape.dmi'
 	wildshape_icon_state = "hag"
 	pixel_x = -16
+
+/mob/living/carbon/human/species/wildshape/hag/after_creation()
+	..()
+	real_name = "Mirebeast"
+	name = real_name
 
 /obj/item/clothing/suit/roguetown/armor/skin_armor/hag_skin
 	slot_flags = null
@@ -43,27 +50,35 @@
 	blocksound = SOFTHIT
 	blade_dulling = DULLING_BASHCHOP
 	sewrepair = FALSE
-	max_integrity = 350
+	max_integrity = 400 //Caustic Edit - 350 to 400 Integrity
 	item_flags = DROPDEL
 
 /mob/living/carbon/human/species/wildshape/hag/gain_inherent_skills()
 	. = ..()
 	if(mind)
-		STASTR = 12
-		STACON = 15
-		STAWIL = 15
+		STASTR = 13 //Caustic Edit - 12 to 13 Strength Increase
+		STACON = 16 //Caustic Edit - 15 to 16 Con Increase
+		STAWIL = 16 //Caustic Edit - 15 to 16 WIL Increase
 		STAPER = 12
-		STASPD = 8
+		STASPD = 10 //Caustic Edit - 8 to 10 SPD Increase
 		adjust_skillrank(/datum/skill/combat/wrestling, SKILL_LEVEL_JOURNEYMAN, TRUE)
 		adjust_skillrank(/datum/skill/combat/unarmed, SKILL_LEVEL_EXPERT, TRUE)
 		adjust_skillrank(/datum/skill/misc/swimming, SKILL_LEVEL_JOURNEYMAN, TRUE)
 		adjust_skillrank(/datum/skill/misc/athletics, SKILL_LEVEL_MASTER, TRUE)
 		adjust_skillrank(/datum/skill/misc/sneaking, SKILL_LEVEL_EXPERT, TRUE)
+		adjust_skillrank(/datum/skill/misc/climbing, SKILL_LEVEL_EXPERT, TRUE)
 
 		AddSpell(new /obj/effect/proc_holder/spell/self/hagclaws) 
 		apply_status_effect(/datum/status_effect/debuff/hag_bog_tether/wildshape)
 	//faction |= list("hag", "spiders")
+	//Caustic Edit - Copied over a fix from OV that sets their name and everything proper here.
+	real_name = "True Hag"
+	desc = "Godless, ancient, pure evyl. Run."
+	gender = stored_mob.gender
+	pronouns = stored_mob.pronouns
+	//Caustic Edit End
 
+//Cautic Edit Darkvision and No Mood was missing, Battle Ready Added since Wildshaping is eating 800 Energy from Hag
 /datum/species/hag_true_form
 	name = "True Hag"
 	id = "hag_true_form"
@@ -71,13 +86,15 @@
 	inherent_traits = list(
 		TRAIT_DODGEEXPERT,
 		TRAIT_STEELHEARTED,
+		TRAIT_BREADY,
 		TRAIT_ORGAN_EATER,
 		TRAIT_HARDDISMEMBER,
 		TRAIT_PIERCEIMMUNE,
 		TRAIT_LONGSTRIDER,
-		TRAIT_KNEESTINGER_IMMUNITY,
-		TRAIT_LEECHIMMUNE,
-		TRAIT_AZURENATIVE
+		TRAIT_BOGWALKER,
+		TRAIT_BREADY,
+		TRAIT_DARKVISION,
+		TRAIT_NOMOOD,
 	)
 	no_equip = list(SLOT_SHIRT, SLOT_HEAD, SLOT_WEAR_MASK, SLOT_ARMOR, SLOT_GLOVES, SLOT_SHOES, SLOT_PANTS, SLOT_CLOAK, SLOT_BELT, SLOT_BACK_R, SLOT_BACK_L, SLOT_S_STORE)
 	nojumpsuit = 1
@@ -105,6 +122,7 @@
 	possible_shapes = list(
 		/mob/living/carbon/human/species/wildshape/hag
 	)
+	disallowed_equipment_type = list(/obj/item/rogueweapon)
 
 /obj/effect/proc_holder/spell/self/wildshape/hag_true_form/cast(list/targets, mob/living/carbon/human/user = usr)
 	if(!COOLDOWN_FINISHED(user, hag_transform_lockout))
@@ -113,7 +131,7 @@
 		return FALSE
 
 	var/area/A = get_area(user)
-	if(!istype(A, /area/rogue/outdoors/bog) && !istype(A, /area/rogue/indoors/shelter/bog) && !istype(A, /area/rogue/indoors/shelter/bog_hag))
+	if(!istype(A, /area/rogue/outdoors/bog) && !istype(A, /area/rogue/indoors/shelter/bog) && !istype(A, /area/rogue/indoors/shelter/bog_hag) && !istype(A, /area/underwater) && !istype(A, /area/rogue/outdoors/desertdeep) && !istype(A, /area/rogue/indoors/shelter/desertdeep) && !istype(A, /area/rogue/under/desertbog)) //Caustic Edit - Add Underwater and Desert Town Specifics to the permitted areas.
 		to_chat(user, span_warning("The air here is too pure. I can only reveal my true self within the Terrorbog or my Hut!"))
 		revert_cast(user)
 		return FALSE
@@ -145,9 +163,9 @@
 	icon = 'icons/roguetown/weapons/misc32.dmi'
 	max_blade_int = 600
 	max_integrity = 600
-	force = 27
+	force = 30 //Caustic Edit - 27 to 30 Force the Hag Hurts Hard Now
 	block_chance = 0
-	wdefense = 6
+	wdefense = 7 //Caustic Edit - 6 to 7 wdefense
 	blade_dulling = DULLING_SHAFT_WOOD
 	associated_skill = /datum/skill/combat/unarmed
 	wlength = WLENGTH_NORMAL

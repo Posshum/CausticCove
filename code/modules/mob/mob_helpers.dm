@@ -77,17 +77,21 @@
 	if(check_face_subzone(zone))
 		return BODY_ZONE_HEAD
 	return zone
-		
+
 /proc/check_bind_subzone(zone_def)
 	if(!zone_def)
 		return FALSE
 	if(check_face_subzone(zone_def))
 		return BIND_HEAD
 	switch(zone_def)
-		if(BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_PRECISE_R_HAND, BODY_ZONE_L_ARM, BODY_ZONE_R_ARM)
-			return BIND_HANDS
-		if(BODY_ZONE_PRECISE_L_FOOT, BODY_ZONE_PRECISE_R_FOOT, BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)
-			return BIND_FEET
+		if(BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_L_ARM)
+			return BIND_HAND_L
+		if(BODY_ZONE_PRECISE_R_HAND, BODY_ZONE_R_ARM)
+			return BIND_HAND_R
+		if(BODY_ZONE_PRECISE_L_FOOT, BODY_ZONE_L_LEG)
+			return BIND_FOOT_L
+		if(BODY_ZONE_PRECISE_R_FOOT, BODY_ZONE_R_LEG)
+			return BIND_FOOT_R
 		if(BODY_ZONE_PRECISE_GROIN, BODY_ZONE_PRECISE_STOMACH, BODY_ZONE_CHEST)
 			return BIND_TORSO
 		if(BODY_ZONE_PRECISE_NECK)
@@ -100,14 +104,18 @@
 	switch(bindzone)
 		if(BIND_HEAD)
 			return check_face_subzone(attzone, check_head = FALSE)
-		if(BIND_HANDS)
-			switch(attzone)
-				if(BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_PRECISE_R_HAND)
-					return TRUE
-		if(BIND_FEET)
-			switch(attzone)
-				if(BODY_ZONE_PRECISE_L_FOOT, BODY_ZONE_PRECISE_R_FOOT)
-					return TRUE
+		if(BIND_HAND_L)
+			if(attzone == BODY_ZONE_PRECISE_L_HAND)
+				return TRUE
+		if(BIND_HAND_R)
+			if(attzone == BODY_ZONE_PRECISE_R_HAND)
+				return TRUE
+		if(BIND_FOOT_L)
+			if(attzone == BODY_ZONE_PRECISE_L_FOOT)
+				return TRUE
+		if(BIND_FOOT_R)
+			if(attzone == BODY_ZONE_PRECISE_R_FOOT)
+				return TRUE
 		if(BIND_TORSO)
 			switch(attzone)
 				if(BODY_ZONE_PRECISE_STOMACH, BODY_ZONE_PRECISE_GROIN)
@@ -120,21 +128,10 @@
 /// Returns the targeting zone equivalent of a given bodypart. Kudos to you if you find a use for this.
 /proc/bodypart_to_zone(part)
 	var/obj/item/bodypart/B = part
-	switch(B::type)
-		if(/obj/item/bodypart/chest)
-			return BODY_ZONE_CHEST
-		if(/obj/item/bodypart/head)
-			return BODY_ZONE_HEAD
-		if(/obj/item/bodypart/l_arm)
-			return BODY_ZONE_L_ARM
-		if(/obj/item/bodypart/r_arm)
-			return BODY_ZONE_R_ARM
-		if(/obj/item/bodypart/l_leg)
-			return BODY_ZONE_L_LEG
-		if(/obj/item/bodypart/r_leg)
-			return BODY_ZONE_R_LEG
-		else
-			return BODY_ZONE_CHEST
+	switch(B?.body_zone)
+		if(BODY_ZONE_HEAD, BODY_ZONE_L_ARM, BODY_ZONE_R_ARM, BODY_ZONE_L_LEG, BODY_ZONE_R_LEG, BODY_ZONE_TAUR)
+			return B.body_zone
+	return BODY_ZONE_CHEST
 
 /**
   * Return the zone or randomly, another valid zone
@@ -884,6 +881,10 @@
 		return B.eye_blind
 	return FALSE
 
+///TRUE if the mob's sight is obscured enough to sense footsteps - fully blind (see [is_blind]) or has the clouding Blindness vice.
+/proc/vision_obscured(mob/M)
+	return is_blind(M) || M.has_flaw(/datum/charflaw/noeyeall)
+
 ///Is the mob hallucinating?
 /mob/proc/hallucinating()
 	return FALSE
@@ -934,6 +935,8 @@
 	if(ignore_mapload && SSatoms.initialized != INITIALIZATION_INNEW_REGULAR)	//don't notify for objects created during a map load
 		return
 	for(var/mob/dead/observer/O in GLOB.player_list)
+		if(isscryeye(O))
+			continue
 		if(!notify_suiciders && (O in GLOB.suicided_mob_list))
 			continue
 		if (ignore_key && (O.ckey in GLOB.poll_ignore[ignore_key]))

@@ -9,7 +9,7 @@
 	spawn_positions = 5
 
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = ACCEPTED_RACES
+	forbidden_races = list() //Caustic Edit - Just a global tweak to remove 'races_despised' from this check everywhere
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED)
 
 
@@ -81,14 +81,14 @@
 		shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt
 		armor = /obj/item/clothing/suit/roguetown/shirt/dress/gen/sexy/random
 		pants = /obj/item/clothing/under/roguetown/skirt/brown
-		belt =	/obj/item/storage/belt/rogue/leather/cloth/lady
+		belt =	/obj/item/storage/belt/rogue/leather/cloth/upgraded/lady
 	else
 		belt = /obj/item/storage/belt/rogue/leather
 		pants = /obj/item/clothing/under/roguetown/heavy_leather_pants/shorts
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/massage)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_LOWER_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_LOWER_CLASS, H)
 
 /datum/advclass/bathworker/harlot
 	name = "Harlot"
@@ -145,14 +145,14 @@
 		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/gen/sexy/random
 		armor = /obj/item/clothing/suit/roguetown/armor/corset
 		pants = /obj/item/clothing/under/roguetown/skirt/brown
-		belt =	/obj/item/storage/belt/rogue/leather/cloth/lady
+		belt =	/obj/item/storage/belt/rogue/leather/cloth/upgraded/lady
 	else
 		belt = /obj/item/storage/belt/rogue/leather
 		pants = /obj/item/clothing/under/roguetown/heavy_leather_pants/shorts
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/massage)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_LOWER_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_LOWER_CLASS, H)
 
 /datum/advclass/bathworker/courtesan
 	name = "Courtesan"
@@ -212,7 +212,7 @@
 	if(should_wear_femme_clothes(H))
 		armor = /obj/item/clothing/suit/roguetown/shirt/dress/silkydress/random
 		shirt = /obj/item/clothing/suit/roguetown/armor/corset
-		belt = /obj/item/storage/belt/rogue/leather/cloth/lady
+		belt = /obj/item/storage/belt/rogue/leather/cloth/upgraded/lady
 		shoes = /obj/item/clothing/shoes/roguetown/anklets
 	else
 		shirt = /obj/item/clothing/suit/roguetown/shirt/tunic/random
@@ -243,7 +243,7 @@
 			if("Flute")
 				backr = /obj/item/rogue/instrument/flute
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_UPPER_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_UPPER_CLASS, H)
 
 /obj/item/soap/bath
 	name = "herbal soap"

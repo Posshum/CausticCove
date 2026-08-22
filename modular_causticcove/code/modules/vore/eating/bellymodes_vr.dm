@@ -188,17 +188,17 @@
 				L.Stun(5)
 
 			//Thickbelly flag
-			if((mode_flags & DM_FLAG_THICKBELLY) && !L.muffled) //Caustic - This likely should function like a gag?
+			if((mode_flags & DM_FLAG_THICKBELLY) && !L.muffled) //Caustic - Now forces whispers on say!
 				L.muffled = TRUE
 			//Fix muffled sometimes being sticky.
 			else if(!(mode_flags & DM_FLAG_THICKBELLY) && L.muffled)
 				L.muffled = FALSE
 
 			//Force psay
-			if((mode_flags & DM_FLAG_FORCEPSAY) && !L.forced_psay && L.absorbed) //Caustic - This might be 'private say' in any case of PSAY, so subtle 'says'
+			if((mode_flags & DM_FLAG_FORCEPSAY) && !L.forced_psay && L.absorbed) //Caustic - Now has it's own private "thinking" chat between all prey and the pred who absorbed them!
 				L.forced_psay = TRUE
 			//Fix forcepsay sometimes being sticky.
-			else if(!(mode_flags & DM_FLAG_FORCEPSAY) && L.forced_psay)
+			else if((!(mode_flags & DM_FLAG_FORCEPSAY) || !L.absorbed) && L.forced_psay)
 				L.forced_psay = FALSE
 
 			// Wet flag
@@ -210,13 +210,13 @@
 				var/mob/living/carbon/human/H = L
 
 				//Numbing flag
-				if(mode_flags & DM_FLAG_NUMBING) //Caustic - I don't think we have this in actually. Might need to make a reagent with an effect?
-					if(H.reagents.get_reagent_amount(REAGENT_ID_NUMBENZYME) < 2)
-						H.reagents.add_reagent(REAGENT_ID_NUMBENZYME,4)
+				if(mode_flags & DM_FLAG_NUMBING) //Caustic - Now actually using our own numbing agent of sorts.
+					if(H.reagents.get_reagent_amount(REAGENT_ID_NUMBING) < 2)
+						H.reagents.add_reagent(REAGENT_ID_NUMBING, 4)
 
 				//Worn items flag
 				if(mode_flags & DM_FLAG_AFFECTWORN && H.contaminate_pref)
-					
+
 					for(var/Iuncast in H.get_equipped_items(include_pockets = TRUE))
 						var/obj/item/I = Iuncast
 						if(I)
@@ -294,8 +294,7 @@
 			if(I.smeltresult && I.smeltresult != /obj/item/rogueore/coal/charcoal && !istype(I, /obj/item/ingot) && I.smeltresult != /obj/item/rogueore/coal)
 				var/obj/item/newingot = new I.smeltresult(src)
 				if(istype(newingot, /obj/item/ingot))
-					var/obj/item/ingot/newdefinietlyingot = newingot
-					newdefinietlyingot.quality = SMELTERY_LEVEL_SPOIL
+					newingot.item_quality = ITEM_QUALITY_CRUDE
 				qdel(I)
 	return did_an_item
 
@@ -329,6 +328,11 @@
 	var/personal_nutrition_modifier = M.get_digestion_nutrition_modifier()
 	var/pred_digestion_efficiency = owner.get_digestion_efficiency_modifier()
 
+	if((mode_flags & DM_FLAG_LEAVEREMAINS) && M.digest_leave_remains)
+		new /obj/item/natural/bone(src)
+		new /obj/item/natural/bone(src)
+		new /obj/item/natural/bone(src)
+
 	digestion_death(M)
 	if(show_liquids && reagent_mode_flags & DM_FLAG_REAGENTSDIGEST && reagents.total_volume < reagents.maximum_volume) // digestion producing reagents
 		owner_adjust_nutrition((nutrition_percent / 100) * compensation * 3 * personal_nutrition_modifier)
@@ -354,7 +358,7 @@
 	if(L.nutrition >= 100)
 		var/oldnutrition = (L.nutrition * 0.05)
 		L.nutrition = (L.nutrition * 0.95)
-		if(show_liquids && reagent_mode_flags & DM_FLAG_REAGENTSDRAIN && reagents.total_volume < reagents.maximum_volume)   // draining reagent production //Added to this proc now since it's used for draining
+		if(reagent_mode_flags & DM_FLAG_REAGENTSDRAIN && reagents.total_volume < reagents.maximum_volume)   // draining reagent production //Added to this proc now since it's used for draining //Check previously had show_liquids && at the start
 			owner_adjust_nutrition(oldnutrition * 0.75) //keeping the price static, due to how much nutrition can flunctuate
 			GenerateBellyReagents_absorbing() //Dont need unique proc so far
 		else

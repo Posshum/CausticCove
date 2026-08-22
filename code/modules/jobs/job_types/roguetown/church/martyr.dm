@@ -320,6 +320,7 @@
 				current_holder.STAINT += stat_bonus_martyr
 				current_holder.STAPER += stat_bonus_martyr
 				current_holder.STALUC += stat_bonus_martyr
+				current_holder.update_sight() //Caustic Edit - To go with the Perception-Darksight, just refresh it in case they have it.
 				H.energy_add(9999)
 
 //This is called regardless of the activated state (safe or not)
@@ -370,15 +371,15 @@
 	var/obj/item/I = parent
 	if(!tonormal)
 		if(current_state == STATE_MARTYR || current_state == STATE_MARTYRULT)
-			I.toggle_state = "[initial(I.icon_state)]_ulton"
+			I.override_state = "[initial(I.icon_state)]_ulton"
 		else
-			I.toggle_state = "[initial(I.icon_state)]_on"
-		I.item_state = "[I.toggle_state][I.wielded ? "1" : ""]"
-		I.icon_state = "[I.toggle_state][I.wielded ? "1" : ""]"
+			I.override_state = "[initial(I.icon_state)]_on"
+		I.item_state = "[I.override_state][I.wielded ? "1" : ""]"
+		I.icon_state = "[I.override_state][I.wielded ? "1" : ""]"
 	else
 		I.icon_state = initial(I.icon_state)
 		I.item_state = initial(I.item_state)
-		I.toggle_state = null
+		I.override_state = null
 
 	current_holder.regenerate_icons()
 
@@ -433,7 +434,7 @@
 
 				I.max_blade_int = 9999
 				I.blade_int = I.max_blade_int
-				
+
 				current_holder.adjust_skillrank(/datum/skill/misc/athletics, 6, FALSE)
 
 				current_holder.STASTR = 20
@@ -443,6 +444,7 @@
 				current_holder.STAINT = 20
 				current_holder.STAPER = 20
 				current_holder.STALUC = 20
+				current_holder.update_sight() //Caustic Edit - To go with the Perception-Darksight, just refresh it in case they have it.
 
 				current_holder.energy = current_holder.max_energy
 				current_holder.stamina = 0
@@ -493,8 +495,8 @@
 	faction = "Station"
 	tutorial = "Martyrs are hand-picked among the most devout of the Holy See. They are given one of the See's cherished relics to protect the Church, and to inspire hope and lead by example of grace, kindness and vicious intolerance to any who do not share the belief of the Ten. They have sworn an Oath in the sight of the gods, and will fulfill it to the bitter end."
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = RACES_ALL_KINDS //Caustic edit from RACES_NO_CONSTRUCT
-	allowed_patrons = list(/datum/patron/divine/undivided)
+	forbidden_races = list() //Caustic edit from list(RACES_CONSTRUCT RACES_DESPISED)
+	allowed_patrons = ALL_DIVINE_PATRONS //Caustic Edit - Lets set this back to all Divine Patrons.
 	outfit = /datum/outfit/job/roguetown/martyr
 	min_pq = 10 //Cus it's a Martyr of the Ten. Get it.
 	max_pq = null
@@ -511,7 +513,7 @@
 	//No undeath-adjacent virtues for a role that can sacrifice itself. The Ten like their sacrifices 'pure'. (I actually didn't want to code returning those virtue traits post-sword use)
 	//They get those traits during sword activation, anyway.
 	//Dual wielder is there to stand-in for ambidextrous in case they activate their sword in their off-hand.
-	virtue_restrictions = list(/datum/virtue/utility/noble, /datum/virtue/combat/rotcured, /datum/virtue/utility/hollow, /datum/virtue/combat/dualwielder, /datum/virtue/heretic/zchurch_keyholder)
+	virtue_restrictions = list(/datum/virtue/utility/noble, /datum/virtue/combat/second_chance, /datum/virtue/utility/hollow, /datum/virtue/combat/dualwielder, /datum/virtue/heretic/zchurch_keyholder)
 
 	advclass_cat_rolls = list(CTAG_MARTYR = 2)
 	job_subclasses = list(
@@ -579,7 +581,7 @@
 		/obj/item/rogueweapon/scabbard/sheath = 1,
 		/obj/item/mini_flagpole/church,
 		)
-	H.dna.species.soundpack_m = new /datum/voicepack/male/knight()
+	H.dna.species.soundpack_m = GLOB.voice_packs[/datum/voicepack/male/knight]
 	H.AddComponent(/datum/component/wise_tree_alert)
 	if(H.mind)
 		var/helmets = list("Holy Silver Bascinet","Holy Silver Armet")
@@ -591,7 +593,7 @@
 			if("Holy Silver Armet")
 				head = /obj/item/clothing/head/roguetown/helmet/heavy/holysee/alt
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_UPPER_CLASS, H, "Church Funding.")
+		SStreasury.grant_savings(ECONOMIC_UPPER_CLASS, H)
 
 
 /obj/item/rogueweapon/sword/long/martyr
@@ -622,7 +624,7 @@
 	dropshrink = 1
 	smeltresult = null
 	is_silver = TRUE
-	toggle_state = null
+	override_state = null
 	is_important = TRUE
 	special = /datum/special_intent/martyr_blazing_sweep_sword
 
@@ -720,7 +722,7 @@
 	associated_skill = /datum/skill/combat/axes
 	smeltresult = null
 	is_silver = TRUE
-	toggle_state = null
+	override_state = null
 	is_important = TRUE
 	special = /datum/special_intent/martyr_blazing_sweep
 
@@ -813,7 +815,7 @@
 	associated_skill = /datum/skill/combat/maces
 	smeltresult = null
 	is_silver = TRUE
-	toggle_state = null
+	override_state = null
 	is_important = TRUE
 	special = /datum/special_intent/martyr_volcano_slam
 
@@ -903,7 +905,7 @@
 	associated_skill = /datum/skill/combat/polearms
 	smeltresult = null
 	is_silver = TRUE
-	toggle_state = null
+	override_state = null
 	is_important = TRUE
 	throwforce = 40
 	special = /datum/special_intent/martyr_blazing_trident
@@ -1246,89 +1248,3 @@
 #undef STATE_SAFE
 #undef STATE_MARTYR
 #undef STATE_MARTYRULT
-
-
-///////////////////////////////////
-// Versions for UNDIVIDED ritual //
-///////////////////////////////////
-
-///////////
-// PLATE //
-///////////
-
-/obj/item/clothing/suit/roguetown/armor/plate/full/holysee/ritual
-	name = "crusader silver plate"
-
-/obj/item/clothing/suit/roguetown/armor/plate/full/holysee/ritual/mob_can_equip(mob/living/M, mob/living/equipper, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE)
-	return TRUE
-
-/obj/item/clothing/suit/roguetown/armor/plate/full/holysee/ritual/Initialize()
-	. = ..()
-	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
-
-/obj/item/clothing/suit/roguetown/armor/plate/full/holysee/ritual/dropped(mob/living/carbon/human/user)
-	. = ..()
-	if(QDELETED(src))
-		return
-	qdel(src)
-
-////////////
-// GLOVES //
-////////////
-
-/obj/item/clothing/gloves/roguetown/plate/holysee/ritual
-	name = "crusader silver plate gauntlets"
-
-/obj/item/clothing/gloves/roguetown/plate/holysee/ritual/mob_can_equip(mob/living/M, mob/living/equipper, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE)
-	return TRUE
-
-/obj/item/clothing/gloves/roguetown/plate/holysee/ritual/Initialize()
-	. = ..()
-	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
-
-/obj/item/clothing/gloves/roguetown/plate/holysee/ritual/dropped(mob/living/carbon/human/user)
-	. = ..()
-	if(QDELETED(src))
-		return
-	qdel(src)
-
-///////////
-// PANTS //
-///////////
-
-/obj/item/clothing/under/roguetown/platelegs/holysee/ritual
-	name = "crusader silver chausses"
-
-/obj/item/clothing/under/roguetown/platelegs/holysee/ritual/mob_can_equip(mob/living/M, mob/living/equipper, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE)
-	return TRUE
-
-/obj/item/clothing/under/roguetown/platelegs/holysee/ritual/Initialize()
-	. = ..()
-	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
-
-/obj/item/clothing/under/roguetown/platelegs/holysee/ritual/dropped(mob/living/carbon/human/user)
-	. = ..()
-	if(QDELETED(src))
-		return
-	qdel(src)
-
-///////////
-// BOOTS //
-///////////
-
-/obj/item/clothing/shoes/roguetown/boots/armor/holysee/ritual
-	name = "crusader silver plated boots"
-
-/obj/item/clothing/shoes/roguetown/boots/armor/holysee/ritual/mob_can_equip(mob/living/M, mob/living/equipper, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE)
-	return TRUE
-
-/obj/item/clothing/shoes/roguetown/boots/armor/holysee/ritual/Initialize()
-	. = ..()
-	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
-
-/obj/item/clothing/shoes/roguetown/boots/armor/holysee/ritual/dropped(mob/living/carbon/human/user)
-	. = ..()
-	if(QDELETED(src))
-		return
-	qdel(src)
-

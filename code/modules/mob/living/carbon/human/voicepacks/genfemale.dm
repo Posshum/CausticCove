@@ -18,6 +18,8 @@
 				used = pick('sound/vo/female/gen/deathgurgle (1).ogg','sound/vo/female/gen/deathgurgle (2).ogg','sound/vo/female/gen/deathgurgle (3).ogg')
 			if("agony")
 				used = list('sound/vo/female/gen/agony (1).ogg','sound/vo/female/gen/agony (2).ogg','sound/vo/female/gen/agony (3).ogg')
+			if("superagony") // to bypass painless override, use responsibly
+				used = list('sound/vo/female/gen/agony (1).ogg','sound/vo/female/gen/agony (2).ogg','sound/vo/female/gen/agony (3).ogg')
 			if("breathgasp")
 				used = 'sound/vo/female/gen/breathgasp.ogg'
 			if("burp")
@@ -174,4 +176,14 @@
 				used = list('sound/vo/LizardSqueal.ogg')
 			if("thump")
 				used = list('sound/vo/LizardThump.ogg')
+			// Caustic Edit start
+			if("foxscream")
+				used = list('modular_causticcove/sound/vo/vulp_scream1.ogg', 'modular_causticcove/sound/vo/vulp_scream2.ogg', 'modular_causticcove/sound/vo/vulp_scream3.ogg', 'modular_causticcove/sound/vo/vulp_scream4.ogg')
+			if("snarl")
+				used = list('modular_causticcove/sound/vo/dog_snarl1.ogg', 'modular_causticcove/sound/vo/dog_snarl2.ogg', 'modular_causticcove/sound/vo/dog_snarl3.ogg')
+			if("con_squeak")
+				used = list('modular_causticcove/sound/vo/construct_squeak.ogg')
+			if("weh")
+				used = 'sound/vo/weh.ogg'
+			// Caustic Edit end
 	return used

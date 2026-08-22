@@ -6,7 +6,7 @@
 	action_icon = 'icons/mob/actions/pestraspells.dmi'
 	overlay_state = "diagnose"
 	releasedrain = 10
-	range = 4 // just in case free wants to demolish me for changing that, but 4 range is essential for this skill's functionality
+	range = SPELL_RANGE_GROUND //Caustic Edit - Lets make this on parity with and using the Spell Defines? // just in case free wants to demolish me for changing that, but 4 range is essential for this skill's functionality
 	warnie = "sydwarning"
 	movement_interrupt = FALSE
 	sound = 'sound/magic/diagnose.ogg'
@@ -38,7 +38,7 @@
 		is_high_tier = TRUE
 	// skill happens as per normal
 	human_target.check_for_injuries(user)
-	//but from here on out, is where the magic happens... 
+	//but from here on out, is where the magic happens...
 	//anyway starting from something that diagnosis will now make -very clear- is when someone is rotting to death and needs immediate care, behold:
 	if(human_target.has_status_effect(/datum/status_effect/zombie_infection))
 		if(is_high_tier)
@@ -46,6 +46,10 @@
 		else
 			to_chat(user, span_necrosis("Their humors rot unnaturally, as their body is quickly decaying."))
 		to_chat(user, span_infection("Their rot needs to be burned immediately!"))
+		to_chat(user, span_infection("==="))
+	if(HAS_TRAIT(human_target, TRAIT_DEADITE)) //IDK what you expected but hey, Pestra's looking out for you!
+		to_chat(user, span_necrosis("They are infected and have already turned into a DEADITE!"))
+		to_chat(user, span_infection("Their rot needs to be burned to prevent them from spreading their infection!"))
 		to_chat(user, span_infection("==="))
 	// suffocation levels are also 'free for all', since this is the highest cause of deaths in game right now, medics not knowing that sometimes you gotta get down and dirty with that non-con oxygen kiss.
 	//ofc, if you are expert or above, you get the exact number
@@ -117,7 +121,7 @@
 		if (human_target.reagents.has_reagent(/datum/reagent/infection/major))
 			to_chat(user, span_boldwarning("A severe infection taints their humors."))
 		else if (human_target.reagents.has_reagent(/datum/reagent/infection))
-			to_chat(user, span_warning("A natural taints their humors."))
+			to_chat(user, span_warning("A notable infection taints their humors."))
 		else if (human_target.reagents.has_reagent(/datum/reagent/infection/minor))
 			to_chat(user, span_warning("A minor infection taints their humors."))
 
@@ -132,7 +136,7 @@
 					to_chat(user, span_necrosis("I can see the Black Rot in its third stage, 'Boiling'."))
 				if(4)
 					to_chat(user, span_necrosis("I can see the Black Rot in its terminal stage, 'Necrosis'."))
-			
+
 			to_chat(user, span_infection("<i>Drinking Heartblood should delay the inevitable, but excising it is the cure.<i>"))
 
 	var/has_cheele = FALSE
@@ -187,7 +191,7 @@
 
 		else if(is_mid_tier && has_hemostat && top_reagent && !miracle)
 			to_chat(user, span_boldwarning("<i>Studying the blood drawn upon the instrument, I can only see heavy traces of [top_reagent.name] within.</i>"))
-		
+
 		else if(is_mid_tier && has_hemostat && more_than_one && !miracle)
 			to_chat(user, span_boldwarning("<i>Studying the blood drawn upon the instrument, I can only see heavy traces of [top_reagent.name], though other substances may be present.</i>"))
 	else
@@ -202,7 +206,7 @@
 	name = "Secular Diagnosis"
 	overlay_state = "diagnose"
 	desc = "A practiced reading of the body's humors and hidden ailments. Reveals a target's condition, with greater skill granting deeper detail. By embedding a Forceps on your patient, you may even identify substances within the blood; but even the most unskilled physicker can tell from a Cheele or Leech's reactions."
-	range = 4 // 2 range doesn't let you see over a meeting table, 4 range is just enough for that, it also falls in line with normal miracle
+	range = SPELL_RANGE_GROUND //Caustic Edit - Lets make this on parity with and using the Spell Defines?
 	associated_skill = /datum/skill/misc/medicine
 	miracle = FALSE
 	devotion_cost = 0 //Doctors are not clerics
@@ -278,7 +282,7 @@
 			// Try to attach the limb
 			if(limb.attach_limb(human_target))
 				human_target.visible_message(
-					span_info("\The [limb] attaches itself to [human_target]!"), 
+					span_info("\The [limb] attaches itself to [human_target]!"),
 					span_notice("\The [limb] attaches itself to me!")
 				)
 				attached_count++
@@ -333,7 +337,7 @@
 			// Try to insert the organ
 			if(organ.Insert(human_target))
 				human_target.visible_message(
-					span_info("\The [organ] attaches itself to [human_target]!"), 
+					span_info("\The [organ] attaches itself to [human_target]!"),
 					span_notice("\The [organ] attaches itself to me!")
 				)
 				attached_count++
@@ -693,6 +697,11 @@
 		var/mob/living/target = targets[1]
 		if(HAS_TRAIT(target, TRAIT_PSYDONITE))
 			target.visible_message(span_info("[target] stirs for a moment, the miracle dissipates."), span_notice("A dull warmth swells in your heart, only to fade as quickly as it arrived."))
+			playsound(target, 'sound/magic/PSY.ogg', 100, FALSE, -1)
+			user.playsound_local(user, 'sound/magic/PSY.ogg', 100, FALSE, -1)
+			return FALSE
+		if(HAS_TRAIT(target, TRAIT_UNFORGIVABLE)) //Vhelsynites aren't affected
+			target.visible_message(span_info("[target] stirs for a moment, the miracle dissipates."), span_notice("A dull warmth passes through your hollow husk of a body, only to fade as quickly as it arrived."))
 			playsound(target, 'sound/magic/PSY.ogg', 100, FALSE, -1)
 			user.playsound_local(user, 'sound/magic/PSY.ogg', 100, FALSE, -1)
 			return FALSE

@@ -656,9 +656,9 @@ SUBSYSTEM_DEF(gamemode)
 	for(var/storyteller_name in storytellers)
 		var/datum/storyteller/initialized_storyteller = storytellers[storyteller_name]
 		if(initialized_storyteller?.ascendant)
-			to_chat(world, "<br>")
-			to_chat(world, span_reallybig("[initialized_storyteller.name] is ascendant!"))
-			to_chat(world, "<br>")
+			to_chat(world, "<br>", MESSAGE_TYPE_INFO)
+			to_chat(world, span_reallybig("[initialized_storyteller.name] is ascendant!"), MESSAGE_TYPE_INFO)
+			to_chat(world, "<br>", MESSAGE_TYPE_INFO)
 
 	// If an admin force-starts the round while the storyteller vote is still running,
 	// resolve it now so selected_storyteller reflects votes cast so far (or falls back
@@ -729,13 +729,13 @@ SUBSYSTEM_DEF(gamemode)
 		return TRUE
 	if(SSmapping.retainer.head_rebel_decree)
 		if(reb_end_time == 0)
-			to_chat(world, span_boldannounce("The peasant rebels took control of the throne, hail the new community!"))
+			to_chat(world, span_boldannounce("The peasant rebels took control of the throne, hail the new community!"), MESSAGE_TYPE_INFO)
 			if(ttime >= INITIAL_ROUND_TIMER)
 				reb_end_time = ttime + 15 MINUTES
-				to_chat(world, span_boldwarning("The round will end in 15 minutes."))
+				to_chat(world, span_boldwarning("The round will end in 15 minutes."), MESSAGE_TYPE_INFO)
 			else
 				reb_end_time = INITIAL_ROUND_TIMER
-				to_chat(world, span_boldwarning("The round will end at the 2:30 hour mark."))
+				to_chat(world, span_boldwarning("The round will end at the 2:30 hour mark."), MESSAGE_TYPE_INFO)
 		if(ttime >= reb_end_time)
 			return TRUE
 
@@ -826,17 +826,17 @@ SUBSYSTEM_DEF(gamemode)
 	var/list/final_choices = list()
 	var/list/pick_from = list()
 	var/list/valid_storytellers = get_valid_storytellers()
-	var/previous_storyteller = get_last_storyteller_vote()
-	var/previous_pool = get_story_pool(previous_storyteller)
+	//var/previous_storyteller = get_last_storyteller_vote() //Caustic Edit - Remove the removing of the last-voted pool
+	//var/previous_pool = get_story_pool(previous_storyteller)
 	var/list/available_pools = list()
 	for(var/datum/storyteller/storyboy in valid_storytellers)
 		var/pool_name = get_story_pool(storyboy.type)
 		if(pool_name)
 			available_pools[pool_name] = TRUE
-	var/can_exclude_previous_pool = previous_pool && length(available_pools) > 1
+	//var/can_exclude_previous_pool = previous_pool && length(available_pools) > 1
 	for(var/datum/storyteller/storyboy in valid_storytellers)
-		if(can_exclude_previous_pool && get_story_pool(storyboy.type) == previous_pool)
-			continue
+		//if(can_exclude_previous_pool && get_story_pool(storyboy.type) == previous_pool)
+		//	continue //Caustic Edit End
 		if(storyboy.always_votable)
 			final_choices[storyboy.name] = 0
 		else
@@ -928,8 +928,8 @@ SUBSYSTEM_DEF(gamemode)
 		get_gnoll_scaling()
 
 	var/datum/storyteller/storytypecasted = selected_storyteller
-	to_chat(world, span_notice("<b>Storyteller is [initial(storytypecasted.name)]!</b>"))
-	to_chat(world, span_notice("[initial(storytypecasted.vote_desc)]"))
+	to_chat(world, span_notice("<b>Storyteller is [initial(storytypecasted.name)]!</b>"), MESSAGE_TYPE_INFO)
+	to_chat(world, span_notice("[initial(storytypecasted.vote_desc)]"), MESSAGE_TYPE_INFO)
 
 /datum/controller/subsystem/gamemode/proc/get_last_storyteller_vote()
 	var/json_file = file(LAST_ROUND_STATS_FILE)
@@ -1776,7 +1776,7 @@ SUBSYSTEM_DEF(gamemode)
 			switch(href_list["action"])
 				if("set_storyteller")
 					if(storyteller_locked())
-						to_chat(usr, span_warning("The round storyteller is locked after roundstart and cannot be forced midround."))
+						to_chat(usr, span_warning("The round storyteller is locked after roundstart and cannot be forced midround."), MESSAGE_TYPE_INFO)
 						message_admins("[key_name_admin(usr)] attempted to force the storyteller after roundstart, but the round storyteller is locked.")
 						return
 					message_admins("[key_name_admin(usr)] is picking a new Storyteller.")
@@ -2053,7 +2053,7 @@ SUBSYSTEM_DEF(gamemode)
 				record_round_statistic(STATS_ALIVE_GARRISON)
 			if(human_mob.mind.assigned_role in GLOB.church_positions)
 				record_round_statistic(STATS_ALIVE_CLERGY)
-			if((human_mob.mind.assigned_role in GLOB.burgher_positions) || (human_mob.mind.assigned_role in GLOB.peasant_positions))
+			if((human_mob.mind.assigned_role in GLOB.burgher_positions) || (human_mob.mind.assigned_role in GLOB.atc_positions) || (human_mob.mind.assigned_role in GLOB.peasant_positions))
 				record_round_statistic(STATS_ALIVE_TRADESMEN)
 			if(human_mob.has_flaw(/datum/charflaw/addiction/alcoholic))
 				record_round_statistic(STATS_ALCOHOLICS)

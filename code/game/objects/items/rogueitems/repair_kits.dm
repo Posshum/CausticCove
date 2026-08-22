@@ -37,8 +37,6 @@
 	if(repair_type == 1)
 		if(prob(20))
 			new /obj/item/scrap(get_turf(src))
-		if(prob(20))
-			new /obj/item/scrap(get_turf(src))
 	qdel(src)
 
 /obj/item/repair_kit/attack_obj(obj/O, mob/living/user)
@@ -167,7 +165,7 @@
 	if(!user.cmode)
 		if(try_construct_consume(src, M, user))
 			return
-		else 
+		else
 			return ..()
 	else
 		return ..()

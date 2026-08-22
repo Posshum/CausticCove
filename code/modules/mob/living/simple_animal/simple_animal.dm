@@ -1,4 +1,16 @@
 #define MAX_FARM_ANIMALS 20
+// How long it takes to start butchering as an unskilled person
+#define BUTCHERING_UNSKILLED_PRE_TIME 0.5 SECONDS
+// Time pre calculations
+#define BUTCHERING_BASE_TIME_PER_STEP 2 SECONDS
+// Max time per butchering step
+#define BUTCHERING_MAX_TIME_PER_STEP 1.8 SECONDS
+// Time per step reduction per skill level
+#define BUTCHERING_TIME_REDUCTION_PER_SKILL 0.3 SECONDS
+// EXP per int per step
+#define BUTCHERING_EXP_PER_STEP 0.4
+// EXP for fully finishing a butchering process per int
+#define BUTCHERING_EXP_FINISH 2
 
 GLOBAL_VAR_INIT(farm_animals, FALSE)
 
@@ -44,6 +56,8 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 	var/obj/item/handcuffed = null //Whether or not the mob is handcuffed
 	var/obj/item/legcuffed = null  //Same as handcuffs but for legs. Bear traps use this.
+
+	var/blood_color = BLOOD_COLOR_RED
 
 	///When someone interacts with the simple animal.
 	///Help-intent verb in present continuous tense.
@@ -207,6 +221,9 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		. += span_info("To dismount an incapacitated or tied up mob, all riders must dismount, first.")
 		if(ssaddle)
 			. += span_info("Use middle-mouse button on the mount to open its inventory.")
+
+/mob/living/simple_animal/get_blood_color()
+	return blood_color
 
 /mob/living/simple_animal/Initialize()
 	. = ..()
@@ -527,11 +544,11 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		var/obj/item/held_item = user.get_active_held_item()
 		if(held_item)
 			if((butcher_results || guaranteed_butcher_results) && ((held_item.get_sharpness() && held_item.wlength == WLENGTH_SHORT) || istype(held_item, /obj/item/contraption/shears)))
-				var/used_time = 3 SECONDS
+				var/used_time = BUTCHERING_UNSKILLED_PRE_TIME
 				var/on_meathook = FALSE
 				if((src.buckled && istype(src.buckled, /obj/structure/meathook))|| istype(held_item, /obj/item/contraption/shears))
 					on_meathook = TRUE //will work efficiently if they are using autosheers as well
-					used_time -= 3 SECONDS
+					used_time -= BUTCHERING_UNSKILLED_PRE_TIME
 					visible_message("[user] begins to efficiently butcher [src]...")
 				else
 					visible_message("[user] begins to butcher [src]...")
@@ -574,7 +591,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		ssaddle = null
 
 	var/butchery_skill_level = user.get_skill_level(/datum/skill/labor/butchering)
-	var/time_per_cut = max(5, 30 - butchery_skill_level * 5) // 3 seconds for no skill, 5 ticks for master
+	var/time_per_cut = min(BUTCHERING_MAX_TIME_PER_STEP, BUTCHERING_BASE_TIME_PER_STEP - butchery_skill_level * BUTCHERING_TIME_REDUCTION_PER_SKILL) // 1.8 seconds for no skill, 0.2 seconds for legendary
 	if(on_meathook)
 		time_per_cut *= 0.75
 	var/botch_chance = 0
@@ -607,7 +624,16 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	var/list/dna_to_add // Copied over from the gibspawner.dm and trimmed down, so that gibs have a bloodtype? If it matters?
 	dna_to_add = list("Non-human DNA" = random_blood_type())
 
-	for(var/path in butcher_results)
+	// Caustic Edit
+	// If the perfect butcher results have more paths, they will no longer be ignored, allowing for things like rous fur, or cabbit feet to be acquired
+	var/list/list_to_use = butcher_results
+	if(initial(length(perfect_butcher_results)) > initial(length(butcher_results))) // If it's stupid and it works, is it stupid? (Please tell me if there's a better way to do this, I couldn't find anything)
+	// Prevents stopping a butchery mid-way and restarting it to get doubled loot as it re-checks the lists.
+		list_to_use = perfect_butcher_results
+
+	// Caustic Edit End
+
+	for(var/path in list_to_use) // Caustic Edit
 		var/amount = butcher_results[path]
 		if(!do_after(user, time_per_cut, target = src))
 			if(botch_count || normal_count || perfect_count)
@@ -633,7 +659,9 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		else
 			normal_count++
 
-		butcher_results -= path
+		if(!length(list_to_use) || !amount) // Caustic Edit. If the list is empty, or there isn't an item set, set the amount to 0 to prevent a runtime and corpses not finishing butchering.
+			amount = 0
+		list_to_use -= path
 
 		// Spawn the item(s)
 		for(var/j in 1 to amount)
@@ -647,10 +675,10 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		
 		SSnature.nature_happiness += NATURE_HAPPINESS_ADJUSTMENT_MID //CC Edit - Butchering is good. Do it. Don't let the meat, hide, bones, etc., go to waste.
 
-		if(user.mind)
-			user.mind.add_sleep_experience(/datum/skill/labor/butchering, user.STAINT * 0.5)
+		if(user.mind && !isemptylist(butcher_results))
+			user.mind.add_sleep_experience(/datum/skill/labor/butchering, user.STAINT * BUTCHERING_EXP_PER_STEP)
 		playsound(src, 'sound/foley/gross.ogg', 100, FALSE)
-	if(isemptylist(butcher_results))
+	if(isemptylist(list_to_use))
 		if(head_butcher)
 			var/head_path = head_butcher
 			head_butcher = null
@@ -670,8 +698,16 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 			if(rotstuff)
 				head_quality = -1
 			head.scale_butchering_quality(head_quality)
+			if(no_head_bounty)
+				head.sellprice = 0
 		to_chat(user, "<span class='notice'>I finish butchering: [butcher_summary(botch_count, normal_count, perfect_count, botch_chance, perfect_chance)].</span>")
-		clean_gib(dna_to_add)
+		if(user.mind)
+			user.mind.add_sleep_experience(/datum/skill/labor/butchering, user.STAINT * BUTCHERING_EXP_FINISH)
+		gib()
+
+/mob/living/simple_animal/mark_contract_spawned()
+	. = ..()
+	head_butcher = null
 
 // This will choose a random adjacent tile to spawn a gib on, and then edit it's offset accordingly so it's closer to the body
 /mob/living/simple_animal/proc/botched_gib(list/dna_to_add)
@@ -721,6 +757,10 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 // Caustic Edit End
 
+/mob/living/simple_animal/mark_contract_spawned()
+	. = ..()
+	head_butcher = null
+
 /mob/living/proc/butcher_summary(botch_count, normal_count, perfect_count, botch_chance, perfect_chance)
     var/list/parts = list()
     if(botch_count)
@@ -763,10 +803,6 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		remove_movespeed_modifier(MOVESPEED_ID_SIMPLEMOB_VARSPEED, TRUE)
 	add_movespeed_modifier(MOVESPEED_ID_SIMPLEMOB_VARSPEED, TRUE, 100, multiplicative_slowdown = speed, override = TRUE)
 
-/mob/living/simple_animal/Stat()
-	..()
-	return //RTCHANGE
-
 /mob/living/simple_animal/proc/drop_loot()
 	for(var/i in loot) // If someone puts a turf in this list I'm going to kill you.
 		new i(loc)
@@ -780,7 +816,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	if(dextrous)
 		drop_all_held_items()
 	if(!gibbed)
-		emote("death", forced = TRUE)
+		play_death_emote()
 	layer = layer-0.1
 	if(del_on_death)
 		..()
@@ -933,8 +969,9 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 	if(client.eye != src)
 		var/atom/A = client.eye
-		if(A.update_remote_sight(src)) //returns 1 if we override all other sight updates.
-			return
+		if(hascall(A, "update_remote_sight"))
+			if(A.update_remote_sight(src))
+				return
 	sync_lighting_plane_alpha()
 
 /mob/living/simple_animal/can_hold_items()
@@ -1240,12 +1277,19 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		SSidlenpcpool.idle_mobs_by_zlevel[old_z] -= src
 		toggle_ai(initial(AIStatus))
 
-/mob/living/simple_animal/Move()
-	if(binded)
-		return FALSE
-	. = ..()
-//	if(!stat)
-//		eat_plants()
+/mob/living/simple_animal/Move(NewLoc, Dir, step_x, step_y)
+    if(binded)
+        return FALSE
+    var/oldloc = loc
+    . = ..()
+    if(. && loc != oldloc)
+        if(client)
+            // Player
+            set_glide_size(DELAY_TO_GLIDE_SIZE(world.tick_lag))
+        else
+            // AI
+            set_glide_size(DELAY_TO_GLIDE_SIZE(move_to_delay))
+    return .
 
 /mob/living/simple_animal/proc/eat_plants()
 
@@ -1321,7 +1365,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 //Flight related procs foy flying simple_animals
 /mob/living/simple_animal/proc/fly_up()
-	set category = "Winged Form"
+	set category = "IC.Actions"
 	set name = "Fly Up"
 
 	if(src.pulledby != null)
@@ -1336,7 +1380,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 			to_chat(src, span_notice("I can't fly away while being grabbed!"))
 
 /mob/living/simple_animal/proc/fly_down()
-	set category = "Winged Form"
+	set category = "IC.Actions"
 	set name = "Fly Down"
 
 	if(src.pulledby != null)
@@ -1352,3 +1396,9 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 //End flight
 
 #undef MAX_FARM_ANIMALS
+#undef BUTCHERING_UNSKILLED_PRE_TIME
+#undef BUTCHERING_BASE_TIME_PER_STEP
+#undef BUTCHERING_MAX_TIME_PER_STEP
+#undef BUTCHERING_TIME_REDUCTION_PER_SKILL
+#undef BUTCHERING_EXP_PER_STEP
+#undef BUTCHERING_EXP_FINISH

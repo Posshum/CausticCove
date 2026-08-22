@@ -437,7 +437,7 @@
 //
 /mob/living/verb/lick_taste(mob/living/tasted in living_mobs_in_view(1, TRUE))
 	set name = "Lick someone"
-	set category = "VORE"
+	set category = "VORE.Actions"
 	set desc = "Lick someone nearby!"
 	set popup_menu = FALSE // Stop licking by accident!
 
@@ -456,7 +456,7 @@
 		if(tasted.skin_reagent && ishuman(src) && (tasted != src))
 			var/mob/living/carbon/human/us_but_human = src
 			us_but_human.reagents.add_reagent(tasted.skin_reagent, 5)
-		
+
 		visible_message(span_warning("[src] licks [tasted]!"),span_notice("You lick [tasted]. They taste rather like [tasted.get_taste_message()]."),span_info(span_bold("Slurp!")))
 		//balloon_alert_visible("licks [tasted]!", "tastes like [tasted.get_taste_message()]")
 	/* //Caustic - Maybe we add this in sometime?
@@ -490,7 +490,7 @@
 //This is just the above proc but switched about.
 /mob/living/verb/smell(mob/living/smelled in living_mobs(1, TRUE))
 	set name = "Smell someone"
-	set category = "VORE"
+	set category = "VORE.Actions"
 	set desc = "Smell someone nearby!"
 	set popup_menu = FALSE
 
@@ -532,7 +532,7 @@
 //
 /mob/living/verb/escapeOOC()
 	set name = "OOC Escape"
-	set category = "VORE"
+	set category = "VORE.Actions"
 
 	//You're in a belly!
 	if(isbelly(loc))
@@ -550,7 +550,7 @@
 		log_and_message_admins("[key_name(src)] used the OOC escape button to get out of [key_name(B.owner)] ([B.owner ? "<a href='byond://?_src_=holder;[HrefToken()];adminplayerobservecoodjump=1;X=[B.owner.x];Y=[B.owner.y];Z=[B.owner.z]'>JMP</a>" : "null"])", src)
 
 		B.owner.handle_belly_update() //This is run whenever a belly's contents are changed.
-	
+
 	//You've been turned into an item!
 	/*else if(tf_mob_holder && isvoice(src) && istype(src.loc, /obj/item)) //Commented out the TF stuff for now to get the rest working.
 		var/obj/item/item_to_destroy = src.loc //If so, let's destroy the item they just TF'd out of.
@@ -801,7 +801,7 @@
 
 /mob/living/verb/eat_trash()
 	set name = "Eat object"
-	set category = "VORE"
+	set category = "VORE.Actions"
 	set desc = "Consume held object into currently selected belly."
 
 	//on chomp it worked off a whitelist of items you could devour, hope is that here it can be replaced by a long windup before eating something
@@ -821,8 +821,8 @@
 
 	//if(I.) //Caustic - Potential Whitelist can go here.
 
-	if(!(I.grid_height <= world.icon_size || I.grid_height <= world.icon_size))
-		to_chat(src,span_warning("You can't eat such a large thing !"))//yet <-- YET???
+	if(!vore_selected.validate_item_size(I))
+		to_chat(src,span_warning("You can't eat such a large thing !"))//yet //Yeah, it was 'yet' :P I just made it allow a bit bigger stuff.
 		return
 
 	if(do_after(src, 10 SECONDS)){
@@ -842,15 +842,29 @@
 
 /mob/living/verb/toggle_trash_catching() //Ported from chompstation
 	set name = "Toggle Trash Catching"
-	set category = "VORE"
+	set category = "VORE.Actions"
 	set desc = "Toggle Trash Eater throw vore abilities."
 	trash_catching = !trash_catching
 	to_chat(src, span_warning("Trash catching [trash_catching ? "enabled" : "disabled"]."))
 
+/obj/belly/proc/validate_item_size(var/obj/item/I)
+	var/can_nom = FALSE
+	if(I.grid_height <= world.icon_size && I.grid_width <= (world.icon_size * 2))
+		can_nom = TRUE
+
+	if(I.grid_height <= (world.icon_size * 2) && I.grid_width <= world.icon_size)
+		can_nom = TRUE
+
+	if(!can_nom && I.smeltresult && item_digest_mode == IM_SMELTING)
+		to_chat(src.owner, span_warning("With your [name] roaring to smelt something, you start to smelt down the [I]..."))
+		can_nom = TRUE
+
+	return can_nom
+
 /*
 /mob/living/proc/eat_minerals() //Actual eating abstracted so the user isn't given a prompt due to an argument in this verb.
 	set name = "Eat Minerals"
-	set category = "VORE"
+	set category = "VORE.Actions"
 	set desc = "Consume held raw ore, gems and refined minerals. Snack time!"
 
 	handle_eat_minerals()
@@ -980,7 +994,7 @@
 
 /*/mob/living/verb/toggle_stuffing_mode() <-- Pains me so fucking much to comment this out but this is for later //Caustic - Enable this as well sometime?
 	set name = "Toggle feeding mode"
-	set category = "VORE"
+	set category = "VORE.Actions"
 	set desc = "Switch whether you will try to feed other people food whole or normally, bite by bite."
 
 	stuffing_feeder = !stuffing_feeder
@@ -1065,7 +1079,7 @@
 		dat += span_bold("Autotransferable:") + " [autotransferable ? span_green("Enabled") : span_red("Disabled")]<br>"
 		dat += span_bold("Can be stripped:") + " [strip_pref ? span_green("Allowed") : span_red("Disallowed")]<br>"
 		dat += span_bold("Applying reagents:") + " [apply_reagents ? span_green("Allowed") : span_red("Disallowed")]<br>"
-		//dat += span_bold("Leaves Remains:") + " [digest_leave_remains ? span_green("Enabled") : span_red("Disabled")]<br>"
+		dat += span_bold("Leaves Remains:") + " [digest_leave_remains ? span_green("Enabled") : span_red("Disabled")]<br>"
 	dat += span_bold("Spontaneous vore prey:") + " [can_be_drop_prey ? span_green("Enabled") : span_red("Disabled")]<br>"
 	dat += span_bold("Spontaneous vore pred:") + " [can_be_drop_pred ? span_green("Enabled") : span_red("Disabled")]<br>"
 	if(can_be_drop_prey || can_be_drop_pred)
@@ -1108,7 +1122,7 @@
 
 /mob/living/verb/vorebelly_printout() //Spew the vorepanel belly messages into chat window for copypasting.
 	set name = "X-Print Vorebelly Settings"
-	set category = "VORE"
+	set category = "VORE.Prefs"
 	set desc = "Print out your vorebelly messages into chat for copypasting."
 
 	var/result = tgui_alert(src, "Would you rather open the export panel?", "Selected Belly Export", list("Open Panel", "Print to Chat"))
@@ -1303,7 +1317,7 @@
 
 /mob/living/verb/vore_check_reagents()
 	set name = "Check Belly Liquid (Vore)"
-	set category = "VORE"
+	set category = "VORE.Actions"
 	set desc = "Check the amount of liquid in your belly."
 
 	var/obj/belly/RTB = tgui_input_list(src, "Choose which vore belly to check", "Select Belly", vore_organs)
@@ -1319,7 +1333,7 @@
 
 /mob/living/verb/vore_transfer_reagents()
 	set name = "Transfer Liquid (Vore)"
-	set category = "VORE"
+	set category = "VORE.Actions"
 	set desc = "Transfer liquid from an organ to another or stomach, or into another person or container."
 	set popup_menu = FALSE
 
@@ -1495,7 +1509,7 @@
 			else
 				soundfile = GLOB.fancy_release_sounds[RTB.release_sound]
 			if(soundfile)
-				playsound(src, soundfile, vol = 100, vary = 1, falloff = VORE_SOUND_FALLOFF, pref_toggle = "eating_noises")
+				playsound(src, soundfile, vol = 100, vary = 1, falloff = VORE_SOUND_FALLOFF, pref_toggle = SOUND_VORE_EATING)
 
 /mob/living/proc/vore_bellyrub(var/mob/living/T in view(1,src))
 
@@ -1518,28 +1532,28 @@
 
 /mob/living/verb/mute_entry()
 	set name = "Mute Vorgan Entrance"
-	set category = "VORE"
+	set category = "VORE.Actions"
 	set desc = "Mute the chatlog messages when something enters a vore belly."
 	mute_entry = !mute_entry
 	to_chat(src, span_warning("Entrance logs [mute_entry ? "disabled" : "enabled"]."))
 
 /mob/living/proc/restrict_trasheater() //Caustic - This looks like it's intended for Admins to get, and only admins
 	set name = "Restrict Trash Eater"
-	set category = "VORE"
+	set category = "VORE.Actions"
 	set desc = "Toggle Trash Eater restriction level."
 	adminbus_trash = !adminbus_trash
 	to_chat(src, span_warning("Trash Eater restriction level set to [adminbus_trash ? "everything not blacklisted" : "only whitelisted items"]."))
 
 /mob/living/verb/liquidbelly_visuals()
 	set name = "Toggle Liquidbelly Visuals"
-	set category = "VORE"
+	set category = "VORE.Prefs"
 	set desc = "Toggle liquidbelly fullscreen visual effect."
 	liquidbelly_visuals = !liquidbelly_visuals
 	to_chat(src, span_warning("Liquidbelly overlays [liquidbelly_visuals ? "enabled" : "disabled"]."))
 
 /mob/living/verb/fix_vore_effects()
 	set name = "Fix Vore Effects"
-	set category = "OOC"
+	set category = "VORE.Actions"
 	set desc = "Fix certain vore effects lingering after you've exited a belly."
 
 	if(!isbelly(src.loc))
@@ -1554,7 +1568,7 @@
 
 /mob/living/verb/vore_check_nutrition()
 	set name = "Check Nutrition"
-	set category = "VORE"
+	set category = "VORE.Actions"
 	set desc = "Check your current nutrition level."
 	to_chat(src, span_notice("Current nutrition level: [nutrition]."))
 
@@ -1569,7 +1583,7 @@
 
 /mob/living/verb/toggle_afk()
 	set name = "Toggle AFK"
-	set category = "IC"
+	set category = "IC.Info"
 	set desc = "Mark yourself as Away From Keyboard, or clear that status!"
 	if(away_from_keyboard)
 		//remove_status_indicator("afk")

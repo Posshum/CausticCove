@@ -5,13 +5,15 @@
 	sight = 0
 	see_in_dark = 8
 	hud_possible = list(ANTAG_HUD)
-	
+
 	typing_indicator_enabled = TRUE
-	
+
 	var/resize = 1 //Badminnery resize
 	var/lastattacker = null
 	var/lastattackerckey = null
 	var/datum/weakref/lastattacker_weakref = null
+	/// Blood Toll bucket key (STATS_KILLED_*); set on NPC subtypes that should tally on death. See code/__HELPERS/blood_toll.dm
+	var/blood_toll_bucket = null
 
 	//Health and life related vars
 	var/maxHealth = 100 //Maximum health that should be possible.
@@ -29,6 +31,7 @@
 	var/mobility_flags = MOBILITY_FLAGS_DEFAULT
 
 	var/resting = FALSE
+	var/rest_locked_until = 0
 	var/wallpressed = FALSE
 	var/climbing = FALSE
 
@@ -60,7 +63,7 @@
 
 	var/tod = null // Time of death
 
-	/// The boolean "Are we on fire?" var. 
+	/// The boolean "Are we on fire?" var.
 	var/on_fire = FALSE
 	/// Helper vars for quick access to firestacks, these should be updated every time firestacks are adjusted
 	var/fire_stacks = 0
@@ -144,6 +147,9 @@
 	var/threat_point = 0 // Threat Point cost for the ambush budget system. Set on NPC subtypes.
 	var/ambush_faction = "" // Faction tag for ambush same/wrong-faction purchasing. Separate from mob faction list.
 
+	var/datum/fellowship/current_fellowship
+	var/list/incoming_fellowship_invites = list() // list of /datum/weakref to /datum/fellowship; kept in sync with fellowship.pending_invites
+
 	// Tracks whether mob is in surrendering state (right-click combat button)
 	var/surrendering = 0
 
@@ -156,7 +162,7 @@
 	var/eyesclosed = 0
 	var/fallingas = 0
 	var/is_asleep = FALSE
-	
+
 	var/bleed_rate = 0 //how much are we bleeding
 	var/bleedsuppress = 0 //for stopping bloodloss, eventually this will be limb-based like bleeding
 
@@ -165,6 +171,8 @@
 	///The NAME (not the reference) of the mob's summoner and probable master.
 	var/summoner = null
 
+	/// This is for highlighting marks in track.dm
+	var/mob/living/current_mark
 
 	var/datum/component/personal_crafting/craftingthing
 
@@ -199,6 +207,10 @@
 
 	var/pet_passive = FALSE
 
+	var/list/summoned_minions
+	var/attack_relay_refs = 0
+	var/attack_relay_self_added = FALSE
+
 	var/cmode_music_override = list() // set by prefs or the verb, ignored if empty
 	var/cmode_music_override_name // solely for autoselecting as a spawned-in mob
 	var/last_heard_raw_message //to prevent repeated messages from spamming
@@ -211,7 +223,6 @@
 
 	var/tempatarget = null
 	var/pegleg = 0			//Handles check & slowdown for peglegs. Fuckin' bootleg, literally, but hey it at least works.
-	var/construct = 0
 	var/burialrited = FALSE
 
 	/// Toggle delay for Specials, or really anything else that you don't want input spam to instantly cycle through.
@@ -221,6 +232,18 @@
 
 	/// Whether we are in a swingdelay, used to check for disrupted swingdelays.
 	var/swing_state = FALSE
+	/// Whether we are mid-climb-action, so an incoming attack can disrupt it. Distinct from climbing (wall hang).
+	var/mid_climb = FALSE
+	/// This one's for when you're choking to death.
+	var/last_gasp
+
+	/// Had to put this here because attack() is not used solely by humans. That's fucked up, manne.
+	var/dualwield_attack_count = 0
+	var/dualwield_processing = FALSE
+	var/dualwield_finisher = FALSE
+	var/dualwield_resets_in = 0
+	var/dualwield_buff_cd = 0
+
 	var/is_swimming = FALSE
 	var/is_underwater = FALSE
 	var/drowning_drowniness = 0
@@ -228,3 +251,9 @@
 	var/max_breath = 100
 	var/last_breath_spent = 0
 	var/client/swimming_filter_client = null
+
+	/// "In Combat" timer that is used to prevent stealth and a few other mechanics while active.
+	var/in_combat_until
+
+	/// ass list [id] = /datum/status_effect (moved from status_effect.dm)
+	var/alist/status_effects_by_id

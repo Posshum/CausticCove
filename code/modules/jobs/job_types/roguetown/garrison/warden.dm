@@ -7,7 +7,7 @@
 	spawn_positions = 4
 
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = ACCEPTED_RACES
+	forbidden_races = list() //Caustic Edit - Just a global tweak to remove 'races_despised' from this check everywhere
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED, AGE_OLD)
 	tutorial = "Typically a denizen of the sparsely populated Azurian woods, you volunteered up with the wardens - a group of ranger types who keep a vigil over the untamed wilderness. \
 				While Wardens have no higher authority, operating as a fraternity of rangers, you will be called upon as members of the garrison by the Marshal or the Crown. \
@@ -91,9 +91,10 @@
 		/obj/item/flashlight/flare/torch/lantern/prelit = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1,
 		/obj/item/reagent_containers/glass/bottle/rogue/healthpot = 1,
-		/obj/item/signal_horn = 1
+		/obj/item/signal_horn = 1,
+		/obj/item/hunting_map/boars = 1,
 		)
-	H.verbs |= /mob/proc/haltyell
+	add_verb(H, /mob/proc/haltyell)
 	H.set_blindness(0)
 
 	if(H.mind)
@@ -118,7 +119,7 @@
 		if(hoodchoice != "None")
 			mask = hoods[hoodchoice]
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_LOWER_MIDDLE_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_LOWER_MIDDLE_CLASS, H)
 
 /datum/advclass/warden/forester
 	name = "Forester"
@@ -170,7 +171,8 @@
 		/obj/item/storage/keyring/warden = 1,
 		/obj/item/flashlight/flare/torch/lantern = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1,
-		/obj/item/signal_horn = 1
+		/obj/item/signal_horn = 1,
+		/obj/item/hunting_map/boars = 1,
 		)
 	H.verbs |= /mob/proc/haltyell
 	H.set_blindness(0)
@@ -181,6 +183,7 @@
 			"Path of the Volf"		= /obj/item/clothing/head/roguetown/helmet/sallet/warden/wolf,
 			"Path of the Ram"		= /obj/item/clothing/head/roguetown/helmet/sallet/warden/goat,
 			"Path of the Bear"		= /obj/item/clothing/head/roguetown/helmet/sallet/warden/bear,
+			"Path of the Rous"		= /obj/item/clothing/head/roguetown/helmet/sallet/warden/rat,
 			"None"
 		)
 		var/helmchoice = input(H, "Choose your Path.", "HELMET SELECTION") as anything in helmets
@@ -196,4 +199,4 @@
 		if(helmchoice != "None")
 			mask = hoods[hoodchoice]
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_LOWER_MIDDLE_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_LOWER_MIDDLE_CLASS, H)

@@ -9,7 +9,7 @@
 	name = "Heretic Azurcaephan"
 	tutorial = "Branded a heretic for your unorthodox beliefs, you turned to an ancient art native to Azurea — the way of the Azurcaephan, a Spellblade. You combined your patron's gifts with martial discipline, forging yourself into a warrior-mage unlike any other. Unlike other spellblades, you know how to wield such terrifying power together with armor. The Church brands you a heretic, the Necromancers call you a fool, the Oaks see only deviation. Let them. One cut at a time, you shall carve your mark upon this world."
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = RACES_ALL_KINDS
+
 	allowed_patrons = list(/datum/patron/inhumen/zizo, /datum/patron/divine/noc)
 	outfit = /datum/outfit/job/roguetown/wretch/heretic_spellblade
 	maximum_possible_slots = 2 // Team rocket!!!
@@ -19,11 +19,11 @@
 	subclass_stats = list(
 		STATKEY_STR = 1,
 		STATKEY_INT = 1, // Weighted 7. But a very nice statblock
-		STATKEY_PER = 1, 
+		STATKEY_PER = 1,
 		STATKEY_CON = 1,
 		STATKEY_WIL = 2, // With 2 Wil they should not be struggling
 	)
-	subclass_mage_aspects = list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 6) // Mama Zizo said you get 2 more points on Utility!!!
+	subclass_mage_aspects = list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 8) // Mama Zizo said you get 2 more points on Utility!!!
 	subclass_skills = list(
 		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/shields = SKILL_LEVEL_JOURNEYMAN,
@@ -65,7 +65,7 @@
 	backpack_contents = list(/obj/item/flashlight/flare/torch = 1,
 		/obj/item/reagent_containers/glass/bottle/alchemical/healthpot = 1,
 		/obj/item/chalk = 1,
-		/obj/item/book/spellbook = 1,
+		/obj/item/rogueweapon/spellbook = 1,
 	)
 
 	to_chat(H, span_warning("You start with Bind Weapon. Remember to Bind your weapon so you can use your abilities and build up Arcyne Momentum."))
@@ -100,22 +100,22 @@
 				H.mind.AddSpell(new /datum/action/cooldown/spell/caedo)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/air_strike)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/leyline_anchor)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/projectile/blade_storm)
+				H.mind.AddSpell(new /datum/action/cooldown/spell/blade_storm)
 			if("phalangite")
 				H.mind.AddSpell(new /datum/action/cooldown/spell/azurean_phalanx)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/projectile/azurean_pilum)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/advance)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/gate_of_reckoning)
 			if("macebearer")
-				H.mind.AddSpell(new /datum/action/cooldown/spell/projectile/kastvyl)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/tremor)
+				H.mind.AddSpell(new /datum/action/cooldown/spell/telegraphed_strike/spellblade/shatter)
+				H.mind.AddSpell(new /datum/action/cooldown/spell/telegraphed_strike/spellblade/tremor)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/charge)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/cataclysm)
 
 		H.mind.AddSpell(new /datum/action/cooldown/spell/recall_weapon)
 		H.mind.AddSpell(new /datum/action/cooldown/spell/empower_weapon)
 		H.mind.AddSpell(new /datum/action/cooldown/spell/bind_weapon)
-		H.mind.AddSpell(new /datum/action/cooldown/spell/mending)
+		H.mind.AddSpell(new /datum/action/cooldown/spell/touch/conjure_repairkit)
 
 	// Armor choice: Discretion (light, like adventurer) vs Progress (medium armor set with helmet)
 	var/armor_style = list("Discretion (Spellblade Disguise)", "Confrontation (Medium Armor)")
@@ -162,7 +162,7 @@
 			beltr = /obj/item/rogueweapon/scabbard/sword
 			switch(weapon_choice)
 				if("Avantyne Longsword")
-					r_hand = /obj/item/rogueweapon/sword/long/zizo
+					r_hand = /obj/item/rogueweapon/sword/long/avantyne
 				if("Kriegmesser")
 					r_hand = /obj/item/rogueweapon/sword/long/kriegmesser
 					backr = /obj/item/rogueweapon/scabbard/gwstrap

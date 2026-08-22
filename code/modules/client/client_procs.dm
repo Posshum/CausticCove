@@ -48,6 +48,10 @@ GLOBAL_LIST_EMPTY(respawncounts)
 		return 0
 	// RATWOOD EDIT END
 
+	if(href_list["statbrowser_calendar"])
+		open_calendar_ui()
+		return
+
 	// asset_cache
 	var/asset_cache_job
 	if(href_list["asset_cache_confirm_arrival"])
@@ -76,7 +80,7 @@ GLOBAL_LIST_EMPTY(respawncounts)
 				return
 
 		var/stl = CONFIG_GET(number/second_topic_limit)
-		if (!holder && stl)
+		if (!holder && stl && href_list["window_id"] != "statbrowser")
 			var/second = round(world.time, 10)
 			if (!topiclimiter)
 				topiclimiter = new(LIMITER_SIZE)
@@ -93,13 +97,15 @@ GLOBAL_LIST_EMPTY(respawncounts)
 		return
 	if(href_list["reload_tguipanel"])
 		nuke_chat()
+	if(href_list["reload_statbrowser"])
+		stat_panel.reinitialize()
 	//Logs all hrefs, except chat pings
 	if(!(href_list["_src_"] == "chat" && href_list["proc"] == "ping" && LAZYLEN(href_list) == 2))
 		log_href("[src] (usr:[usr]\[[COORD(usr)]\]) : [hsrc ? "[hsrc] " : ""][href]")
 
 	//byond bug ID:2256651
 	if (asset_cache_job && (asset_cache_job in completed_asset_jobs))
-		to_chat(src, span_danger("An error has been detected in how your client is receiving resources. Attempting to correct.... (If you keep seeing these messages you might want to close byond and reconnect)"))
+		to_chat(src, span_danger("An error has been detected in how your client is receiving resources. Attempting to correct.... (If you keep seeing these messages you might want to close byond and reconnect)"), MESSAGE_TYPE_OOC)
 		src << browse("...", "window=asset_cache_browser")
 		return
 	if (href_list["asset_cache_preload_data"])
@@ -141,10 +147,15 @@ GLOBAL_LIST_EMPTY(respawncounts)
 	if(href_list["schizohelp"])
 		answer_schizohelp(locate(href_list["schizohelp"]))
 		return
-	
+
 	if(href_list["viewchronicle"])
 		var/tab = href_list["chronicletab"] || "The Realm"
 		show_chronicle(tab)
+		return
+
+	if(href_list["vieweconomics"])
+		var/datum/economic_chronicle/chronicle = get_economic_chronicle()
+		chronicle.ui_interact(mob)
 		return
 
 	if(href_list["commandbar_typing"])
@@ -184,13 +195,24 @@ GLOBAL_LIST_EMPTY(respawncounts)
 
 /client/proc/view_stats()
 	set name = "View Chronicle"
-	set category = "OOC"
+	set category = "OOC.Info"
 
 	show_round_stats(pick_assoc(GLOB.featured_stats))
 
+/client/proc/cmd_admin_view_chronicle()
+	set category = "DEBUG.Logs"
+	set name = "View Chronicle"
+	set desc = "Open the Chronicle / roundend statistics panel without waiting for round end."
+
+	if(!check_rights(R_ADMIN|R_DEBUG))
+		return
+	show_round_stats(pick_assoc(GLOB.featured_stats))
+	log_admin("[key_name(src)] opened the Chronicle preview.")
+	SSblackbox.record_feedback("tally", "admin_verb", 1, "View Chronicle")
+
 /client/proc/is_content_unlocked()
 	if(!prefs.unlock_content)
-		to_chat(src, "Become a BYOND member to access member-perks and features, as well as support the engine that makes this game possible. Only 10 bucks for 3 months! <a href=\"https://secure.byond.com/membership\">Click Here to find out more</a>.")
+		to_chat(src, "Become a BYOND member to access member-perks and features, as well as support the engine that makes this game possible. Only 10 bucks for 3 months! <a href=\"https://secure.byond.com/membership\">Click Here to find out more</a>.", MESSAGE_TYPE_OOC)
 		return 0
 	return 1
 /*
@@ -233,11 +255,11 @@ GLOBAL_LIST_EMPTY(respawncounts)
 	if(CONFIG_GET(flag/automute_on) && !holder && last_message == message)
 		src.last_message_count++
 		if(src.last_message_count >= SPAM_TRIGGER_AUTOMUTE)
-			to_chat(src, span_danger("I have exceeded the spam filter limit for identical messages. An auto-mute was applied."))
+			to_chat(src, span_danger("I have exceeded the spam filter limit for identical messages. An auto-mute was applied."), MESSAGE_TYPE_INFO)
 			cmd_admin_mute(src, mute_type, 1)
 			return 1
 		if(src.last_message_count >= SPAM_TRIGGER_WARNING)
-			to_chat(src, span_danger("I are nearing the spam filter limit for identical messages."))
+			to_chat(src, span_danger("I are nearing the spam filter limit for identical messages."), MESSAGE_TYPE_INFO)
 			return 0
 	else
 		last_message = message
@@ -269,6 +291,10 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 	GLOB.clients += src
 	GLOB.directory[ckey] = src
 
+	stat_panel = new(src, "statbrowser")
+	stat_panel.subscribe(src, PROC_REF(on_stat_panel_message))
+
+	winset(src, null, "browser-options=find,refresh")
 	initialize_commandbar_spy()
 
 	GLOB.ahelp_tickets.ClientLogin(src)
@@ -281,7 +307,7 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 		holder.owner = src
 		connecting_admin = TRUE
 	else if(GLOB.deadmins[ckey])
-		verbs += /client/proc/readmin
+		add_verb(src, /client/proc/readmin)
 		connecting_admin = TRUE
 	if(CONFIG_GET(flag/autoadmin))
 		if(!GLOB.admin_datums[ckey])
@@ -291,7 +317,7 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 					autorank = R
 					break
 			if(!autorank)
-				to_chat(world, "Autoadmin rank not found")
+				to_chat(world, "Autoadmin rank not found", MESSAGE_TYPE_OOC)
 			else
 				new /datum/admins(autorank, ckey)
 	if(CONFIG_GET(flag/enable_localhost_rank) && !connecting_admin)
@@ -315,6 +341,9 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 	prefs.last_ip = address				//these are gonna be used for banning
 	prefs.last_id = computer_id			//these are gonna be used for banning
 	fps = prefs.clientfps
+	preferred_ui_language = sanitize_preferred_ui_language(prefs.preferred_ui_language)
+	prefs.preferred_ui_language = preferred_ui_language
+
 	//Caustic edit
 	prefs_vr = new/datum/vore_preferences(src)
 	//Caustic edit end
@@ -322,7 +351,7 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 	tgui_panel = new(src, "browseroutput")
 
 	if(fexists(roundend_report_file()))
-		verbs += /client/proc/show_previous_roundend_report
+		add_verb(src, /client/proc/show_previous_roundend_report)
 
 	var/full_version = "[byond_version].[byond_build ? byond_build : "xxx"]"
 	log_access("Login: [key_name(src)] from [address ? address : "localhost"]-[computer_id] || BYOND v[full_version]")
@@ -335,7 +364,7 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 			var/client/C = I
 			if(holder && C.holder)
 				if(check_rights_for(C, R_ADMIN))
-					to_chat(C, "Admin Login: [key]")
+					to_chat(C, "Admin Login: [key]", MESSAGE_TYPE_ADMINLOG)
 			if(C.key && (C.key != key) )
 				var/matches
 				if( (C.address == address) )
@@ -394,11 +423,11 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 
 		if (num2text(byond_build) in GLOB.blacklisted_builds)
 			log_access("Failed login: [key] - blacklisted byond version")
-			to_chat(src, span_danger("My version of byond is blacklisted."))
-			to_chat(src, span_danger("Byond build [byond_build] ([byond_version].[byond_build]) has been blacklisted for the following reason: [GLOB.blacklisted_builds[num2text(byond_build)]]."))
-			to_chat(src, span_danger("Please download a new version of byond. If [byond_build] is the latest, you can go to <a href=\"https://secure.byond.com/download/build\">BYOND's website</a> to download other versions."))
+			to_chat(src, span_danger("My version of byond is blacklisted."), MESSAGE_TYPE_OOC)
+			to_chat(src, span_danger("Byond build [byond_build] ([byond_version].[byond_build]) has been blacklisted for the following reason: [GLOB.blacklisted_builds[num2text(byond_build)]]."), MESSAGE_TYPE_OOC)
+			to_chat(src, span_danger("Please download a new version of byond. If [byond_build] is the latest, you can go to <a href=\"https://secure.byond.com/download/build\">BYOND's website</a> to download other versions."), MESSAGE_TYPE_OOC)
 			if(connecting_admin)
-				to_chat(src, "As an admin, you are being allowed to continue using this version, but please consider changing byond versions")
+				to_chat(src, "As an admin, you are being allowed to continue using this version, but please consider changing byond versions", MESSAGE_TYPE_OOC)
 			else
 				qdel(src)
 				return
@@ -412,6 +441,13 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 			alert(mob, "You have logged in already with another key this round, please log out of this one NOW or risk being banned!")
 
 	tgui_panel.initialize()
+	stat_panel.initialize(
+		inline_html = file("html/statbrowser.html"),
+		inline_js = file("html/statbrowser.js"),
+		inline_css = file("html/statbrowser.css"),
+	)
+	apply_statbrowser_theme()
+	addtimer(CALLBACK(src, PROC_REF(check_panel_loaded)), 30 SECONDS)
 
 	connection_time = world.time
 	connection_realtime = world.realtime
@@ -421,13 +457,13 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 	var/ceb = CONFIG_GET(number/client_error_build)
 	var/cwv = CONFIG_GET(number/client_warn_version)
 	if (byond_version < cev || byond_build < ceb)		//Out of date client.
-		to_chat(src, span_danger("<b>My version of BYOND is too old:</b>"))
-		to_chat(src, CONFIG_GET(string/client_error_message))
-		to_chat(src, "Your version: [byond_version].[byond_build]")
-		to_chat(src, "Required version: [cev].[ceb] or later")
-		to_chat(src, "Visit <a href=\"https://secure.byond.com/download\">BYOND's website</a> to get the latest version of BYOND.")
+		to_chat(src, span_danger("<b>My version of BYOND is too old:</b>"), MESSAGE_TYPE_OOC)
+		to_chat(src, CONFIG_GET(string/client_error_message), MESSAGE_TYPE_OOC)
+		to_chat(src, "Your version: [byond_version].[byond_build]", MESSAGE_TYPE_OOC)
+		to_chat(src, "Required version: [cev].[ceb] or later", MESSAGE_TYPE_OOC)
+		to_chat(src, "Visit <a href=\"https://secure.byond.com/download\">BYOND's website</a> to get the latest version of BYOND.", MESSAGE_TYPE_OOC)
 		if (connecting_admin)
-			to_chat(src, "Because you are an admin, you are being allowed to walk past this limitation, But it is still STRONGLY suggested you upgrade")
+			to_chat(src, "Because you are an admin, you are being allowed to walk past this limitation, But it is still STRONGLY suggested you upgrade", MESSAGE_TYPE_OOC)
 		else
 			qdel(src)
 			return 0
@@ -440,19 +476,19 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 			msg += "Visit <a href=\"https://secure.byond.com/download\">BYOND's website</a> to get the latest version of BYOND.<br>"
 			src << browse(msg, "window=warning_popup")
 		else
-			to_chat(src, span_danger("<b>My version of byond may be getting out of date:</b>"))
-			to_chat(src, CONFIG_GET(string/client_warn_message))
-			to_chat(src, "Your version: [byond_version]")
-			to_chat(src, "Required version to remove this message: [cwv] or later")
-			to_chat(src, "Visit <a href=\"https://secure.byond.com/download\">BYOND's website</a> to get the latest version of BYOND.")
+			to_chat(src, span_danger("<b>My version of byond may be getting out of date:</b>"), MESSAGE_TYPE_OOC)
+			to_chat(src, CONFIG_GET(string/client_warn_message), MESSAGE_TYPE_OOC)
+			to_chat(src, "Your version: [byond_version]", MESSAGE_TYPE_OOC)
+			to_chat(src, "Required version to remove this message: [cwv] or later", MESSAGE_TYPE_OOC)
+			to_chat(src, "Visit <a href=\"https://secure.byond.com/download\">BYOND's website</a> to get the latest version of BYOND.", MESSAGE_TYPE_OOC)
 
 	if (connection == "web" && !connecting_admin)
 		if (!CONFIG_GET(flag/allow_webclient))
-			to_chat(src, "Web client is disabled")
+			to_chat(src, "Web client is disabled", MESSAGE_TYPE_OOC)
 			qdel(src)
 			return 0
 		if (CONFIG_GET(flag/webclient_only_byond_members) && !IsByondMember())
-			to_chat(src, "Sorry, but the web client is restricted to byond members only.")
+			to_chat(src, "Sorry, but the web client is restricted to byond members only.", MESSAGE_TYPE_OOC)
 			qdel(src)
 			return 0
 
@@ -462,18 +498,18 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 
 	if(holder)
 		add_admin_verbs()
-		to_chat(src, get_message_output("memo"))
+		to_chat(src, get_message_output("memo"), MESSAGE_TYPE_OOC)
 		adminGreet()
-	if(mob && reconnecting)
-		var/area/joined_area = get_area(mob.loc)
-		if(joined_area)
-			joined_area.reconnect_game(mob)
-	else if(!BC_IsKeyAllowedToConnect(ckey))
+	if(!BC_IsKeyAllowedToConnect(ckey))
 		src << "Sorry, but the server is currently only accepting whitelisted players.  Please see the discord to be whitelisted."
 		message_admins("[ckey] was denied a connection due to not being whitelisted.")
 		log_admin("[ckey] was denied a connection due to not being whitelisted.")
 		qdel(src)
 		return 0
+	if(mob && reconnecting)
+		var/area/joined_area = get_area(mob.loc)
+		if(joined_area)
+			joined_area.reconnect_game(mob)
 
 	add_verbs_from_config()
 	var/cached_player_age = set_client_age_from_db(tdata) //we have to cache this because other shit may change it and we need it's current value now down below.
@@ -503,7 +539,7 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 	apply_clickcatcher()
 
 	if(prefs.lastchangelog != GLOB.changelog_hash) //bolds the changelog button on the interface so we know there are updates.
-		to_chat(src, span_info("You have unread updates in the changelog."))
+		to_chat(src, span_info("You have unread updates in the changelog."), MESSAGE_TYPE_OOC)
 		if(CONFIG_GET(flag/aggressive_changelog))
 			changelog()
 		else
@@ -519,7 +555,7 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 
 	if(ckey in GLOB.clientmessages)
 		for(var/message in GLOB.clientmessages[ckey])
-			to_chat(src, message)
+			to_chat(src, message, MESSAGE_TYPE_OOC)
 		GLOB.clientmessages.Remove(ckey)
 
 	if(CONFIG_GET(flag/autoconvert_notes))
@@ -527,10 +563,10 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 
 	add_patreon_verbs()
 	is_donator = is_donator(ckey)
-	to_chat(src, get_message_output("message", ckey))
+	to_chat(src, get_message_output("message", ckey), MESSAGE_TYPE_OOC)
 
 	if(!winexists(src, "asset_cache_browser")) // The client is using a custom skin, tell them.
-		to_chat(src, span_warning("Unable to access asset cache browser, if you are using a custom skin file, please allow DS to download the updated version, if you are not, then make a bug report. This is not a critical issue but can cause issues with resource downloading, as it is impossible to know when extra resources arrived to you."))
+		to_chat(src, span_warning("Unable to access asset cache browser, if you are using a custom skin file, please allow DS to download the updated version, if you are not, then make a bug report. This is not a critical issue but can cause issues with resource downloading, as it is impossible to know when extra resources arrived to you."), MESSAGE_TYPE_OOC)
 
 	update_ambience_pref()
 
@@ -573,7 +609,7 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 			var/client/C = I
 			if(C.holder)
 				if(check_rights_for(C, R_ADMIN))
-					to_chat(C, "Admin Logout: [ckey]")
+					to_chat(C, "Admin Logout: [ckey]", MESSAGE_TYPE_ADMINLOG)
 		adminGreet(1)
 		holder.owner = null
 		GLOB.admins -= src
@@ -664,12 +700,12 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 		if (CONFIG_GET(flag/panic_bunker) && !holder && !GLOB.deadmins[ckey] && !bunker_bypass_check())
 			log_access("Failed Login: [key] - New account attempting to connect during panic bunker")
 			message_admins(span_adminnotice("Failed Login: [key] - New account attempting to connect during panic bunker"))
-			to_chat(src, CONFIG_GET(string/panic_bunker_message))
+			to_chat(src, CONFIG_GET(string/panic_bunker_message), MESSAGE_TYPE_OOC)
 			var/list/connectiontopic_a = params2list(connectiontopic)
 			var/list/panic_addr = CONFIG_GET(string/panic_server_address)
 			if(panic_addr && !connectiontopic_a["redirect"])
 				var/panic_name = CONFIG_GET(string/panic_server_name)
-				to_chat(src, span_notice("Sending you to [panic_name ? panic_name : panic_addr]."))
+				to_chat(src, span_notice("Sending you to [panic_name ? panic_name : panic_addr]."), MESSAGE_TYPE_OOC)
 				winset(src, null, "command=.options")
 				src << link("[panic_addr]?redirect=1")
 			qdel(query_client_in_db)
@@ -843,8 +879,8 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 		if (oldcid != computer_id && computer_id != lastcid) //IT CHANGED!!!
 			cidcheck -= ckey //so they can try again after removing the cid randomizer.
 
-			to_chat(src, span_danger("Connection Error:"))
-			to_chat(src, span_danger("Invalid ComputerID(spoofed). Please remove the ComputerID spoofer from my byond installation and try again."))
+			to_chat(src, span_danger("Connection Error:"), MESSAGE_TYPE_OOC)
+			to_chat(src, span_danger("Invalid ComputerID(spoofed). Please remove the ComputerID spoofer from my byond installation and try again."), MESSAGE_TYPE_OOC)
 
 			if (!cidcheck_failedckeys[ckey])
 				message_admins(span_adminnotice("[key_name(src)] has been detected as using a cid randomizer. Connection rejected."))
@@ -884,7 +920,7 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 	var/url = winget(src, null, "url")
 	//special javascript to make them reconnect under a new window.
 	src << browse({"<a id='link' href="byond://[url]?token=[token]">byond://[url]?token=[token]</a><script type="text/javascript">document.getElementById("link").click();window.location="byond://winset?command=.quit"</script>"}, "border=0;titlebar=0;size=1x1;window=redirect")
-	to_chat(src, {"<a href="byond://[url]?token=[token]">I will be automatically taken to the game, if not, click here to be taken manually</a>"})
+	to_chat(src, {"<a href="byond://[url]?token=[token]">I will be automatically taken to the game, if not, click here to be taken manually</a>"}, MESSAGE_TYPE_OOC)
 
 /client/proc/note_randomizer_user()
 	add_system_note("CID-Error", "Detected as using a cid randomizer.")
@@ -936,6 +972,9 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 
 	var/dragged = L["drag"]
 	if(dragged && !L[dragged])
+		return
+
+	if(lmb_throttle(object, L))
 		return
 
 	if (object && object == middragatom && L["left"])
@@ -991,9 +1030,9 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 
 /client/proc/add_verbs_from_config()
 	if(CONFIG_GET(flag/see_own_notes))
-		verbs += /client/proc/self_notes
+		add_verb(src, /client/proc/self_notes)
 	if(CONFIG_GET(flag/use_exp_tracking))
-		verbs += /client/proc/self_playtime
+		add_verb(src, /client/proc/self_playtime)
 
 
 #undef UPLOAD_LIMIT
@@ -1097,7 +1136,7 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 
 /client/proc/AnnouncePR(announcement)
 	if(prefs && prefs.chat_toggles & CHAT_PULLR)
-		to_chat(src, announcement)
+		to_chat(src, announcement, MESSAGE_TYPE_OOC)
 
 /client/proc/show_character_previews(mutable_appearance/MA)
 	var/pos = 0
@@ -1148,9 +1187,6 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 /client/New()
 	..()
 	fullscreen()
-	if(byond_version >= 516) // Enable 516 compat browser storage mechanisms
-		winset(src, null, "browser-options=find,byondstorage")
-	// byondstorage,devtools <- other options
 
 /client/proc/give_award(achievement_type, mob/user)
 	return	player_details.achievements.unlock(achievement_type, mob/user)
@@ -1191,7 +1227,7 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 		return FALSE
 	if(prefs.commendedsomeone)
 		if(!silent)
-			to_chat(src, span_danger("You already commended someone this round."))
+			to_chat(src, span_danger("You already commended someone this round."), MESSAGE_TYPE_INFO)
 		return FALSE
 	return TRUE
 
@@ -1208,14 +1244,14 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 		return
 	var/theykey = selections[selection]
 	if(theykey == ckey)
-		to_chat(src,"You can't commend yourself.")
+		to_chat(src,"You can't commend yourself.", MESSAGE_TYPE_INFO)
 		return
 	if(!can_commend(forced))
 		return
 	if(theykey)
 		prefs.commendedsomeone = TRUE
 		add_commend(theykey, ckey)
-		to_chat(src,"[selection] commended.")
+		to_chat(src,"[selection] commended.", MESSAGE_TYPE_INFO)
 		log_game("COMMEND: [ckey] commends [theykey].")
 		log_admin("COMMEND: [ckey] commends [theykey].")
 	return
@@ -1228,16 +1264,19 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 	// If admin (holder) always keep OOC for moderation.
 	if(holder)
 		if(!( /client/verb/ooc in verbs))
-			verbs += /client/verb/ooc
+			add_verb(src, /client/verb/ooc)
+		init_verbs()
 		return
 
 	// Non-admins: only lobby new_player retains OOC verb.
 	if(istype(mob, /mob/dead/new_player))
 		if(!( /client/verb/ooc in verbs))
-			verbs += /client/verb/ooc
+			add_verb(src, /client/verb/ooc)
 	else
 		if(/client/verb/ooc in verbs)
-			verbs -= /client/verb/ooc
+			remove_verb(src, /client/verb/ooc)
+
+	init_verbs()
 
 #undef LIMITER_SIZE
 #undef CURRENT_SECOND
@@ -1245,3 +1284,60 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 #undef CURRENT_MINUTE
 #undef MINUTE_COUNT
 #undef ADMINSWARNED_AT
+
+/client/proc/check_panel_loaded()
+	if(stat_panel.is_ready() && !stat_panel.fatally_errored)
+		return
+	to_chat(src, span_userdanger("Statpanel failed to load, click <a href='byond://?src=[REF(src)];reload_statbrowser=1'>here</a> to reload the panel "))
+
+/client/proc/apply_statbrowser_theme()
+	if(!prefs)
+		return
+	if(stat_panel)
+		stat_panel.send_message("set_theme", prefs.statbrowser_theme)
+	if(tgui_panel)
+		tgui_panel.set_chat_theme(prefs.statbrowser_theme)
+
+/// compiles a full list of verbs and sends it to the browser
+/client/proc/init_verbs()
+	if(IsAdminAdvancedProcCall())
+		return
+	var/list/verblist = list()
+	var/list/verbstoprocess = verbs.Copy()
+	if(mob)
+		verbstoprocess += mob.verbs
+		for(var/atom/movable/thing as anything in mob.contents)
+			verbstoprocess += thing.verbs
+	panel_tabs.Cut() // panel_tabs get reset in init_verbs on JS side anyway
+	for(var/procpath/verb_to_init as anything in verbstoprocess)
+		if(!verb_to_init)
+			continue
+		if(verb_to_init.hidden)
+			continue
+		if(!istext(verb_to_init.category))
+			continue
+		panel_tabs |= verb_to_init.category
+		verblist[++verblist.len] = list(verb_to_init.category, verb_to_init.name)
+	stat_panel.send_message("init_verbs", list(panel_tabs = panel_tabs, verblist = verblist))
+
+/client/verb/fix_stat_panel()
+	set name = "Fix Stat Panel"
+	set hidden = TRUE
+	init_verbs()
+
+/**
+ * Handles incoming messages from the stat-panel TGUI.
+ */
+/client/proc/on_stat_panel_message(type, payload)
+	switch(type)
+		if("Update-Verbs")
+			init_verbs()
+		if("Remove-Tabs")
+			panel_tabs -= payload["tab"]
+		if("Send-Tabs")
+			panel_tabs |= payload["tab"]
+		if("Reset-Tabs")
+			panel_tabs = list()
+		if("Set-Tab")
+			stat_tab = payload["tab"]
+			SSstatpanels.immediate_send_stat_data(src)

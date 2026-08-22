@@ -92,6 +92,12 @@
 
 	var/next_smell = 0
 
+	var/lightning_flashing = FALSE
+	var/nausea = 0
+	var/bleeding_tier = 0
+
+	var/tempo_faction_flag = null
+
 	/// Bitflags for pending icon updates - batched at end of tick
 	var/pending_icon_updates = NONE
 	/// Cached key for damage overlay state - invalidated when damage state changes

@@ -46,6 +46,8 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/tgui_fancy = TRUE
 	var/tgui_lock = TRUE
 	var/tgui_theme = "azure_default"
+	var/parchment_skin = "leatherbound"
+	var/statbrowser_theme = "dark"
 	var/windowflashing = TRUE
 	var/toggles = TOGGLES_DEFAULT
 	var/ghost_toggles
@@ -63,6 +65,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/preferred_map = null
 	var/pda_style = MONO
 	var/pda_color = "#808000"
+	var/topjob = null
 
 	var/uses_glasses_colour = 0
 
@@ -103,6 +106,8 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/static/datum/species/default_species = new /datum/species/human/northern()
 	var/datum/patron/selected_patron
 	var/static/datum/patron/default_patron = /datum/patron/divine/undivided
+	var/manor_name = ""
+	var/manor_type = "manor"
 	var/list/features = MANDATORY_FEATURE_LIST
 	var/list/randomise = list(RANDOM_UNDERWEAR = TRUE, RANDOM_UNDERWEAR_COLOR = TRUE, RANDOM_UNDERSHIRT = TRUE, RANDOM_SOCKS = TRUE, RANDOM_BACKPACK = TRUE, RANDOM_JUMPSUIT_STYLE = FALSE, RANDOM_SKIN_TONE = TRUE, RANDOM_EYE_COLOR = TRUE)
 	var/list/friendlyGenders = list("male" = "masculine", "female" = "feminine")
@@ -155,6 +160,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/no_language_fonts = FALSE
 	var/no_language_icon = FALSE
 	var/no_redflash = FALSE
+	var/darkvision_accessibility = 0
 
 	var/lastclass
 
@@ -165,8 +171,6 @@ GLOBAL_LIST_EMPTY(chosen_names)
 
 	var/datum/migrant_pref/migrant
 	var/next_special_trait = null
-
-	var/action_buttons_screen_locs = list()
 
 	var/domhand = 2
 	var/nickname = "Please Change Me"
@@ -244,8 +248,6 @@ GLOBAL_LIST_EMPTY(chosen_names)
 
 	var/averse_chosen_faction = "Inquisition"
 
-	var/datum/voicepack/temp_vp
-
 	var/mood_messages_in_chat
 
 	var/attack_blip_frequency = ATTACK_BLIP_PREF_DEFAULT
@@ -254,16 +256,30 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/examine_theme
 
 	/// Whether we can see the feint HUD bar.
-	var/feint_hud = FALSE 
+	var/feint_hud = FALSE
+
+	// Vocal bark prefs
+	var/bark_id = "mutedc3"
+	var/bark_speed = 4
+	var/bark_pitch = 1
+	var/bark_variance = 0.2
+	COOLDOWN_DECLARE(bark_previewing)
+	var/mute_barks = FALSE
 
 	//CC Edit - Audio Preload
 	var/audio_preload
 	var/preloaded = FALSE //Bool Check
 
+	var/datum/tat_build/tat_build //CC + TA edit
+	//CC Edit - Roleplay Guidance Pref, whether you encourage PvP and wish to fight others if invited or discourage PvP and wish to avoid fighting,
+			//but does not exempt you from combat or the consequences of your own actions.
+	var/rp_guidance = 3 //Defaults to Default by Default.
+
 /datum/preferences/New(client/C)
 	parent = C
 	migrant  = new /datum/migrant_pref(src)
 	familiar_prefs = new /datum/familiar_prefs(src)
+	tat_build = new(src) //CC + TA edit
 
 	for(var/custom_name_id in GLOB.preferences_custom_names)
 		custom_names[custom_name_id] = get_default_name(custom_name_id)
@@ -328,8 +344,13 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	ResetJobs()
 	if(user)
 		if(pref_species.desc)
-			to_chat(user, "[pref_species.desc]")
-		to_chat(user, "<font color='red'>Classes reset.</font>")
+			var/bonus_stats = span_racialstatinfo(pref_species.get_string_bonus_stats())
+			var/traits_list = pref_species.get_string_bonus_traits()
+			var/bonus_traits = traits_list && length(traits_list) ? "<br>" + span_smallracialstatinfo(traits_list) : null
+			var/mechanics = pref_species.mechanics_explanations ? span_info(pref_species.get_string_mechanics_explanations()) : null
+			var/description2print  = fieldset_block(span_big("<b>[span_bignotice(pref_species.desc_title)]</b>"), "[pref_species.desc]<br><hr>[bonus_stats][bonus_traits][mechanics]", "speciesdesc_block")
+			to_chat(user, description2print)
+		to_chat(user, span_red("Classes reset."))
 	random_character(gender, FALSE, FALSE)
 	accessory = "Nothing"
 
@@ -340,6 +361,8 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	reset_descriptors()
 	virtue_origin = new pref_species.origin_default
 	taur_type = null
+	var/datum/charflaw/no_flaw = new /datum/charflaw/noflaw()
+	charflaws = list(no_flaw)
 
 #define APPEARANCE_CATEGORY_COLUMN "<td valign='top' width='14%'>"
 #define MAX_MUTANT_ROWS 4
@@ -481,7 +504,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 				dat += "<b>Race Bonus:</b> <a href='?_src_=prefs;preference=race_bonus_select;task=input'>[race_bonus_display ? "[race_bonus_display]" : "None"]</a><BR>"
 			else
 				race_bonus = null
-			
+
 			var/datum/language/selected_lang
 			var/lang_output = "None"
 			if(ispath(extra_language, /datum/language))
@@ -611,7 +634,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 				if(istype(cf, /datum/charflaw/averse))
 					has_averse = TRUE
 					break
-			
+
 			if(has_averse)
 				if(!averse_chosen_faction)
 					averse_chosen_faction = "Inquisition"
@@ -653,6 +676,15 @@ GLOBAL_LIST_EMPTY(chosen_names)
 			dat += "<a href='?_src_=prefs;preference=ai_core_icon;task=input'><b>Preferred AI Core Display:</b> [preferred_ai_core_display]</a><br>"
 			dat += "<a href='?_src_=prefs;preference=sec_dept;task=input'><b>Preferred Security Department:</b> [prefered_security_department]</a><BR></td>"
 */
+			var/datum/bark/B = GLOB.bark_list[bark_id]
+			dat += "<br>"
+			dat += "<b>Vocal Bark Sound:</b><br>"
+			dat += "<a href='?_src_=prefs;preference=barksound;task=input'>[B ? initial(B.name) : "INVALID"]</a><br>"
+			dat += "<b>Vocal Bark Speed:</b> <a href='?_src_=prefs;preference=barkspeed;task=input'>[bark_speed]</a><br>"
+			dat += "<b>Vocal Bark Pitch:</b> <a href='?_src_=prefs;preference=barkpitch;task=input'>[bark_pitch]</a><br>"
+			dat += "<b>Vocal Bark Variance:</b> <a href='?_src_=prefs;preference=barkvary;task=input'>[bark_variance]</a><br>"
+			dat += "<b><a href='?_src_=prefs;preference=barkpreview;task=input'>Preview Bark</a></b><br>"
+			dat += "</td>"
 			dat += "</tr></table>"
 // 			-----------END OF IDENT TABLE-----------
 
@@ -683,7 +715,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 
 			//dat += "<br><b>Accent:</b> <a href='?_src_=prefs;preference=char_accent;task=input'>[char_accent]</a>"
 			dat += "<br><b>Features:</b> <a href='?_src_=prefs;preference=customizers;task=menu'>Change</a>"
-			dat += "<br><b>Sprite Scale:</b><a href='?_src_=prefs;preference=body_size;task=input'>[(features["body_size"] * 100)]%</a>"
+			//dat += "<br><b>Sprite Scale:</b><a href='?_src_=prefs;preference=body_size;task=input'>[(features["body_size"] * 100)]%</a>" //Caustic Edit - Lets just comment this out because we have Size Scaling?
 			dat += "<br><b>Markings:</b> <a href='?_src_=prefs;preference=markings;task=menu'>Change</a>"
 			dat += "<br><b>Descriptors:</b> <a href='?_src_=prefs;preference=descriptors;task=menu'>Change</a>"
 
@@ -713,11 +745,13 @@ GLOBAL_LIST_EMPTY(chosen_names)
 			dat += "<br><B>NSFW Image Gallery:</b> <a href='?_src_=prefs;preference=nsfw_img_gallery;task=input'>Add</a>"
 			dat += "<a href='?_src_=prefs;preference=clear_nsfw_gallery;task=input'>Clear Gallery</a>"
 			dat += "<br><a href='?_src_=prefs;preference=ooc_preview;task=input'><b>Preview Examine</b></a>"
-
+			dat += "<br><b>Pliant Soul Settings:</b> <a href='?_src_=prefs;preference=tat_build;task=input'>Change</a>" //CC + TA edit
 			dat += "<br><b>Loadout:</b> <a href='?_src_=prefs;preference=open_loadout;task=input'>Open Menu</a>"
 			dat += "</td>"
 			dat += "</td>"
 			dat += "</tr></table>"
+			dat += "<BR><BR><b>Manor Name:</b> <a href='?_src_=prefs;preference=manor_name;task=input'>[manor_name ? manor_name : "Unknown Manor"]</a><BR>" //CC + TA EDIT
+			dat += "<b>Manor Type:</b> <a href='?_src_=prefs;preference=manor_type;task=input'>[get_manor_type_display_name(manor_type)]</a><BR>" //CC + TA EDIT
 //			-----------END OF BODY TABLE-----------
 			dat += "</td>"
 			dat += "</tr>"
@@ -728,6 +762,8 @@ GLOBAL_LIST_EMPTY(chosen_names)
 			dat += "<table><tr><td width='340px' valign='top'>"
 			dat += "<h2>Display</h2>"
 			dat += "<b>TGUI Theme:</b> <a href='?_src_=prefs;preference=tgui_theme'>[get_tgui_theme_display_name()]</a><br>"
+			dat += "<b>Parchment Theme:</b> <a href='?_src_=prefs;preference=parchment_skin'>[get_parchment_skin_display_name()]</a><br>"
+			dat += "<b>Panel Theme:</b> <a href='?_src_=prefs;preference=statbrowser_theme'>[get_statbrowser_theme_display_name()]</a><br>"
 			dat += "<b>UI Mode:</b> <a href='?_src_=prefs;preference=tgui_ui_prefs;task=menu'>[tgui_pref ? "TGUI" : "Legacy"]</a><br>"
 			dat += "<b>tgui Monitors:</b> <a href='?_src_=prefs;preference=tgui_lock'>[(tgui_lock) ? "Primary" : "All"]</a><br>"
 			dat += "<b>Ambient Occlusion:</b> <a href='?_src_=prefs;preference=ambientocclusion'>[ambientocclusion ? "Enabled" : "Disabled"]</a><br>"
@@ -758,6 +794,12 @@ GLOBAL_LIST_EMPTY(chosen_names)
 						dat += "<b>[capitalize(i)]:</b> <font color=red> \[IN [days_remaining] DAYS]</font><br>"
 					else
 						dat += "<b>[capitalize(i)]:</b> <a href='?_src_=prefs;preference=be_special;be_special_type=[i]'>[(i in be_special) ? "Enabled" : "Disabled"]</a><br>"
+			//CC Edit - Roleplay Guidance
+			var/hunted = ""
+			if(rp_guidance > 1)
+				hunted = "+ Hunted"
+			dat += "<b>Roleplay Guidance:</b> <a href='?_src_=prefs;preference=roleplay_guidance;task=input'>[rp_guidance ? "PvP Encouraged" : "PvP Discouraged"] [hunted]</a><BR>"
+			//CC Edit End
 			dat += "</td></tr></table>"
 
 		if(2) //OOC Preferences
@@ -926,7 +968,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	popup.open(FALSE)
 	onclose(user, "capturekeypress", src)
 
-/datum/preferences/proc/SetChoices(mob/user, limit = 14, list/splitJobs = list("Court Magician", "Bishop", "Merchant", "Archivist", "Towner", "Grenzelhoft Mercenary", "Beggar", "Prisoner", "Goblin King"), widthPerColumn = 295, height = 620) //295 620
+/datum/preferences/proc/SetChoices(mob/user, limit = 14, list/splitJobs = list("Court Magician", "Bishop", "Merchant", "Guildmaster", "Archivist", "Towner", "Grenzelhoft Mercenary", "Beggar", "Prisoner", "Goblin King"), widthPerColumn = 295, height = 620) //295 620
 	if(!SSjob)
 		return
 
@@ -1120,6 +1162,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 					var/mob/dead/new_player/P = user
 					if(istype(P))
 						P.topjob = job.title
+						topjob = job.title
 				if(JP_MEDIUM)
 					prefLevelLabel = "Medium"
 					prefLevelColor = "green"
@@ -1506,7 +1549,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 		else if(task == "tooltip")
 			var/tooltip = href_list["tooltip"]
 			to_chat(user, span_notice(virtuetwo.choice_tooltips[tooltip]))
-	
+
 	//Caustic Edit - Extra Virtue Handling
 	else if(href_list["preference"] == "subextravirtue")
 		var/task = href_list["task"]
@@ -1546,7 +1589,11 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 			for(var/key in cf_list)
 				if(cf_list[key] == /datum/charflaw/noflaw)
 					cf_list.Remove(key)
-					break
+				else
+					var/datum/charflaw/cf = cf_list[key]
+					cf = new cf()
+					if(length(cf.restricted_species) && (pref_species.type in cf.restricted_species))
+						cf_list.Remove(key)
 
 			for(var/datum/charflaw/cf in charflaws)
 				for(var/key in cf_list)
@@ -1783,6 +1830,27 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						else
 							to_chat(user, "<font color='red'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, -, ', . and ,.</font>")
 
+				if("manor_name")  //CC + TA EDIT START
+					var/new_name = tgui_input_text(user, "Choose a name for your manor:", "MANOR NAME", encode = FALSE)
+					if(new_name)
+						new_name = reject_bad_name(new_name)
+						if(new_name)
+							manor_name = new_name
+						else
+							to_chat(user, "<font color='red'>Invalid manor name. It should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, -, ', . and ,.</font>")
+
+				if("manor_type")
+					var/list/manor_type_choices = list(
+						"Manor" = "manor",
+						"Hunter Mansion" = "hunter_mansion",
+						"Village" = "village",
+						"Fisher Hamlet" = "fisher_hamlet",
+						"Mining Settlement" = "mining_settlement"
+					)
+					var/new_manor_type = tgui_input_list(user, "Choose the type of manor you'd like to manage:", "MANOR TYPE", manor_type_choices, get_manor_type_display_name(manor_type))
+					if(new_manor_type)
+						manor_type = manor_type_choices[new_manor_type] //CC + TA EDIT END
+
 //				if("age")
 //					var/new_age = input(user, "Choose your character's age:\n([AGE_MIN]-[AGE_MAX])", "Years Dead") as num|null
 //					if(new_age)
@@ -1875,12 +1943,9 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 							to_chat(user, "<font color='red'>Your character will now audibly emote in accordance to their Voice Identity and any Racial / Class-specific voice packs.</font>")
 				if("voicepack_preview")
 					if(voice_pack != "Default")
-						var/datum/voicepack/VP = GLOB.voice_packs_list[voice_pack]
-						if(!istype(temp_vp, VP))
-							temp_vp = new VP()
-						var/voiceline = temp_vp.get_sound(pick(temp_vp.preview))
+						var/datum/voicepack/VP = GLOB.voice_packs[GLOB.voice_packs_list[voice_pack]]
+						var/voiceline = VP.get_sound(pick(VP.preview))
 						user.playsound_local(user, voiceline, 100)
-
 				if("taur_type")
 					var/list/species_taur_list = pref_species.get_taur_list()
 					if(!LAZYLEN(species_taur_list))
@@ -2001,6 +2066,60 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 							to_chat(user, "<font color='red'>Value must be between [MIN_VOICE_PITCH] and [MAX_VOICE_PITCH].</font>")
 							return
 						voice_pitch = new_voice_pitch
+
+				if("barksound")
+					var/list/woof_woof = list()
+					for(var/path in GLOB.bark_list)
+						var/datum/bark/B = GLOB.bark_list[path]
+						if(initial(B.ignore))
+							continue
+						if(initial(B.ckeys_allowed))
+							var/list/allowed = initial(B.ckeys_allowed)
+							if(!allowed.Find(user.client.ckey))
+								continue
+						woof_woof[initial(B.name)] = initial(B.id)
+					var/new_bork = input(user, "Choose your desired vocal bark", "Character Preference") as null|anything in woof_woof
+					if(new_bork)
+						bark_id = woof_woof[new_bork]
+						var/datum/bark/B = GLOB.bark_list[bark_id] //Now we need sanitization to take into account bark-specific min/max values
+						bark_speed = round(clamp(bark_speed, initial(B.minspeed), initial(B.maxspeed)), 1)
+						bark_pitch = clamp(bark_pitch, initial(B.minpitch), initial(B.maxpitch))
+						bark_variance = clamp(bark_variance, initial(B.minvariance), initial(B.maxvariance))
+
+				if("barkspeed")
+					var/datum/bark/B = GLOB.bark_list[bark_id]
+					var/borkset = input(user, "Choose your desired bark speed (Higher is slower, lower is faster). Min: [initial(B.minspeed)]. Max: [initial(B.maxspeed)]", "Character Preference") as null|num
+					if(!isnull(borkset))
+						bark_speed = round(clamp(borkset, initial(B.minspeed), initial(B.maxspeed)), 1)
+
+				if("barkpitch")
+					var/datum/bark/B = GLOB.bark_list[bark_id]
+					var/borkset = input(user, "Choose your desired baseline bark pitch. Min: [initial(B.minpitch)]. Max: [initial(B.maxpitch)]", "Character Preference") as null|num
+					if(!isnull(borkset))
+						bark_pitch = clamp(borkset, initial(B.minpitch), initial(B.maxpitch))
+
+				if("barkvary")
+					var/datum/bark/B = GLOB.bark_list[bark_id]
+					var/borkset = input(user, "Choose your desired baseline bark pitch. Min: [initial(B.minvariance)]. Max: [initial(B.maxvariance)]", "Character Preference") as null|num
+					if(!isnull(borkset))
+						bark_variance = clamp(borkset, initial(B.minvariance), initial(B.maxvariance))
+
+				if("barkpreview")
+					if(SSticker.current_state == GAME_STATE_STARTUP) //Timers don't tick at all during game startup, so let's just give an error message
+						to_chat(user, "<span class='warning'>Bark previews can't play during initialization!</span>")
+						return
+					if(!COOLDOWN_FINISHED(src, bark_previewing))
+						return
+					if(!parent || !parent.mob)
+						return
+					COOLDOWN_START(src, bark_previewing, (5 SECONDS))
+					var/atom/movable/barkbox = new(get_turf(parent.mob))
+					barkbox.set_bark(bark_id)
+					var/total_delay = 0
+					for(var/i in 1 to (round((32 / bark_speed)) + 1))
+						addtimer(CALLBACK(barkbox, TYPE_PROC_REF(/atom/movable, bark), list(parent.mob), 7, 70, BARK_DO_VARY(bark_pitch, bark_variance)), total_delay)
+						total_delay += rand(DS2TICKS(bark_speed/4), DS2TICKS(bark_speed/4) + DS2TICKS(bark_speed/4)) TICKS
+					QDEL_IN(barkbox, total_delay)
 
 				if("highlight_color")
 					var/new_color = color_pick_sanitized(user, "Choose your character's nickname highlight color:", "Character Preference","#"+highlight_color)
@@ -2374,6 +2493,52 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 					var/datum/loadout_menu/LM = new(user.client)
 					LM.ui_interact(user)
 					return
+
+				//CC + TA edit
+				if("tat_build")
+					tat_build.ui_interact(user)
+				//CC + TA edit end
+				//CC Edit - Roleplay Guidance, this option should be FALSE BY DEFAULT, to encourage Conflict you MUST go into the Game Settings to enable it.
+				if("roleplay_guidance")
+					var/list/choices = list("Conflict Encouraged + Hunted", "Conflict Encouraged", "Conflict Discouraged", "Default")
+					var/choice = input(user, "Choose your Roleplay Guidance", "CHOOSE") as anything in choices
+
+					to_chat(user, span_notice("Roleplay Guidance is intended to allow players to more easily indicate their desires for Mechanical Conflict, or not. It is expected to only be used to better find other players interested in mechanical antagonism. \
+												It does not allow you to attack anyone without proper escalation, or to avoid combat altogether, the server rules still apply. Failure to follow them may be met with punishment. \
+												\n If a player Discourages Combat, it does not mean they are immune. Their actions can and will still have consequences IC, if you or anyone else so deems it fitting. \
+												If someone has it set to Discouraged and repeatedly escalates situations with their actions or otherwise misuses it, please feel free to adminhelp to let us know, and we can chat with them."))
+
+					switch(choice)
+						if("Default")
+							to_chat(user, span_warn("I have no strong feelings, one way or the other."))
+							rp_guidance = 3 //The not opted in option and the default.
+
+						if("Conflict Discouraged")
+							to_chat(user, span_green("Conflict Discouraged - Other Players will see that you do not prefer mechanical conflict. This does not mean you are immune to \
+													combat altogether, your actions still can have consequences. This option means that you are less likely to enjoy Mechanical Conflict, and if someone else is searching for a fight, they might be better off with someone else. \
+													It is still partially your duty to de-escalate situations when desired, or to attempt to solve situations through roleplayed means instead. Try to provide other avenues of resolution! \
+													\nOnce again, this does not mean you are immune to mechanical combat. Your actions still have consequences if someone so deems it fitting, and respecting the escalation rules."))
+							rp_guidance = FALSE
+						if("Conflict Encouraged")
+							to_chat(user, span_red("Conflict Encouraged - Other Players will see that you do enjoy engaging in mechanical conflict. It does not mean others are free to attack you without proper escalation, \
+													and for you to attack others without it as well. This option means you enjoy partaking in Mechanical Conflict as part of Roleplay, and those who similarly are looking for a fight may find one with you. \
+													You are still free to escalate or de-escalate situations as you wish, any situation can play out depending on how you interact with it!\
+													\nOnce again, this does not mean you are forced to a mechanical resolution, only that you wish for others to know you are welcoming it. It is still expected that all parties will follow proper escalation rules."))
+							rp_guidance = TRUE
+						if("Conflict Encouraged + Hunted")
+							to_chat(user, span_purple("Conflict Encouraged + Hunted - Other Players will see that you do enjoy engaging in mechanical conflict. It does not mean others are free to attack you without proper escalation, \
+													and for you to attack others without it as well. This option means you enjoy partaking in Mechanical Conflict as part of Roleplay, and those who similarly are looking for a fight may find one with you. \
+													You are still free to escalate or de-escalate situations as you wish, any situation can play out depending on how you interact with it!\
+													\nOnce again, this does not mean you are forced to a mechanical resolution, only that you wish for others to know you are welcoming it. It is still expected that all parties will follow proper escalation rules. \
+													\n\
+													\nSelecting this option, you also opt into the Hunted list! Certain antags may use abilities to seek you out directly. The Hunters still are beholden to the Rules of Escalation, and so do you if you happen to stumble upon them first."))
+							rp_guidance = 2 //Wildcard option to become hunted as we no longer have the Hunted flaw/vice.
+
+					if(!isnewplayer(user))
+						log_admin("[user.ckey] has updated their Roleplay Guidance preference to [choice] whilst in-game.")
+
+					return
+				//CC Edit End
 				if("vampire_hair")
 					var/new_vampirehair = input(user, "Choose your character's vampire hair color:", "Character Preference","#"+vampire_hair) as color|null
 					if(new_vampirehair)
@@ -2510,7 +2675,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						var/datum/virtue/virtue_chosen = virtue_choices[result]
 						virtue = new virtue_chosen.type
 						to_chat(user, process_virtue_text(virtue_chosen))
-						if(!istype(virtue, /datum/virtue/combat/rotcured) && !istype(virtuetwo, /datum/virtue/combat/rotcured) && !istype(extravirtue, /datum/virtue/combat/rotcured)) //Caustic Edit - Extra Virtue Handling
+						if(!istype(virtue, /datum/virtue/combat/second_chance) && !istype(virtuetwo, /datum/virtue/combat/second_chance) && !istype(extravirtue, /datum/virtue/combat/second_chance)) //Caustic Edit - Extra Virtue Handling
 							if(skin_tone == SKIN_COLOR_ROT)
 								var/new_tone = random_skin_tone()
 								skin_tone = new_tone
@@ -2542,7 +2707,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						var/datum/virtue/virtue_chosen = virtue_choices[result]
 						virtuetwo = new virtue_chosen.type
 						to_chat(user, process_virtue_text(virtue_chosen))
-						if(!istype(virtue, /datum/virtue/combat/rotcured) && !istype(virtuetwo, /datum/virtue/combat/rotcured) && !istype(extravirtue, /datum/virtue/combat/rotcured)) //Caustic Edit - Extra Virtue Handling
+						if(!istype(virtue, /datum/virtue/combat/second_chance && !istype(virtuetwo, /datum/virtue/combat/second_chance) && !istype(extravirtue, /datum/virtue/combat/second_chance))) //Caustic Edit - Extra Virtue Handling
 							if(skin_tone == SKIN_COLOR_ROT)
 								var/new_tone = random_skin_tone()
 								skin_tone = new_tone
@@ -2636,7 +2801,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 */
 				if("s_tone")
 					var/listy = pref_species.get_skin_list()
-					if(istype(virtue, /datum/virtue/combat/rotcured) || istype(virtuetwo, /datum/virtue/combat/rotcured) || istype(extravirtue, /datum/virtue/combat/rotcured)) //Caustic Edit - Extra Virtue Handling
+					if(istype(virtue, /datum/virtue/combat/second_chance) || istype(virtuetwo, /datum/virtue/combat/second_chance) || istype(extravirtue, /datum/virtue/combat/second_chance)) //Caustic Edit - Extra Virtue Handling
 						listy["Rotten"] = SKIN_COLOR_ROT
 					var/new_s_tone = tgui_input_list(user, "Choose your character's skin tone:", "SKINTONE", listy)
 					if(new_s_tone)
@@ -2838,6 +3003,11 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 					tgui_lock = !tgui_lock
 				if("tgui_theme")
 					setTguiStyle(user)
+				if("parchment_skin")
+					cycle_parchment_skin()
+				if("statbrowser_theme")
+					cycle_statbrowser_theme()
+					user.client?.apply_statbrowser_theme()
 				if("winflash")
 					windowflashing = !windowflashing
 
@@ -2967,7 +3137,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 					user << browse(null, "window=preferences") //closes job selection
 					user << browse(null, "window=mob_occupation")
 					user << browse(null, "window=latechoices") //closes late job selection
-					user << browse(null, "window=migration") // Closes migrant menu
+					migrant.hide_ui() // Closes migrant menu
 
 					SStriumphs.remove_triumph_buy_menu(user.client)
 
@@ -2997,10 +3167,13 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 								S.cd = "/character[i]"
 								var/nickname = S["nickname"]
 								var/realname = S["real_name"]
+								var/suffix = S["topjob"]
 								if(!realname)
 									name = "[i] - \[EMPTY SLOT\]"
 								else
 									name = "[i] - [realname][nickname ? " ([nickname])" : ""]"
+									if(suffix)
+										name += " - [suffix]"
 								if(loaded_slot == i)
 									choices_default = name
 								choices[name] = i
@@ -3081,10 +3254,12 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 			else if(firstspace == name_length)
 				real_name += "[pick(GLOB.last_names)]"
 
-	if(real_name in GLOB.chosen_names)
+	//Caustic Edit - Is this where it kept randomizing names? It might have side effects, but eeeeeh.
+	/*if(real_name in GLOB.chosen_names)
 		character.real_name = pref_species.random_name(gender)
-	else
-		character.real_name = real_name
+	else*/
+	character.real_name = real_name
+	//Caustic Edit End
 	character.name = character.real_name
 
 	character.domhand = domhand
@@ -3134,7 +3309,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 	character.ooc_notes = ooc_notes
 	character.nsfwflavortext = nsfwflavortext
 	character.erpprefs = erpprefs
-	
+
 	// Copy the cached version
 	character.flavortext_cached = flavortext_cached
 	character.ooc_notes_cached = ooc_notes_cached
@@ -3163,6 +3338,12 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 	// Rumours / Noble gossip
 	character.rumour = rumour
 	character.noble_gossip = noble_gossip
+
+	// Barks
+	character.set_bark(bark_id)
+	character.vocal_speed = bark_speed
+	character.vocal_pitch = bark_pitch
+	character.vocal_pitch_range = bark_variance
 
 	if(parent)
 		var/list/L = get_player_curses(parent.ckey)
@@ -3280,7 +3461,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 /datum/preferences/proc/is_active_migrant()
 	if(!migrant)
 		return FALSE
-	if(!migrant.active)
+	if(!migrant.queued_wave)
 		return FALSE
 	return TRUE
 
@@ -3338,8 +3519,6 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 /datum/preferences/proc/LorePopup(mob/user)
 	if(!user || !user.client)
 		return
-	var/list/dat = list()
 	var/datum/browser/noclose/popup  = new(user, "lore_primer", "<div align='center'>Lore Primer</div>", 650, 900)
-	dat += GLOB.roleplay_readme
-	popup.set_content(dat.Join())
+	popup.set_content(build_lore_primer_content())
 	popup.open(FALSE)

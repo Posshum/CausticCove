@@ -8,6 +8,8 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 	var/clothes_id //id for clothes
 	var/name	// this is the fluff name. these will be left generic (such as 'Lizardperson' for the lizard race) so servers can change them to whatever
 	var/desc
+	var/desc_title
+	var/list/mechanics_explanations // if this species has unique mechanics, explain each of them here. try to keep separate mechanics separated as individual list items
 	var/default_color = "#FFF"	// if alien colors are disabled, this is the color that will be used by that race
 	var/limbs_icon_m
 	var/limbs_icon_f
@@ -53,6 +55,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 	var/use_skintones = FALSE	// does it use skintones or not? (spoiler alert this is only used by humans)
 	var/exotic_blood = ""	// If my race wants to bleed something other than bog standard blood, change this to reagent id.
 	var/exotic_bloodtype = "" //If my race uses a non standard bloodtype (A+, O-, AB-, etc)
+	var/blood_color = BLOOD_COLOR_RED // Hex color used to tint blood decals this species leaves behind.
 	var/meat = /obj/item/reagent_containers/food/snacks/rogue/meat/steak //What the species drops on gibbing
 	var/skinned_type
 	var/liked_food = NONE
@@ -150,11 +153,12 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		/datum/descriptor_choice/prominent_two,
 		/datum/descriptor_choice/prominent_three,
 		/datum/descriptor_choice/prominent_four,
+		/datum/descriptor_choice/prominent_five,
+		/datum/descriptor_choice/prominent_six
 	)
 
 	// Associative list of stat (STAT_STRENGTH, etc) bonuses used to differentiate each race. They should ALWAYS be positive.
 	var/list/race_bonus = list()
-	var/construct = 0
 	var/gibs_on_shapeshift = FALSE
 
 	var/obj/item/mutanthands
@@ -499,8 +503,8 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		fly = new
 		fly.Grant(C)
 
-	soundpack_m = new soundpack_m()
-	soundpack_f = new soundpack_f()
+	soundpack_m = GLOB.voice_packs[soundpack_m]
+	soundpack_f = GLOB.voice_packs[soundpack_f]
 
 	C.add_movespeed_modifier(MOVESPEED_ID_SPECIES, TRUE, 100, override=TRUE, multiplicative_slowdown=speedmod, movetypes=(~FLYING))
 
@@ -795,7 +799,8 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 					return FALSE
 			if(H.wear_armor)
 				if(istype(H.wear_armor, I.type))
-					return FALSE
+					if(!(I.blocking_behavior & SAMEWEAR))
+						return FALSE
 				if(I.blocksound)
 					if(I.blocksound == H.wear_armor.blocksound)
 						return FALSE
@@ -927,7 +932,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 	return FALSE //Unsupported slot
 
 /datum/species/proc/equip_delay_self_check(obj/item/I, mob/living/carbon/human/H, bypass_equip_delay_self)
-	if(!I.equip_delay_self || bypass_equip_delay_self)
+	if(!I.equip_delay_self || bypass_equip_delay_self || isbelly(H.loc) || istype(H.loc, /obj/item/holder/micro)) //Caustic Edit - Allow equipping in a belly or as a mobholder for micros!
 		return TRUE
 	if(HAS_TRAIT(H, TRAIT_CHUNKYFINGERS))
 		return do_after(H, 5 MINUTES, target = H)
@@ -967,7 +972,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 //LIFE//
 ////////
 
-/datum/species/proc/handle_digestion(mob/living/carbon/human/H) 
+/datum/species/proc/handle_digestion(mob/living/carbon/human/H)
 //CC Edit Begin
 	handle_diet(H)
 //CC Edit End
@@ -1003,8 +1008,12 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 				H.Jitter(5)
 			hunger_rate = 10 * HUNGER_FACTOR*/
 //		hunger_rate *= H.physiology.hunger_mod
+		//Caustic Edit - Add in adjustments to Bottomless, and also the 10-minute grace timer for nutrition is added here!
+		if(H.has_flaw(/datum/charflaw/bottomless))
+			hunger_rate = (hunger_rate * 1.5) //Bottomless Flaw players just drain their nutrition faster instead of that constantly increasing max.
 		if(!H.mind || world.time < H.time_of_last_move + 10 MINUTES)
 			H.adjust_nutrition(-hunger_rate)
+		//Caustic Edit End
 
 		var/obj/item/organ/breasts/breasts = H.has_breasts()
 		if(breasts)
@@ -1211,6 +1220,10 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 	if(HAS_TRAIT(user, TRAIT_PACIFISM))
 		to_chat(user, span_warning("I don't want to harm [target]!"))
 		return FALSE
+	if(user.has_status_effect(/datum/status_effect/debuff/deadite_grace) && target.mind)
+		to_chat(user, span_warning("Ah, Lux... I calm down considerably, but my hunger only increases."))
+		user.remove_status_effect(/datum/status_effect/debuff/deadite_grace)
+
 	if(user.rogue_sneaking)
 		user.mob_timers[MT_FOUNDSNEAK] = world.time
 		user.update_sneak_invis(reset = TRUE)
@@ -1247,15 +1260,27 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 			return
 
 		var/damage = user.get_punch_dmg()
+
+		if(istype(user.rmb_intent, /datum/rmb_intent/strong))
+			damage += (damage * STRONG_STANCE_DMG_BONUS)
+
 		if(target.has_status_effect(/datum/status_effect/buff/clash) && ishuman(user))
 			var/obj/item/IM = target.get_active_held_item()
 			target.process_clash(user, IM)
+			return
+
+		if(user.has_status_effect(/datum/status_effect/buff/clash) && !target.has_status_effect(/datum/status_effect/buff/clash))
+			user.bad_guard(span_suicide("I tried to strike while focused on defense whole! It drains me!"), cheesy = TRUE)
 			return
 
 		if(target.has_status_effect(/datum/status_effect/buff/skulduggery) && ishuman(user))
 			var/obj/item/IM = target.get_active_held_item()
 			target.process_skd(user, IM)
 			return
+
+		if(ishuman(target))
+			var/mob/living/carbon/human/H = target
+			H.process_golgatha_rebuke(user)
 
 		if(user.mob_biotypes & MOB_UNDEAD)
 			if(target.has_status_effect(/datum/status_effect/buff/necras_vow))
@@ -1364,6 +1389,12 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 			target.forcesay(GLOB.hit_appends)
 		if(!nodmg)
 			playsound(target.loc, user.used_intent.hitsound, 100, FALSE)
+			if(user.mind)
+				user.dodgetime = (clamp(user.dodgetime - 2, 0, CLICK_CD_DODGE))
+				user.changeMaxDodge(3)
+			if(target.mind)
+				target.dodgetime = (clamp(target.dodgetime - 8, 0, CLICK_CD_DODGE))	//We reset the dodgetime after getting struck directly in the body.
+				target.changeMaxDodge(5)
 
 
 /datum/species/proc/spec_unarmedattacked(mob/living/carbon/human/user, mob/living/carbon/human/target)
@@ -1552,6 +1583,10 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 	if(HAS_TRAIT(user, TRAIT_PACIFISM))
 		to_chat(user, span_warning("I don't want to harm [target]!"))
 		return FALSE
+	if(user.has_status_effect(/datum/status_effect/debuff/deadite_grace) && target.mind)
+		to_chat(user, span_warning("Ah, Lux... I calm down considerably, but my hunger only increases."))
+		user.remove_status_effect(/datum/status_effect/debuff/deadite_grace)
+
 	if(user.IsKnockdown())
 		return FALSE
 	if(user == target)
@@ -1572,7 +1607,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 			target.lastattacker_weakref = WEAKREF(user)
 			if(target.mind)
 				target.mind.attackedme[user.real_name] = world.time
-			var/selzone = melee_accuracy_check(user.zone_selected, user, target, /datum/skill/combat/unarmed, user.used_intent)
+			var/selzone = user.zone_selected
 			var/obj/item/bodypart/affecting = target.get_bodypart(check_zone(selzone))
 			var/damage = user.get_punch_dmg() * 1.4
 			var/armor_block = target.run_armor_check(selzone, "blunt", blade_dulling = BCLASS_BLUNT, damage = damage)
@@ -1639,9 +1674,9 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 					target.throw_at(throwtarget, 2, 2)
 				target.visible_message(span_danger("[user.name] kicks [target.name], knocking them back!"),
 				span_danger(
-					"I'm knocked [user.pulledby ? "down" : "back"] from a kick by [user.name]!"), 
-					span_hear("I hear aggressive shuffling followed by a loud thud!"), 
-					COMBAT_MESSAGE_RANGE, 
+					"I'm knocked [user.pulledby ? "down" : "back"] from a kick by [user.name]!"),
+					span_hear("I hear aggressive shuffling followed by a loud thud!"),
+					COMBAT_MESSAGE_RANGE,
 					user
 				)
 				to_chat(user, span_danger("I kick [target.name], knocking them back!"))
@@ -1653,8 +1688,8 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 				target.visible_message(span_danger("[user.name] kicks [target.name], knocking them down!"),
 				span_danger(
 					"I'm knocked down from a kick by [user.name]!"),
-					span_hear("I hear aggressive shuffling followed by a loud thud!"), 
-					COMBAT_MESSAGE_RANGE, 
+					span_hear("I hear aggressive shuffling followed by a loud thud!"),
+					COMBAT_MESSAGE_RANGE,
 					user
 				)
 				to_chat(user, span_danger("I kick [target.name], knocking them down!"))
@@ -1778,7 +1813,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 
 	if(!affecting)
 		return
-	
+
 	var/datum/status_effect/buff/clash/limbguard/LG = H.has_status_effect(/datum/status_effect/buff/clash/limbguard)
 	if(LG)
 		if(LG.protected_zone == selzone && LG.is_active)	// We "missed" into limbguard's protected zone.
@@ -1834,6 +1869,9 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 			pen = PEN_NONE
 			Iforce *= 0.5
 
+	if(H == user && bladec == BCLASS_DISARM)
+		bladec = BCLASS_BLUNT
+
 	var/higher_intfactor = max(user.used_intent.masteritem?.intdamage_factor, user.used_intent.intent_intdamage_factor)
 	var/lowest_intfactor = min(user.used_intent.masteritem?.intdamage_factor, user.used_intent.intent_intdamage_factor)
 	var/used_intfactor = 1
@@ -1853,8 +1891,8 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 			user.filtered_balloon_alert(TRAIT_COMBAT_AWARE, text, show_self = FALSE)
 
 	if(H.client?.prefs.combat_toggles & HITZONE_TEXT)
-		H.balloon_alert(H, "[bodyzone2readablezone(selzone)]...") 
-		
+		H.balloon_alert(H, "[bodyzone2readablezone(selzone)]...")
+
 	var/pen_info_check = get_pen_info(H, user, H.get_best_worn_armor(def_zone, int.item_d_type), def_zone, int.item_d_type, int.penfactor, I)
 	var/armor_block = H.run_armor_check(selzone, I.d_type, "", "",pen, damage = Iforce, blade_dulling=bladec, intdamfactor = used_intfactor, used_weapon = I, pen_info = pen_info_check)
 
@@ -1880,7 +1918,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 			if(I)
 				I.remove_bintegrity(1)
 				I.take_damage(1, BRUTE, I.d_type)
-			
+
 			if(user.mind && user.goodluck(4) && user.d_intent == INTENT_DODGE)
 				user.changeNext_def(clamp(user.dodgetime - 1, 0, CLICK_CD_DODGE))
 				user.changeMaxDodge(1)
@@ -1916,6 +1954,9 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 //			var/turf/target_shove_turf = get_step(H.loc, get_dir(user.loc,H.loc))
 //			H.throw_at(target_shove_turf, 1, 1, H, spin = FALSE)
 
+	if(bladec == BCLASS_DISARM)
+		H.attempt_disarm(user, I)
+
 	I.funny_attack_effects(H, user, nodmg)
 	H.send_item_attack_message(I, user, selzone, affecting, bladec)
 
@@ -1939,7 +1980,8 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 				bloody = 1
 				var/turf/location = H.loc
 				var/splatter_dir = get_dir(H, user)
-				new /obj/effect/temp_visual/dir_setting/bloodsplatter(H.loc, splatter_dir)
+				var/obj/effect/temp_visual/dir_setting/bloodsplatter/splatter = new(H.loc, splatter_dir)
+				splatter.set_blood_color(H.get_blood_color())
 				if(istype(location))
 					H.add_splatter_floor(location)
 					H.add_splatter_wall(location, force = I.force)
@@ -2138,7 +2180,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 			loc_temp = loc_b.bellytemperature
 		else
 			loc_temp = loc_b.owner.bodytemperature
-	
+
 	if(!loc_temp)
 		var/turf/cur_turf = get_turf(H)
 		loc_temp = cur_turf.temperature
@@ -2173,15 +2215,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		//Body temperature is too hot.
 
 		H.remove_movespeed_modifier(MOVESPEED_ID_COLD)
-		//FIRE_STACKS Human damage taken from fire is determined here.
-		var/burn_damage
-		var/datum/status_effect/fire_handler/fire_stacks/pure_stacks = H.has_status_effect(/datum/status_effect/fire_handler/fire_stacks)
-		var/firemodifier = pure_stacks?.stacks / 50
-		if(pure_stacks?.on_fire)
-			burn_damage = 5 + round(sqrt(pure_stacks?.stacks) * 10) // sqrt curve - diminishing returns at high stacks
-		else
-			firemodifier = min(firemodifier, 0)
-			burn_damage = round(max(log(2-firemodifier,(H.bodytemperature-BODYTEMP_NORMAL))-5,0)) // this can go below 5 at log 2.5
+		var/burn_damage = round(max(log(2, (H.bodytemperature - BODYTEMP_NORMAL)) - 5, 0))
 		if(HAS_TRAIT(H, TRAIT_FIRE_RESIST))
 			burn_damage *= 0.5
 		if (burn_damage)
@@ -2224,6 +2258,10 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 // FIRE //
 //////////
 
+#define FIRE_WOUND_BURN_BASE 4
+#define FIRE_WOUND_BURN_STACK_SCALE 6
+#define FIRE_WOUND_BURN_SUITED 2
+
 /datum/species/proc/handle_fire(mob/living/carbon/human/H, no_protection = FALSE)
 	if(!Canignite_mob(H))
 		return TRUE
@@ -2235,10 +2273,32 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 
 	var/fire_resist_mult = HAS_TRAIT(H, TRAIT_FIRE_RESIST) ? 0.5 : 1
 
+	var/burn_damage
 	if(thermal_protection >= FIRE_SUIT_MAX_TEMP_PROTECT && !no_protection)
-		H.adjust_bodytemperature(11 * fire_resist_mult)
+		burn_damage = FIRE_WOUND_BURN_SUITED
 	else
-		H.adjust_bodytemperature((BODYTEMP_HEATING_MAX + (H.fire_stacks * 12)) * fire_resist_mult)
+		burn_damage = FIRE_WOUND_BURN_BASE + round(sqrt(H.fire_stacks) * FIRE_WOUND_BURN_STACK_SCALE)
+	burn_damage = round(burn_damage * fire_resist_mult * heatmod * H.physiology.heat_mod)
+	if(burn_damage <= 0)
+		return
+
+	if(H.stat < UNCONSCIOUS && prob(min(burn_damage * 4, 100)))
+		H.emote("pain")
+
+	var/obj/item/bodypart/BP // concentrate fire on one limb at a time
+	for(var/obj/item/bodypart/candidate as anything in H.bodyparts)
+		if(QDELETED(candidate))
+			continue
+		if(!BP || candidate.burn_dam > BP.burn_dam)
+			BP = candidate
+	if(!BP)
+		return
+	BP.receive_damage(0, burn_damage)
+	BP.bodypart_attacked_by(BCLASS_BURN, burn_damage, null, BP.body_zone)
+
+#undef FIRE_WOUND_BURN_BASE
+#undef FIRE_WOUND_BURN_STACK_SCALE
+#undef FIRE_WOUND_BURN_SUITED
 
 /datum/species/proc/Canignite_mob(mob/living/carbon/human/H)
 	if(HAS_TRAIT(H, TRAIT_NOFIRE))
@@ -2280,13 +2340,17 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 //Tail Wagging//
 ////////////////
 
+//Caustic Edit - Reworking this slightly to allow for Taur Wagging as well
 /datum/species/proc/can_wag_tail(mob/living/carbon/human/H)
 	if(!H) //Somewhere in the core code we're getting those procs with H being null
 		return FALSE
 	var/obj/item/organ/tail/T = H.getorganslot(ORGAN_SLOT_TAIL)
-	if(!T)
+	var/obj/item/bodypart/taur/Tr = H.get_bodypart(BODY_ZONE_TAUR)
+	if(!T && !Tr)
 		return FALSE
-	if(T.can_wag)
+	if(T && T.can_wag)
+		return TRUE
+	if(Tr && Tr.can_wag)
 		return TRUE
 	return FALSE
 
@@ -2294,29 +2358,44 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 	if(!H) //Somewhere in the core code we're getting those procs with H being null
 		return FALSE
 	var/obj/item/organ/tail/T = H.getorganslot(ORGAN_SLOT_TAIL)
-	if(!T)
+	var/obj/item/bodypart/taur/Tr = H.get_bodypart(BODY_ZONE_TAUR)
+	if(!T && !Tr)
 		return FALSE
-	return T.wagging
+	if(T)
+		return T.wagging
+	else
+		return Tr.wagging
 
 /datum/species/proc/start_wagging_tail(mob/living/carbon/human/H)
 	if(!H) //Somewhere in the core code we're getting those procs with H being null
 		return
 	var/obj/item/organ/tail/T = H.getorganslot(ORGAN_SLOT_TAIL)
-	if(!T)
+	var/obj/item/bodypart/taur/Tr = H.get_bodypart(BODY_ZONE_TAUR)
+	if(!T && !Tr)
 		return FALSE
-	T.wagging = TRUE
+	if(T)
+		T.wagging = TRUE
+	else
+		Tr.wagging = TRUE
 	H.update_body_parts(TRUE)
 
 /datum/species/proc/stop_wagging_tail(mob/living/carbon/human/H)
 	if(!H) //Somewhere in the core code we're getting those procs with H being null
 		return
 	var/obj/item/organ/tail/T = H.getorganslot(ORGAN_SLOT_TAIL)
-	if(!T)
+	var/obj/item/bodypart/taur/Tr = H.get_bodypart(BODY_ZONE_TAUR)
+	if(!T && !Tr)
 		return
-	if(!T.wagging)
-		return
-	T.wagging = FALSE
+	if(T)
+		if(!T.wagging)
+			return
+		T.wagging = FALSE
+	else
+		if(!Tr.wagging)
+			return
+		Tr.wagging = FALSE
 	H.update_body_parts(TRUE)
+//Caustic Edit End
 
 ///////////////
 //FLIGHT SHIT//
@@ -2478,3 +2557,78 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 
 /datum/species/proc/get_types_to_preload()
 	return get_organs(FALSE)
+
+/** Gets a string listing off all the stat changes made by a race.
+*
+* - `return_null_if_no_stats` : If no bonus stats are found, returns null instead of "No racial stat bonuses."
+* - `end_with_glue` : If any bonus stats are found, returns this string with the jointext glue string appended (`" | "`)."
+*/
+/datum/species/proc/get_string_bonus_stats(return_null_if_no_stats = FALSE, end_with_glue = FALSE)
+	var/list/stats_to_abbreviations = list(
+		STAT_STRENGTH = "STR",
+		STAT_PERCEPTION = "PER",
+		STAT_INTELLIGENCE = "INT",
+		STAT_CONSTITUTION = "CON",
+		STAT_WILLPOWER = "WIL",
+		STAT_SPEED = "SPD",
+		STAT_FORTUNE = "FOR"
+	)
+	var/list/bonuses = list()
+	for (var/stat in race_bonus)
+		var/amt = race_bonus[stat]
+		var/abbrev = stats_to_abbreviations[stat]
+		bonuses.Add("[abbrev] [amt < 0 ? "-" : "+"][abs(amt)]")
+	if(length(bonuses))
+		return jointext(bonuses, " | ") + (end_with_glue ? " | " : null)
+	else
+		return return_null_if_no_stats ? null : "No racial stat changes"
+
+/datum/species/proc/get_string_mechanics_explanations()
+	if(!mechanics_explanations)
+		return null
+	var/ret = ""
+	for(var/tutorial in mechanics_explanations)
+		ret += "<br>- [tutorial]"
+	return ret
+
+/datum/species/proc/get_string_bonus_traits()
+	var/list/bonuses = list()
+	for (var/trait in inherent_traits)
+		// THIS is how we avoid showing hidden traits? Really?? Surely there's a better way than this?!
+		if(!(trait in GLOB.roguetraits))
+			continue
+		bonuses.Add(SPAN_TOOLTIP_DANGEROUS_HTML(GLOB.roguetraits[trait], "\[<u>[trait]</u>\]"))
+	if(length(bonuses))
+		return jointext(bonuses, " | ")
+	else
+		return null
+
+/datum/species/proc/can_flick_ears(mob/living/carbon/human/H)
+	if(!H) //Somewhere in the core code we're getting those procs with H being null
+		return FALSE
+	var/obj/item/organ/ears/E = H.getorganslot(ORGAN_SLOT_EARS)
+	if(!E || E.is_flicking) // We're already in a flicking animation
+		return FALSE
+	if(E.can_flick)
+		return TRUE
+	return FALSE
+
+/datum/species/proc/is_flicking_ears(mob/living/carbon/human/H)
+	var/obj/item/organ/ears/E = H.getorganslot(ORGAN_SLOT_EARS)
+	if(!E || E.is_flicking) // We're already in a flicking animation
+		return TRUE
+
+/datum/species/proc/perform_flick_ears(mob/living/carbon/human/H)
+	if(!H)
+		return FALSE
+	var/obj/item/organ/ears/E = H.getorganslot(ORGAN_SLOT_EARS)
+	E.is_flicking = TRUE
+	H.update_body_parts(TRUE)
+	addtimer(CALLBACK(src, PROC_REF(stop_flick_ears), H), 0.5 SECONDS)
+
+/datum/species/proc/stop_flick_ears(mob/living/carbon/human/H)
+	if(!H)
+		return FALSE
+	var/obj/item/organ/ears/E = H.getorganslot(ORGAN_SLOT_EARS)
+	E.is_flicking = FALSE
+	H.update_body_parts(TRUE)

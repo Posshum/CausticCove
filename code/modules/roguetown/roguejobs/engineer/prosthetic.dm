@@ -150,7 +150,6 @@
 	icon = 'icons/roguetown/items/misc.dmi'
 	icon_state = "pr_arm"
 	item_state = "pr_arm"
-	limb_material = "wood"
 	resistance_flags = FLAMMABLE
 	obj_flags = CAN_BE_HIT
 	status = BODYPART_ROBOTIC	//allows removals
@@ -160,7 +159,6 @@
 	max_damage = 20
 	w_class = WEIGHT_CLASS_NORMAL
 	max_integrity = 300
-	sellprice = 30
 	fingers = FALSE //can't swing weapons but can pick stuff up and punch
 	anvilrepair = /datum/skill/craft/carpentry
 	dismember_wound = /datum/wound/bruise/large
@@ -180,7 +178,6 @@
 	max_integrity = 300
 	brute_reduction = 5
 	burn_reduction = 5
-	sellprice = 30
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/iron
 
@@ -199,7 +196,6 @@
 	max_integrity = 300
 	brute_reduction = 10
 	burn_reduction = 10
-	sellprice = 40
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/steel
 
@@ -209,7 +205,6 @@
 	icon = 'icons/roguetown/items/misc.dmi'
 	icon_state = "bp_arm"
 	prosthetic_prefix = "prs"
-	limb_material = "bronze"
 	resistance_flags = FIRE_PROOF
 	obj_flags = CAN_BE_HIT
 	status = BODYPART_ROBOTIC
@@ -219,7 +214,6 @@
 	max_damage = 110
 	w_class = WEIGHT_CLASS_NORMAL
 	max_integrity = 350
-	sellprice = 30
 	fingers = TRUE // it acts like a normal arm
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/bronze
@@ -239,7 +233,6 @@
 	w_class = WEIGHT_CLASS_BULKY
 	max_integrity = 300
 	fingers = TRUE
-	sellprice = 70
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/gold
 
@@ -251,7 +244,6 @@
 	desc = "A right arm of wood."
 	icon = 'icons/roguetown/items/misc.dmi'
 	icon_state = "pr_arm"
-	limb_material = "wood"
 	resistance_flags = FLAMMABLE
 	obj_flags = CAN_BE_HIT
 	status = BODYPART_ROBOTIC
@@ -261,7 +253,6 @@
 	max_damage = 40
 	w_class = WEIGHT_CLASS_NORMAL
 	max_integrity = 300
-	sellprice = 30
 	fingers = FALSE //can't swing weapons but can pick stuff up and punch
 	anvilrepair = /datum/skill/craft/carpentry
 	dismember_wound = /datum/wound/bruise/large
@@ -281,7 +272,6 @@
 	max_integrity = 300
 	brute_reduction = 5
 	burn_reduction = 5
-	sellprice = 30
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/iron
 
@@ -300,7 +290,6 @@
 	max_integrity = 300
 	brute_reduction = 10
 	burn_reduction = 10
-	sellprice = 40
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/steel
 
@@ -310,17 +299,15 @@
 	icon = 'icons/roguetown/items/misc.dmi'
 	icon_state = "bp_arm"
 	prosthetic_prefix = "prs"
-	limb_material = "bronze" // still need a different onmob sprite for bronze limbs brah
 	resistance_flags = FIRE_PROOF
 	obj_flags = CAN_BE_HIT
 	status = BODYPART_ROBOTIC
 	static_icon = TRUE			//returns icon to initial icon state after removal under get_limb_icon
 	brute_reduction = 0
 	burn_reduction = 0
-	max_damage = 220
+	max_damage = 110
 	w_class = WEIGHT_CLASS_NORMAL
 	max_integrity = 350
-	sellprice = 30
 	fingers = TRUE // it acts like a normal arm
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/bronze
@@ -340,7 +327,6 @@
 	w_class = WEIGHT_CLASS_BULKY
 	max_integrity = 300
 	fingers = TRUE
-	sellprice = 70
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/gold
 
@@ -365,7 +351,6 @@
 	max_damage = 40
 	w_class = WEIGHT_CLASS_NORMAL
 	max_integrity = 300
-	sellprice = 30
 	anvilrepair = /datum/skill/craft/carpentry
 	dismember_wound = /datum/wound/bruise/large
 
@@ -384,7 +369,6 @@
 	organ_slowdown = 1.2
 	brute_reduction = 5
 	burn_reduction = 5
-	sellprice = 30
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/iron
 
@@ -403,7 +387,6 @@
 	organ_slowdown = 1.1
 	brute_reduction = 10
 	burn_reduction = 10
-	sellprice = 40
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/steel
 
@@ -413,7 +396,6 @@
 	icon = 'icons/roguetown/items/misc.dmi'
 	icon_state = "bp_leg"
 	prosthetic_prefix = "prs"
-	limb_material = "bronze"
 	resistance_flags = FIRE_PROOF
 	obj_flags = CAN_BE_HIT
 	status = BODYPART_ROBOTIC
@@ -422,7 +404,6 @@
 	max_damage = 220
 	w_class = WEIGHT_CLASS_NORMAL
 	max_integrity = 350
-	sellprice = 30
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/bronze
 
@@ -439,7 +420,6 @@
 	w_class = WEIGHT_CLASS_BULKY
 	max_integrity = 300
 	organ_slowdown = 0
-	sellprice = 70
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/gold
 
@@ -460,7 +440,6 @@
 	max_damage = 40
 	w_class = WEIGHT_CLASS_NORMAL
 	max_integrity = 300
-	sellprice = 30
 	anvilrepair = /datum/skill/craft/carpentry
 	dismember_wound = /datum/wound/bruise/large
 
@@ -480,7 +459,6 @@
 	organ_slowdown = 1.2
 	brute_reduction = 5
 	burn_reduction = 5
-	sellprice = 30
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/iron
 
@@ -500,7 +478,6 @@
 	organ_slowdown = 1.1
 	brute_reduction = 10
 	burn_reduction = 10
-	sellprice = 40
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/steel
 
@@ -510,7 +487,6 @@
 	icon = 'icons/roguetown/items/misc.dmi'
 	icon_state = "bp_leg"
 	prosthetic_prefix = "prs"
-	limb_material = "bronze"
 	resistance_flags = FIRE_PROOF
 	obj_flags = CAN_BE_HIT
 	status = BODYPART_ROBOTIC
@@ -520,7 +496,6 @@
 	max_damage = 220
 	w_class = WEIGHT_CLASS_NORMAL
 	max_integrity = 350
-	sellprice = 30
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/bronze
 
@@ -538,7 +513,6 @@
 	w_class = WEIGHT_CLASS_BULKY
 	max_integrity = 300
 	organ_slowdown = 0
-	sellprice = 70
 	anvilrepair = /datum/skill/craft/engineering
 	smeltresult = /obj/item/ingot/gold
 

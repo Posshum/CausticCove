@@ -2,7 +2,6 @@
 	name = "Travelling Merchant"
 	tutorial = "You are a merchant forever on the move, stopping by for this week in the duchy of Azure Peak. While this isn't your home, you are extremely well connected, and can aquire goods for half the normal cost by pulling favours and rank, although getting to said supplies might be a bit bothersome. Better hire some mercs! Whenever you set up your own little peddling place, or work to supply the city's own merchant, keep in mind that you have little use for mammons, and would rather use them to expand your influence, as you are a multinational businessperson, and have little desire for local currency."
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = RACES_ALL_KINDS
 	category_tags = list(CTAG_TRADER, CTAG_COURTAGENT, CTAG_LICKER_WRETCH)
 	subclass_skills = list(
 		/datum/skill/combat/swords = SKILL_LEVEL_APPRENTICE,
@@ -33,7 +32,7 @@
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/jacket
 	head = /obj/item/clothing/head/roguetown/archercap
 	belt = /obj/item/storage/belt/rogue/leather
-	beltl = /obj/item/gun/ballistic/arquebus_pistol
+	beltl = /obj/item/gun/ballistic/blackpowder/small/arquebus_pistol
 	beltr = /obj/item/rogueweapon/scabbard/sheath/courtphysician
 	backl = /obj/item/storage/backpack/rogue/satchel
 	backr = /obj/item/storage/backpack/rogue/backpack/bagpack
@@ -360,22 +359,22 @@
 /datum/supply_pack/rogue/travelling_merchant_pw/enchanting/woodcutting
 	name = "Woodcutting enchantment scroll"
 	cost = 100 
-	contains = list(/obj/item/enchantmentscroll/woodcut)
+	contains = list(/obj/item/enchantmentscroll/basic/woodcut)
 
 /datum/supply_pack/rogue/travelling_merchant_pw/enchanting/mining
 	name = "Mining enchantment scroll"
 	cost = 100 
-	contains = list(/obj/item/enchantmentscroll/mining)
+	contains = list(/obj/item/enchantmentscroll/basic/mining)
 
 /datum/supply_pack/rogue/travelling_merchant_pw/enchanting/light
 	name = "Light enchantment scroll"
 	cost = 100 
-	contains = list(/obj/item/enchantmentscroll/light)
+	contains = list(/obj/item/enchantmentscroll/basic/revealinglight)
 	
 /datum/supply_pack/rogue/travelling_merchant_pw/enchanting/holding
 	name = "Holding enchantment scroll"
 	cost = 250
-	contains = list(/obj/item/enchantmentscroll/holding)
+	contains = list(/obj/item/enchantmentscroll/basic/holding)
 
 /datum/supply_pack/rogue/travelling_merchant_pw/mats/gold
 	name = "Raw gold"
@@ -448,7 +447,7 @@
 	/obj/item/reagent_containers/food/snacks/rogue/meat/poultry = 4,\
 	/obj/item/reagent_containers/food/snacks/rogue/meat/crab = 3,\
 	/obj/item/reagent_containers/food/snacks/rogue/meat/rabbit = 4,\
-	/obj/item/reagent_containers/food/snacks/rogue/meat/steak/wolf = 2,\
+	/obj/item/reagent_containers/food/snacks/rogue/meat/wolf = 2,\
 	/obj/item/reagent_containers/food/snacks/rogue/meat/fish = 5,\
 	/obj/item/reagent_containers/food/snacks/rogue/meat/shellfish = 4,\
 )

@@ -27,6 +27,25 @@
 	var/list/statindex = list()
 	var/datum/patron/patron = /datum/patron/godless
 
+/mob/living/get_stats_tab_items()
+	return list(
+		"STR: \Roman[STASTR]",
+		"PER: \Roman[STAPER]",
+		"INT: \Roman[STAINT]",
+		"CON: \Roman[STACON]",
+		"WIL: \Roman[STAWIL]",
+		"SPD: \Roman[STASPD]",
+		"FOR: \Roman[STALUC]",
+		"PATRON: [patron]",
+	)
+
+/mob/living/carbon/human/get_stats_tab_items()
+	. = ..()
+	if(mind)
+		var/datum/antagonist/vampire/VD = mind.has_antag_datum(/datum/antagonist/vampire)
+		if(VD)
+			. += "Vitae: [bloodpool]"
+
 /mob/living/proc/init_faith()
 	set_patron(/datum/patron/godless)
 
@@ -87,6 +106,8 @@
 
 				H.eye_color = "ff0000"
 				H.voice_color = "ff0000"
+	
+	update_sight() //Caustic Edit - Adding in with the Perception effecting Darvision Port
 
 /mob/living/proc/get_stat(stat)
 	if(!stat)
@@ -169,6 +190,7 @@
 			STAPER = newamt
 
 			update_fov_angles()
+			update_sight() //Caustic Edit - Adding in with the Perception effecting Darvision Port
 
 		if(STATKEY_INT)
 			newamt = STAINT + amt
@@ -385,4 +407,5 @@
 	STAWIL = 10
 	STASPD = 10
 	STALUC = 10
+	update_sight() //Caustic Edit - Adding in with the Perception effecting Darvision Port
 	return

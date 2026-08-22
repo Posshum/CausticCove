@@ -82,13 +82,13 @@
 	name = "halfsword thrust"
 	icon_state = "inimpale"
 	clickcd = CLICK_CD_CHARGED
-	penfactor = PEN_HEAVY
+	penfactor = PEN_MEDIUM
 	damfactor = 0.8
-	swingdelay_type = SWINGDELAY_PENALTY
-	swingdelay = 0.7 SECONDS
+	swingdelay = 0.5 SECONDS
 
 /datum/intent/sword/thrust/long/halfsword/jab
 	name = "jab"
+	icon_state = "instab"
 	attack_verb = list("jabs")
 	penfactor = PEN_LIGHT
 	damfactor = 0.8
@@ -127,16 +127,16 @@
 	icon_state = "incut"
 	swingdelay_type = SWINGDELAY_PENALTY
 	swingdelay = 1 SECONDS
-	damfactor = 1.7
+	damfactor = 1.3
 
 /datum/intent/sword/strike/cancel
 	name = "sluggish blunted swing"
 	icon_state = "inchop"
 	swingdelay_type = SWINGDELAY_CANCEL
 	swingdelay = 1 SECONDS
-	damfactor = 3
 	canparry = FALSE
 	candodge = FALSE
+	damfactor = 1.3
 
 // Freifechter Longsword intents //
 /datum/intent/sword/cut/master
@@ -255,12 +255,30 @@
 /datum/intent/sword/cut/long
 	clickcd = CLICK_CD_QUICK // Longsword 2H cut — faster than default, no extra damage
 
+// Falx sacrifices a bit of damage compared to sabre, but it is similarly fast
+// And have a very slight demolition mod to make it better vs shield
 /datum/intent/sword/cut/falx
-	penfactor = PEN_LIGHT
-	clickcd = CLICK_CD_QUICK
+	clickcd = CLICK_CD_FAST
+	damfactor = 1.15
+	demolition_mod = 1.25
 
+// A heavier chop on slower speed
 /datum/intent/sword/chop/falx
 	penfactor = PEN_MEDIUM
+
+// A heavy cut different from sabre's by emphasis on demolition mod
+// But not as good as that of axe
+/datum/intent/sword/cut/falx/heavy
+	name = "heavy swing"
+	icon_state = "inhack"
+	blade_class = BCLASS_CHOP
+	damfactor = 1.4
+	penfactor = PEN_HEAVY
+	demolition_mod = 3
+	swingdelay = 1 SECONDS
+	swingdelay_type = SWINGDELAY_CANCEL
+	canparry = FALSE
+	candodge = FALSE
 
 /datum/intent/sword/cut/krieg
 	damfactor = 1.2
@@ -292,9 +310,9 @@
 	demolition_mod = 0.05
 
 /datum/intent/sword/chop/cleave
-	name = "cleave"
-	icon_state = "intear"
-	attack_verb = list("cleaves", "tears through")
+	name = "staggering cleave"
+	icon_state = "incarve"
+	attack_verb = list("cleaves", "tears through", "carves through")
 	chargedrain = 1.8
 	chargetime = 12
 	swingdelay = 0
@@ -360,6 +378,28 @@
 
 /datum/intent/sword/thrust/zwei
 	reach = 2
+
+// Zhanmadao
+/datum/intent/sword/cut/zhanmadao
+	reach = 2
+	damfactor = 1.2 // For all purpose, this is basically the Naginata cut but on a sword
+	penfactor = PEN_LIGHT // Good vs NPC with 1 pip slash??
+
+/datum/intent/sword/cut/zhanmadao/sweep
+	name = "sweeping cut"
+	icon_state = "insweep"
+	desc = "A heavy sweep that cuts through targets to the front."
+	attack_verb = list("sweeps through", "cuts across")
+	reach = 1
+	damfactor = 1.2 // Let's see if increased damage would make it good
+	clickcd = CLICK_CD_MASSIVE
+	cleave = /datum/cleave_pattern/horizontal_sweep
+
+/datum/intent/sword/thrust/zhanmadao
+	reach = 2
+	penfactor = PEN_LIGHT // It is called ZHANMADAO not PENMANDAO for a reason
+	damfactor = 0.8
+
 // ESTOC
 
 /datum/intent/sword/thrust/estoc

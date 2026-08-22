@@ -5,10 +5,10 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 
 /client/verb/ooc(msg as text)
 	set name = "OOC"
-	set category = "OOC"
+	set category = "OOC.Chat"
 	set desc = "Talk with other players in the lobby."
 	if(GLOB.say_disabled)	//This is here to try to identify lag problems
-		to_chat(usr, span_danger("Speech is currently admin-disabled."))
+		to_chat(usr, span_danger("Speech is currently admin-disabled."), MESSAGE_TYPE_INFO)
 		return
 
 	if(!mob)
@@ -16,30 +16,30 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 
 	if(CONFIG_GET(flag/usewhitelist))
 		if(whitelisted() != 1)
-			to_chat(src, span_danger("I can't use that."))
+			to_chat(src, span_danger("I can't use that."), MESSAGE_TYPE_INFO)
 			return
 
 	if(blacklisted())
-		to_chat(src, span_danger("I can't use that."))
+		to_chat(src, span_danger("I can't use that."), MESSAGE_TYPE_INFO)
 		return
 
 	if(get_playerquality(ckey) <= -5)
-		to_chat(src, span_danger("I can't use that."))
+		to_chat(src, span_danger("I can't use that."), MESSAGE_TYPE_INFO)
 		return
 
 	if(!holder)
 		if(SSticker.current_state < GAME_STATE_FINISHED && !istype(mob, /mob/dead/new_player))
-			to_chat(src, span_danger("OOC is lobby-only during the round. After the round ends it re-opens to everyone."))
+			to_chat(src, span_danger("OOC is lobby-only during the round. After the round ends it re-opens to everyone."), MESSAGE_TYPE_INFO)
 			return
 		if(!GLOB.ooc_allowed)
-			to_chat(src, span_danger("OOC is globally muted."))
+			to_chat(src, span_danger("OOC is globally muted."), MESSAGE_TYPE_INFO)
 			return
 		// Allow lobby new_player usage regardless of dooc settings; preserve dead restriction for non-lobby via earlier check.
 		if(prefs.muted & MUTE_OOC)
-			to_chat(src, span_danger("I cannot use OOC (muted)."))
+			to_chat(src, span_danger("I cannot use OOC (muted)."), MESSAGE_TYPE_INFO)
 			return
 	if(is_banned_from(ckey, "OOC"))
-		to_chat(src, span_danger("I have been banned from OOC."))
+		to_chat(src, span_danger("I have been banned from OOC."), MESSAGE_TYPE_INFO)
 		return
 	if(QDELETED(src))
 		return
@@ -57,13 +57,13 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 		if(handle_spam_prevention(msg,MUTE_OOC))
 			return
 		if(findtext(msg, "byond://"))
-			to_chat(src, "<B>FOOL</B>")
+			to_chat(src, "<B>FOOL</B>", MESSAGE_TYPE_INFO)
 			log_admin("[key_name(src)] has attempted to advertise in OOC: [msg]")
 			message_admins("[key_name_admin(src)] has attempted to advertise in OOC: [msg]")
 			return
 
 	if(!(prefs.chat_toggles & CHAT_OOC))
-		to_chat(src, span_danger("I have OOC muted."))
+		to_chat(src, span_danger("I have OOC muted."), MESSAGE_TYPE_INFO)
 		return
 
 	mob.log_talk(raw_msg, LOG_OOC)
@@ -107,7 +107,7 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 			msg_to_send = "<span style='font-size:70%'>[base_msg]</span>"
 		else
 			msg_to_send = base_msg
-		to_chat(C, msg_to_send)
+		to_chat(C, msg_to_send, MESSAGE_TYPE_OOC)
 
 //				if(!holder.fakekey || C.holder)
 //					if(check_rights_for(src, R_ADMIN))
@@ -128,12 +128,12 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 
 
 /client/proc/lobbyooc(msg as text)
-	set category = "OOC"
+	set category = "OOC.Chat"
 	set name = "OOC"
 	set desc = "Talk with the other players."
 
 	if(GLOB.say_disabled)	//This is here to try to identify lag problems
-		to_chat(usr, span_danger("Speech is currently admin-disabled."))
+		to_chat(usr, span_danger("Speech is currently admin-disabled."), MESSAGE_TYPE_INFO)
 		return
 
 	if(!mob)
@@ -141,26 +141,26 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 
 	if(CONFIG_GET(flag/usewhitelist))
 		if(whitelisted() != 1)
-			to_chat(src, span_danger("I can't use that."))
+			to_chat(src, span_danger("I can't use that."), MESSAGE_TYPE_INFO)
 			return
 
 	if(blacklisted())
-		to_chat(src, span_danger("I can't use that."))
+		to_chat(src, span_danger("I can't use that."), MESSAGE_TYPE_INFO)
 		return
 
 	if(get_playerquality(ckey) <= -5)
-		to_chat(src, span_danger("I can't use that."))
+		to_chat(src, span_danger("I can't use that."), MESSAGE_TYPE_INFO)
 		return
 
 	if(!holder)
 		if(prefs.muted & MUTE_OOC)
-			to_chat(src, span_danger("I cannot use OOC (muted)."))
+			to_chat(src, span_danger("I cannot use OOC (muted)."), MESSAGE_TYPE_INFO)
 			return
 		if(!GLOB.ooc_allowed)
-			to_chat(src, span_danger("OOC is currently disabled."))
+			to_chat(src, span_danger("OOC is currently disabled."), MESSAGE_TYPE_INFO)
 			return
 	if(is_banned_from(ckey, "OOC"))
-		to_chat(src, span_danger("I have been banned from OOC."))
+		to_chat(src, span_danger("I have been banned from OOC."), MESSAGE_TYPE_INFO)
 		return
 	if(QDELETED(src))
 		return
@@ -178,13 +178,13 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 		if(handle_spam_prevention(msg,MUTE_OOC))
 			return
 		if(findtext(msg, "byond://"))
-			to_chat(src, "<B>FOOL</B>")
+			to_chat(src, "<B>FOOL</B>", MESSAGE_TYPE_INFO)
 			log_admin("[key_name(src)] has attempted to advertise in OOC: [msg]")
 			message_admins("[key_name_admin(src)] has attempted to advertise in OOC: [msg]")
 			return
 
 	if(!(prefs.chat_toggles & CHAT_OOC))
-		to_chat(src, span_danger("I have OOC muted."))
+		to_chat(src, span_danger("I have OOC muted."), MESSAGE_TYPE_INFO)
 		return
 
 	mob.log_talk(raw_msg, LOG_OOC)
@@ -224,7 +224,7 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 			msg_to_send = "<span style='font-size:70%'>[base_msg]</span>"
 		else
 			msg_to_send = base_msg
-		to_chat(C, msg_to_send)
+		to_chat(C, msg_to_send, MESSAGE_TYPE_OOC)
 
 
 /proc/toggle_ooc(toggle = null)
@@ -249,7 +249,6 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 /client/proc/set_ooc(newColor as color)
 	set name = "Set Player OOC Color"
 	set desc = ""
-	set category ="🌣 A-PREFS"
 	set hidden = 1
 	if(!holder)
 		return
@@ -260,7 +259,6 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 /client/proc/reset_ooc()
 	set name = "Reset Player OOC Color"
 	set desc = ""
-	set category ="🌣 A-PREFS"
 	set hidden = 1
 	if(!holder)
 		return
@@ -269,7 +267,6 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 		return
 /client/verb/colorooc()
 	set name = "Set Your OOC Color"
-	set category = "Preferences"
 	set hidden = 1
 	if(!holder)
 		return
@@ -289,7 +286,6 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 /client/verb/resetcolorooc()
 	set name = "Reset Your OOC Color"
 	set desc = ""
-	set category = "Preferences"
 	set hidden = 1
 	if(!holder)
 		return
@@ -304,7 +300,7 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 
 /client/verb/toggle_ooc_anonymize()
 	set name = "Toggle OOC Anonymize"
-	set category = "OOC"
+	set category = "OOC.Misc"
 	set desc = "Use a random anonymized handle or show your real ckey in Lobby OOC."
 	if(!mob)
 		return
@@ -315,12 +311,11 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 	else
 		GLOB.anonymize -= ckey
 	prefs.save_preferences()
-	to_chat(src, span_notice("OOC Anonymize is now [prefs.anonymize ? "ENABLED (your handle will be randomized)" : "DISABLED (your ckey will be shown)"]."))
+	to_chat(src, span_notice("OOC Anonymize is now [prefs.anonymize ? "ENABLED (your handle will be randomized)" : "DISABLED (your ckey will be shown)"]."), MESSAGE_TYPE_INFO)
 
 //Checks admin notice
 /client/verb/admin_notice()
 	set name = "Adminnotice"
-	set category = "⚡︎ ADMIN"
 	set desc ="Check the admin notice if it has been set"
 	set hidden = 1
 	if(!holder)
@@ -328,13 +323,13 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 	if(!check_rights(0))
 		return
 	if(GLOB.admin_notice)
-		to_chat(src, "<span class='boldnotice'>Admin Notice:</span>\n \t [GLOB.admin_notice]")
+		to_chat(src, "<span class='boldnotice'>Admin Notice:</span>\n \t [GLOB.admin_notice]", MESSAGE_TYPE_INFO)
 	else
-		to_chat(src, span_notice("There are no admin notices at the moment."))
+		to_chat(src, span_notice("There are no admin notices at the moment."), MESSAGE_TYPE_INFO)
 #ifdef TESTSERVER
 /client/verb/smiteselfverily()
 	set name = "KillSelf"
-	set category = "DEBUGTEST"
+	set category = "DEBUG.Test"
 /*
 	set hidden = 1
 	if(!check_rights(0))
@@ -379,15 +374,14 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 
 /client/verb/html_chat()
 	set name = "{Old Chat}"
-	set category = "OPTIONS"
+	set category = "OPTIONS.Toggles"
 	set hidden = FALSE
 
-	to_chat(src, "Going back to old chat.")
+	to_chat(src, "Going back to old chat.", MESSAGE_TYPE_INFO)
 	winset(src, "outputwindow.legacy_output_selector", "left=output_legacy")
 
 /client/verb/motd()
 	set name = "MOTD"
-	set category = "OOC"
 	set desc ="Check the Message of the Day"
 	set hidden = 1
 	if(!holder)
@@ -396,13 +390,12 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 		return
 	var/motd = global.config.motd
 	if(motd)
-		to_chat(src, "<div class=\"motd\">[motd]</div>", handle_whitespace=FALSE)
+		to_chat(src, "<div class=\"motd\">[motd]</div>", MESSAGE_TYPE_INFO, handle_whitespace=FALSE)
 	else
-		to_chat(src, span_notice("The Message of the Day has not been set."))
+		to_chat(src, span_notice("The Message of the Day has not been set."), MESSAGE_TYPE_INFO)
 
 /client/proc/self_notes()
 	set name = "View Admin Remarks"
-	set category = "OOC"
 	set desc = ""
 	set hidden = 1
 	if(!holder)
@@ -410,23 +403,23 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 	if(!check_rights(0))
 		return
 	if(!CONFIG_GET(flag/see_own_notes))
-		to_chat(usr, span_notice("Sorry, that function is not enabled on this server."))
+		to_chat(usr, span_notice("Sorry, that function is not enabled on this server."), MESSAGE_TYPE_INFO)
 		return
 
 	browse_messages(null, usr.ckey, null, TRUE)
 
 /client/proc/self_playtime()
-	set name = "View tracked playtime"
-	set category = "OOC"
+	set name = "View Playtime"
+	set category = "OOC.Misc"
 	set desc = ""
 
 	if(!CONFIG_GET(flag/use_exp_tracking))
-		to_chat(usr, span_notice("Sorry, tracking is currently disabled."))
+		to_chat(usr, span_notice("Sorry, tracking is currently disabled."), MESSAGE_TYPE_INFO)
 		return
 
 	var/list/body = list()
-	body += "<html><head><title>Playtime for [key]</title></head><BODY><BR>Playtime:"
-	body += get_exp_report()
+	body += "<html><head><title>Playtime for [key]</title></head><BODY>"
+	body += get_exp_breakdown()
 	body += "</BODY></HTML>"
 	usr << browse(body.Join(), "window=playerplaytime[ckey];size=550x615")
 
@@ -436,12 +429,11 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 		prefs.ignoring -= C.key
 	else
 		prefs.ignoring |= C.key
-	to_chat(src, "You are [(C.key in prefs.ignoring) ? "now" : "no longer"] ignoring [displayed_key] on the OOC channel.")
+	to_chat(src, "You are [(C.key in prefs.ignoring) ? "now" : "no longer"] ignoring [displayed_key] on the OOC channel.", MESSAGE_TYPE_INFO)
 	prefs.save_preferences()
 
 /client/verb/select_ignore()
 	set name = "Ignore"
-	set category = "OPTIONS"
 	set desc ="Ignore a player's messages on the OOC channel"
 	set hidden = 1
 	if(!holder)
@@ -466,20 +458,19 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 	displayed_choicename = selection // ckey string
 	selection = choices[selection] // client
 	if(selection == src)
-		to_chat(src, "You can't ignore myself.")
+		to_chat(src, "You can't ignore myself.", MESSAGE_TYPE_INFO)
 		return
 	ignore_key(selection, displayed_choicename)
 
 /client/proc/show_previous_roundend_report()
 	set name = "Your Last Round"
-	set category = "OOC"
+	set category = "OOC.Misc"
 	set desc = ""
 
 	SSticker.show_roundend_report(src, TRUE)
 
 /client/verb/fit_viewport()
 	set name = "Fit Viewport"
-	set category = "OPTIONS"
 	set desc = ""
 	set hidden = 1
 	if(!holder)
@@ -527,10 +518,10 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 
 /client/verb/combat_music() // if you touch this, touch the option in game preferences too
 	set name = "Combat Mode Music"
-	set category = "OPTIONS"
+	set category = "OPTIONS.Sounds"
 	set desc = ""
 	if(!isliving(mob))
-		to_chat(src, span_warning("You're not alive yet. Set this in your Game Preferences instead."))
+		to_chat(src, span_warning("You're not alive yet. Set this in your Game Preferences instead."), MESSAGE_TYPE_INFO)
 		return
 	var/mob/living/L = mob
 	var/track_select = input(src, "Choose a combat music track to use TEMPORARILY.\n\
@@ -543,11 +534,11 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 		L = mob
 		var/datum/combat_music/combat_music
 		combat_music = GLOB.cmode_tracks_by_name[track_select]
-		to_chat(src, span_notice("Selected track: <b>[track_select]</b>."))
+		to_chat(src, span_notice("Selected track: <b>[track_select]</b>."), MESSAGE_TYPE_INFO)
 		if(combat_music.desc)
-			to_chat(src, "<i>[combat_music.desc]</i>")
+			to_chat(src, "<i>[combat_music.desc]</i>", MESSAGE_TYPE_INFO)
 		if(combat_music.credits)
-			to_chat(src, span_info("Song name: <b>[combat_music.credits]</b>"))
+			to_chat(src, span_info("Song name: <b>[combat_music.credits]</b>"), MESSAGE_TYPE_INFO)
 		// also change it for Werewolf & Wildshape transformations, else it'd be annoying to keep changing this (lol)
 		var/mob/living/carbon/human/H
 		var/mob/living/S
@@ -565,7 +556,6 @@ GLOBAL_VAR_INIT(normal_ooc_colour, "#002eb8")
 /client/verb/policy()
 	set name = "Show Policy"
 	set desc = ""
-	set category = "OOC"
 	set hidden = 1
 	if(!holder)
 		return

@@ -9,12 +9,10 @@
 	sewrepair = TRUE
 	armor = ARMOR_PADDED_BAD
 	blocksound = SOFTHIT
-	blade_dulling = DULLING_BASHCHOP
 	r_sleeve_status = SLEEVE_NORMAL
 	l_sleeve_status = SLEEVE_NORMAL
 	armor_class = ARMOR_CLASS_LIGHT
 	salvage_amount = 1
-	sellprice = 5
 
 /obj/item/clothing/under/roguetown/trou/leather
 	name = "leather trousers"
@@ -23,7 +21,6 @@
 	max_integrity = ARMOR_INT_LEG_LEATHER
 	resistance_flags = FIRE_PROOF
 	salvage_result = /obj/item/natural/hide/cured
-	sellprice = 8
 
 /obj/item/clothing/under/roguetown/trou/leather/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
@@ -66,7 +63,6 @@
 	icon_state = "leathertights"
 	item_state = "leathertights"
 	salvage_result = /obj/item/natural/hide/cured
-	sellprice = 8
 
 /obj/item/clothing/under/roguetown/trou/leather/pontifex
 	name = "pontifex's chaqchur"

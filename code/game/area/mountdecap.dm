@@ -6,6 +6,7 @@
 	ambush_mobs = list(
 				// Singles — budget filler across all factions
 				/mob/living/carbon/human/species/human/northern/highwayman/ambush = 15,
+				/mob/living/carbon/human/species/human/northern/highwayman/mount_reaver = 15,
 				/mob/living/carbon/human/species/skeleton/npc/medium = 15,
 				/mob/living/carbon/human/species/skeleton/npc/hard = 10,
 				/mob/living/simple_animal/hostile/retaliate/rogue/direbear = 10,
@@ -18,9 +19,7 @@
 				new /datum/ambush_config/duo_treasure_hunter = 2,
 				new /datum/ambush_config/medium_skeleton_party = 10,
 				new /datum/ambush_config/heavy_skeleton_party = 5,
-				new /datum/ambush_config/hobgoblin_band = 10,
-				new /datum/ambush_config/hobgoblin_band/circus = 5,
-				new /datum/ambush_config/hobgoblin_band/theatre = 10)
+				)
 	droning_sound = 'sound/music/area/decap.ogg'
 	droning_sound_dusk = null
 	droning_sound_night = null
@@ -32,6 +31,7 @@
 	detail_text = DETAIL_TEXT_DECAP
 
 /area/rogue/indoors/shelter/mountains/decap
+	name = "Mount Decapitation"
 	icon_state = "decap"
 	loot_budget = LOOT_BUDGET_DECAP_SHELTERS
 	loot_pool_key = "decap_shelters"
@@ -62,7 +62,7 @@
 				new /datum/ambush_config/duo_treasure_hunter = 1,
 				new /datum/ambush_config/medium_skeleton_party = 20,
 				new /datum/ambush_config/heavy_skeleton_party = 10,
-				new /datum/ambush_config/hobgoblin_band = 10)
+				)
 	droning_sound = 'sound/music/area/decap_deeper.ogg'
 	droning_sound_dusk = null
 	droning_sound_night = null

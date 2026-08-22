@@ -3,10 +3,12 @@
 	var/list/classes
 	var/outfit
 	var/tutorial = "Choose me!"
+	var/townie_contract_gate_exempt = FALSE
+	var/townie_contract_gate_hide_in_list = FALSE
 	/// Subclass-specific tutorial shown via to_chat on spawn, separate from the class-picker tutorial.
 	var/subclass_tutorial
 	var/list/allowed_sexes
-	var/list/allowed_races = RACES_ALL_KINDS
+	var/list/forbidden_races
 	var/list/allowed_patrons
 	var/list/allowed_ages
 	var/pickprob = 100
@@ -67,6 +69,8 @@
 
 	var/datum/class_age_mod/age_mod = null
 
+	var/class_tempo_faction = null
+
 /datum/advclass/New()
 	if(ispath(age_mod) && !istype(age_mod))
 		var/datum/class_age_mod/newmod = new age_mod()
@@ -102,7 +106,9 @@
 		ADD_TRAIT(H, trait, ADVENTURER_TRAIT)
 
 	if(noble_income)
+		var/already_has_income = !isnull(SStreasury.noble_incomes[H])
 		SStreasury.noble_incomes[H] = noble_income
+		SStreasury.grant_estate_income(H, noble_income, !already_has_income)
 
 	if(adaptive_name)
 		H.adaptive_name = TRUE
@@ -144,12 +150,70 @@
 
 	if(applies_post_equipment)
 		apply_character_post_equipment(H)
+	H.set_advsetup(FALSE)
+	H.mind?.refresh_spell_buttons()
+
+//======== Massive shitcode, that works at least.
+/datum/advclass/proc/get_vice_limits(mob/living/carbon/human/H)
+	if(length(vice_limits))
+		return vice_limits.Copy()
+	return list()
+
+/datum/advclass/proc/get_prefs_vice_limits(client/player)
+	if(length(vice_limits))
+		return vice_limits.Copy()
+	return list()
+
+/datum/advclass/proc/is_vice_limited(vice, list/limited_vices)
+	if(isnull(limited_vices))
+		limited_vices = vice_limits
+	if(!length(limited_vices) || !vice)
+		return FALSE
+	for(var/vicetype in limited_vices)
+		if(ispath(vice, vicetype) || istype(vice, vicetype))
+			return TRUE
+	return FALSE
+
+/datum/advclass/proc/has_limited_vice(list/current_vices, list/limited_vices)
+	if(isnull(limited_vices))
+		limited_vices = vice_limits
+	if(!length(current_vices) || !length(limited_vices))
+		return FALSE
+	for(var/vice in current_vices)
+		if(is_vice_limited(vice, limited_vices))
+			return TRUE
+	return FALSE
+
+/datum/advclass/proc/get_limited_vice_names(list/current_vices, list/limited_vices)
+	. = list()
+	if(isnull(limited_vices))
+		limited_vices = vice_limits
+	if(!length(current_vices) || !length(limited_vices))
+		return
+	for(var/datum/charflaw/cf in current_vices)
+		if(is_vice_limited(cf, limited_vices))
+			. += cf.name
+
+/datum/advclass/proc/get_prefs_restriction_names(client/player)
+	. = list()
+	if(!player?.prefs)
+		return
+	if(length(virtue_limits))
+		for(var/virtuetype in virtue_limits)
+			if(istype(player.prefs.virtue, virtuetype))
+				. += player.prefs.virtue.name
+			if(istype(player.prefs.virtuetwo, virtuetype))
+				. += player.prefs.virtuetwo.name
+	. += get_limited_vice_names(player.prefs.charflaws, get_prefs_vice_limits(player))
+//===
 
 /datum/advclass/proc/post_equip(mob/living/carbon/human/H)
 	addtimer(CALLBACK(H,TYPE_PROC_REF(/mob/living/carbon/human, add_credit), TRUE), 20)
 	if(cmode_music)
 		H.cmode_music = cmode_music
-	
+	if(class_tempo_faction)
+		H.tempo_faction_flag = class_tempo_faction
+
 	//OV edit
 	if(isooze(H))
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/targeted/shapeshift/ooze)
@@ -176,7 +240,7 @@
 	if(length(local_allowed_sexes) && !(H.gender in local_allowed_sexes))
 		return FALSE
 
-	if(length(allowed_races) && !(H.dna.species.type in allowed_races))
+	if(length(forbidden_races) && (H.dna.species.type in forbidden_races))
 		return FALSE
 
 	if(length(allowed_ages) && !(H.age in allowed_ages))

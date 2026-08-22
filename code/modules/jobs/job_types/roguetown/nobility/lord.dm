@@ -10,7 +10,7 @@ GLOBAL_LIST_EMPTY(lord_titles)
 	total_positions = 1
 	spawn_positions = 1
 	selection_color = JCOLOR_NOBLE
-	allowed_races = RACES_NO_CONSTRUCT
+	forbidden_races = list(RACES_CONSTRUCT) //Caustic Edit - Just a global tweak to remove 'races_despised' from this check everywhere
 	allowed_sexes = list(MALE, FEMALE)
 	advclass_cat_rolls = list(CTAG_LORD = 20)
 
@@ -27,10 +27,10 @@ GLOBAL_LIST_EMPTY(lord_titles)
 	display_order = JDO_LORD
 	tutorial = "Elevated upon your throne through a web of intrigue and political upheaval, you are the absolute authority of these lands and at the center of every plot within it. Every man, woman and child is envious of your position and would replace you in less than a heartbeat: Show them the error of their ways."
 	whitelist_req = FALSE
-	min_pq = 0 //CC Edit - No one would listen to a lord that is stupid... But a round is not fun without a silly man leading a town. Let them be brave!!!
+	min_pq = 20 //CC Edit - Lord is an important role. Should be higher PQ requirement.
 	max_pq = null
 	round_contrib_points = 4
-	give_bank_account = 1000
+	give_bank_account = 250
 	cmode_music = 'sound/music/combat_noble.ogg'
 
 	// Can't use the Throat when you can't talk properly or.. at all for that matter.
@@ -80,9 +80,9 @@ GLOBAL_LIST_EMPTY(lord_titles)
 	neck = /obj/item/storage/belt/rogue/pouch/coins/rich
 	cloak = /obj/item/clothing/cloak/lordcloak
 	belt = /obj/item/storage/belt/rogue/leather/plaquegold
-	beltl = /obj/item/storage/keyring/lord
+	beltl = /obj/item/rogueweapon/lordscepter //Caustic Edit - Try moving the Keys to the backpack and the Scepter here to return it, and prevent dupes?
 	beltr = /obj/item/rogueweapon/scabbard/sword/royal
-	backpack_contents = list(/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1, /obj/item/blueprint/mace_mushroom = 1, /obj/item/hunting_map/white_stag = 1)
+	backpack_contents = list(/obj/item/storage/keyring/lord, /obj/item/rogueweapon/huntingknife/idagger/steel/special = 1, /obj/item/blueprint/mace_mushroom = 1, /obj/item/hunting_map/white_stag = 1)
 	id = /obj/item/scomstone/garrison
 
 /datum/outfit/job/roguetown/lord/pre_equip(mob/living/carbon/human/H)
@@ -119,7 +119,7 @@ GLOBAL_LIST_EMPTY(lord_titles)
 	var/client/player = H?.client
 	if(player.prefs)
 		if(!istype(player.prefs.virtue_origin, /datum/virtue/origin/azuria) && !istype(player.prefs.virtue_origin, /datum/virtue/origin/grenzelhoft) && !istype(player.prefs.virtue_origin, /datum/virtue/origin/otava) && !istype(player.prefs.virtue_origin, /datum/virtue/origin/etrusca))
-			var/list/new_origins = list("Azuria" = /datum/virtue/origin/azuria, 
+			var/list/new_origins = list("Azuria" = /datum/virtue/origin/azuria,
 			"Grenzelhoft" = /datum/virtue/origin/grenzelhoft,
 			"Otava" = /datum/virtue/origin/otava,
 			"Etrusca" = /datum/virtue/origin/etrusca)
@@ -167,9 +167,17 @@ GLOBAL_LIST_EMPTY(lord_titles)
 		/datum/skill/misc/hunting = SKILL_LEVEL_APPRENTICE,
 	)
 
+	subclass_virtues = list(
+		/datum/virtue/utility/riding
+	)
+
+	subclass_stashed_items = list(
+		"Ducal Caparison (Saiga)" = /obj/item/caparison/azure,
+		"Fogbeast Caparison" = /obj/item/caparison/fogbeast)
+
 /datum/outfit/job/roguetown/lord/warrior/pre_equip(mob/living/carbon/human/H)
 	..()
-	l_hand = /obj/item/rogueweapon/lordscepter
+	//l_hand = /obj/item/rogueweapon/lordscepter //Caustic Edit - commenting this out because moving it into the base Duke kit.
 
 /**
 	Merchant Lord subclass. Consider this an evolution from Sheltered Aristocrat.
@@ -184,8 +192,8 @@ GLOBAL_LIST_EMPTY(lord_titles)
 	But you have plenty of wealth, keen ears, and know a good deal from a bad one."
 	outfit = /datum/outfit/job/roguetown/lord/merchant
 	category_tags = list(CTAG_LORD)
-	noble_income = 400 // Let's go crazy. This is +400 per day for a total of 2400 per round at the end of a day. This is probably equal to doubling passive incomes of the keep.
-	traits_applied = list(TRAIT_NOBLE, TRAIT_SEEPRICES, TRAIT_CICERONE, TRAIT_KEENEARS, TRAIT_MEDIUMARMOR) //CC Edit: Removed dnr)
+	noble_income = 275 // Decently high but shouldn't remove any need for economic management
+	traits_applied = list(TRAIT_NOBLE, TRAIT_SEEPRICES, TRAIT_CICERONE, TRAIT_KEENEARS, TRAIT_MEDIUMARMOR) //CC Edit: Removed dnr
 	subclass_stats = list(
 		STATKEY_LCK = 5,
 		STATKEY_INT = 5,
@@ -207,6 +215,14 @@ GLOBAL_LIST_EMPTY(lord_titles)
 		/datum/skill/misc/reading = SKILL_LEVEL_MASTER,
 		/datum/skill/misc/riding = SKILL_LEVEL_APPRENTICE,
 	)
+
+	subclass_virtues = list(
+		/datum/virtue/utility/riding
+	)
+
+	subclass_stashed_items = list(
+		"Ducal Caparison (Saiga)" = /obj/item/caparison/azure,
+		"Fogbeast Caparison" = /obj/item/caparison/fogbeast)
 
 /datum/outfit/job/roguetown/lord/merchant/pre_equip(mob/living/carbon/human/H)
 	..()
@@ -235,9 +251,10 @@ GLOBAL_LIST_EMPTY(lord_titles)
 		STATKEY_PER = 2,
 		STATKEY_WIL = 1,
 	)
-	subclass_mage_aspects = list("mastery" = FALSE, "major" = 1, "minor" = 1, "utilities" = 4, "ward" = TRUE)
+	subclass_mage_aspects = list("mastery" = FALSE, "major" = 1, "minor" = 1, "utilities" = 5, "ward" = TRUE)
 	subclass_skills = list(
-		/datum/skill/combat/staves = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/combat/staves = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/combat/arcyne = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/polearms = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/wrestling = SKILL_LEVEL_NOVICE,
 		/datum/skill/combat/swords = SKILL_LEVEL_APPRENTICE,
@@ -249,11 +266,19 @@ GLOBAL_LIST_EMPTY(lord_titles)
 		/datum/skill/craft/alchemy = SKILL_LEVEL_APPRENTICE,
 	)
 
+	subclass_virtues = list(
+		/datum/virtue/utility/riding
+	)
+
+	subclass_stashed_items = list(
+		"Ducal Caparison (Saiga)" = /obj/item/caparison/azure,
+		"Fogbeast Caparison" = /obj/item/caparison/fogbeast)
+
 /datum/outfit/job/roguetown/lord/mage/pre_equip(mob/living/carbon/human/H)
 	..()
 	backr = /obj/item/storage/backpack/rogue/satchel
 
-	backpack_contents = list(/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1, /obj/item/book/spellbook = 1, /obj/item/blueprint/mace_mushroom = 1, /obj/item/chalk = 1, /obj/item/hunting_map/white_stag = 1,)
+	backpack_contents = list(/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1, /obj/item/rogueweapon/spellbook = 1, /obj/item/blueprint/mace_mushroom = 1, /obj/item/chalk = 1, /obj/item/hunting_map/white_stag = 1,)
 
 /**
 	Inbred Lord subclass. A joke class, evolution of the Inbred Wastrel.
@@ -283,6 +308,14 @@ GLOBAL_LIST_EMPTY(lord_titles)
 		/datum/skill/craft/cooking = SKILL_LEVEL_NOVICE,
 		/datum/skill/craft/sewing = SKILL_LEVEL_NOVICE,
 	)
+
+	subclass_virtues = list(
+		/datum/virtue/utility/riding
+	)
+
+	subclass_stashed_items = list(
+		"Ducal Caparison (Saiga)" = /obj/item/caparison/azure,
+		"Fogbeast Caparison" = /obj/item/caparison/fogbeast)
 
 /datum/outfit/job/roguetown/lord/inbred/pre_equip(mob/living/carbon/human/H)
 	..()
@@ -479,6 +512,7 @@ GLOBAL_LIST_EMPTY(lord_titles)
 	//only migrants and peasants
 	if(!(recruit.job in GLOB.peasant_positions) && \
 		!(recruit.job in GLOB.burgher_positions) && \
+		!(recruit.job in GLOB.atc_positions) && \
 		!(recruit.job in GLOB.wanderer_positions))
 		return FALSE
 	//need to see their damn face
@@ -517,7 +551,7 @@ GLOBAL_LIST_EMPTY(lord_titles)
 	. = ..()
 	if(!.)
 		return
-	recruit.verbs |= /mob/proc/haltyell
+	add_verb(recruit, /mob/proc/haltyell)
 
 /obj/effect/proc_holder/spell/self/convertrole/servant
 	name = "Recruit Servant"

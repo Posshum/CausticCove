@@ -9,6 +9,7 @@
 	valid_positions += GLOB.garrison_positions
 	valid_positions += GLOB.peasant_positions
 	valid_positions += GLOB.burgher_positions
+	valid_positions += GLOB.atc_positions
 	valid_positions += GLOB.antagonist_positions
 
 
@@ -83,4 +84,4 @@
 
 
 	for (var/C in GLOB.admins)
-		to_chat(C, msg.Join())
+		to_chat(C, msg.Join(), MESSAGE_TYPE_ADMINLOG)

@@ -16,11 +16,24 @@
 #define GLOW_COLOR_WARD "#D4A844" // Warm amber-gold, for battlewardry / protective ward spells
 #define GLOW_COLOR_BARDIC "#E8837C" // Warm rose, for bardic songs and cadences
 
+//Gods - Tennite
+#define GLOW_COLOR_UNDIVIDED "#28908C" //Undivided Cyan
+#define GLOW_COLOR_ASTRATA "#F9B362" //Astratan Yellow/Orange
+#define GLOW_COLOR_NOC "#9acdff" //Noc's lightbulb
+#define GLOW_COLOR_RAVOX "#7A1E30" //Ravox Crimson
+
 // Constants for spell glow intensity. These are literally 1 2 3 4 but it is for documenting design purposes
 #define GLOW_INTENSITY_LOW 1 // For spam projectiles or generic buffs
 #define GLOW_INTENSITY_MEDIUM 2 // Anything that would hurt quite a bit
 #define GLOW_INTENSITY_HIGH 3 // Large AOE
 #define GLOW_INTENSITY_VERY_HIGH 4 // Greater Fireball or Massive AOE / T4 spells
+
+//Gods - Ascendant
+#define GLOW_COLOR_GRAGGAR "#19345E" //Graggar Dark Blue
+#define GLOW_COLOR_ZIZO "#b76bff" //Graggar Dark Purple
+#define GLOW_COLOR_BAOTHA "#ff008c" //Baotha Violent Rose
+#define GLOW_COLOR_MATTHIOS "#ffd900" //Matthios Golden
+
 
 // Constants for enchantment effects (used by fit_clothing, gems, etc.)
 #define FORCE_BLADE_ENCHANT 2
@@ -40,41 +53,62 @@
 #define HEAVY_ARMOR_CD_PENALTY 0.3 // Cooldown multiplier for wearing heavy armor
 #define UNTRAINED_ARMOR_CD_PENALTY 0.8 // Cooldown multiplier for wearing armor you're not trained in
 
-// Standardized spell stamina costs
+// Standardized spell stamina costs //Caustic Edit - Adjusting these costs! Defaults listed in a comment the same line as the entry, if it got changed.
 #define SPELLCOST_CANTRIP            5
-#define SPELLCOST_MINOR_PROJECTILE   10 // Should feels good to spam and not stamcrit you
-#define SPELLCOST_MAJOR_PROJECTILE   20 // 20 seems decent
-#define SPELLCOST_SUPER_PROJECTILE   45 // Only used for GFB for now as an intermediary
-#define SPELLCOST_ULTIMATE           70
-#define SPELLCOST_MINOR_AOE          15
-#define SPELLCOST_MAJOR_AOE          30
-#define SPELLCOST_SINGLE_CC          30
-#define SPELLCOST_UTILITY_BUFF       20
-#define SPELLCOST_STAT_BUFF          40
-#define SPELLCOST_CONJURE            20	
-#define SPELLCOST_TELEPORT           15
-#define SPELLCOST_MINOR_SUMMON       30
-#define SPELLCOST_MAJOR_SUMMON       50
+#define SPELLCOST_MINOR_PROJECTILE   2 // Should feels good to spam and not stamcrit you //Default: 10 - 2 is more in line with a regular melee swing
+#define SPELLCOST_MAJOR_PROJECTILE   10 // 20 seems decent //Default: 20 - 10 is a strong attack, so, this feels fitting?
+#define SPELLCOST_SUPER_PROJECTILE   45 // Only used for GFB for now as an intermediary //Not currently used actually?
+#define SPELLCOST_ULTIMATE           40 //Default: 70 - 10 is a strong attack, so, this feels fitting?
+#define SPELLCOST_MINOR_AOE          10 //Default: 15
+#define SPELLCOST_MAJOR_AOE          20 //Default: 30
+#define SPELLCOST_SINGLE_CC          15 //Default: 30 - A bit higher then a stronger attack, because CC is added
+#define SPELLCOST_UTILITY_BUFF       5 // See below
+#define SPELLCOST_STAT_BUFF          5 // With new Augmentation design we don't really need to gate this hard anymore
+#define SPELLCOST_BRUSH 			 50 // For blood rush spells, which I don't want to become an overly easy trade for stamina //Not currently used actually?
+#define SPELLCOST_SURGE 			 40 // For surge spells, which is pretty damn powerful //Default: 65 - This IS pretty powerful, so at LEAST should be equal to an ult.
+#define SPELLCOST_AUGURY             10 // Augury card is cheap //Not currently used actually?
+#define SPELLCOST_CONJURE            10 //Default: 20
+#define SPELLCOST_TELEPORT           15 //Default: 15 - Same as the (adjusted) CC spells seems fair?
+#define SPELLCOST_MINOR_SUMMON       10 //Default: 30 - Only used for 'blade of psydon'
+#define SPELLCOST_MAJOR_SUMMON       40 //Default: 50 - Only used for Raise Deadite right now?
 // Buff duration tiers
 #define STAT_BUFF_SELF_DURATION      1 MINUTES
-#define STAT_BUFF_ALLY_DURATION      2.5 MINUTES
+#define STAT_BUFF_ALLY_DURATION      1 MINUTES
+#define ATTUNE_BUFF_DURATION         45 SECONDS // Attune (Giant/Hawk/Haste) uptime, against a 90s cooldown
 #define UTILITY_AOE_BUFF_DURATION    15 MINUTES
 
+// Augmentation augury hand
+#define AUGURY_DURATION              22 SECONDS // Nearly 100% uptime on 15 int.
+#define AUGURY_HAND_COOLDOWN         30 SECONDS
+#define AUGURY_GROUP                 "augury" // Buff exclusivity group - a person bears at most one Augury at a time
+#define AUGMENT_CONDUIT_RANGE        7
+#define AUGMENT_CONDUIT_MAX_LINKS    2
+
+//Miracle costs in devotion used.
+#define SPELLCOST_MIRACLE_ORISON	 5
+#define SPELLCOST_MIRACLE_MINOR		 15
 #define SPELLCOST_MIRACLE            30
 #define SPELLCOST_MIRACLE_MAJOR      60
-#define SPELLCOST_MINOR_SKILL        30
-#define SPELLCOST_MAJOR_SKILL        50
+#define SPELLCOST_MIRACLE_LEGENDARY  100 //Highest tiers of miracles should have this.
+
+
+#define SPELLCOST_MINOR_SKILL        20 //Default 30 - Only used for two spells, an undivided one and a special luminary one, they seem somewhat hefty.
+#define SPELLCOST_MAJOR_SKILL        50 //Not currently used actually?
 
 // Spellblade specific cost
-#define SPELLCOST_SB_POKE 12 // Roughly 3 attacks worth
-#define SPELLCOST_SB_MOBILITY 12 // Dashes / Teleports / Anchor
-#define SPELLCOST_SB_ULT 50 // Their ult
+#define SPELLCOST_SB_POKE 2 // Roughly 3 attacks worth //Default 12 - Same for other pokes above.
+#define SPELLCOST_SB_MOBILITY 12 // Dashes / Teleports / Anchor //Default 12 - Actually seems solid here.
+#define SPELLCOST_SB_ULT 40 // Their ult //Default 50 - Why was this cheaper then the other ults originally? Now in line with the others.
+
+#define SPELLCOST_FORM_BLADE 10 //Default 30 - In line with the other Conjures above
+//Caustic Edit End
 
 // Standardized charge times — keeps poke/major/heavy spells consistent for balance passes
 #define CHARGETIME_POKE          0.5 SECONDS  // Staple poke spells
 #define CHARGETIME_MINOR         1 SECONDS    // Minor utility / support spells
 #define CHARGETIME_MAJOR         1.5 SECONDS  // Major projectiles
 #define CHARGETIME_HEAVY         2 SECONDS    // Heavy AOE / ultimates
+#define CHARGETIME_BARRAGE 	     3 SECONDS // Barrage / Channeled spells
 
 // Standardized mage projectile speeds — lower = faster
 #define MAGE_PROJ_FAST        1.25  // Quick bolts (arcyne bolt, frost bolt)
@@ -85,12 +119,22 @@
 // Standardized spell ranges
 #define SPELL_RANGE_PROJECTILE 10  // Standard projectile travel distance and projectile spell cast range
 #define SPELL_RANGE_GROUND     7   // Standard ground-targeted / AOE spell cast range
+#define SPELL_RANGE_TWO_SCREENS 14 // Two screens away for very very special spells
+#define SPELL_RANGE_AURA	   4   // For 'warcry' type miracles or AOE BUFFS originating on the caster
+#define SPELL_RANGE_ADJACENT   1   // Self explanatory
+
+// Mage projectile effective range - full damage/effect within, degrades beyond (max_range on the projectile)
+#define MAGE_LONG_PROJ_RANGE   7   // Long-range bolts (arcyne bolt, fireball, lightning, soulshot)
+#define MAGE_MID_PROJ_RANGE    5   // Mid-range bolts (arc bolt, greater arcyne bolt, stygian)
 
 // Charging slowdown tiers — how much the caster is slowed while charging
 #define CHARGING_SLOWDOWN_NONE 0       // Spellblade abilities, no movement penalty
 #define CHARGING_SLOWDOWN_SMALL 1      // Small projectiles, minor spells
 #define CHARGING_SLOWDOWN_MEDIUM 2     // Big projectiles, significant spells
 #define CHARGING_SLOWDOWN_HEAVY 3      // Area denial, channeled spells
+
+#define SPELL_COOLDOWN_POKE 6 SECONDS
+#define SPELL_COOLDOWN_BIG_WHOOPER 18 SECONDS
 
 // Spell impact visual intensity tiers
 #define SPELL_IMPACT_NONE   0  // No impact visual
@@ -115,6 +159,7 @@
 #define MAX_MINOR_ASPECTS 2
 #define ASPECT_MAJOR "major"
 #define ASPECT_MINOR "minor"
+#define ASPECT_PSEUDO "pseudo"
 
 // Telegraph delay tiers (in ticks)
 #define TELEGRAPH_SKILLSHOT 4   // Fast - requires prediction to dodge
@@ -123,40 +168,45 @@
 #define TELEGRAPH_AREA_DENIAL 16 // Very Slow - AOE or ground targeted, requires setup to avoid
 #define TELEGRAPH_ULTIMATE 20 // Supremely slow. Getting hit is your own fault
 
-// Aspect attuned names — shared between magic_aspect datums and implement-scaled spells
 #define ASPECT_NAME_PYROMANCY   "Fire"
 #define ASPECT_NAME_CRYOMANCY   "Frost"
 #define ASPECT_NAME_FULGURMANCY "Storms"
 #define ASPECT_NAME_GEOMANCY    "Stone"
 #define ASPECT_NAME_KINESIS     "Force"
 #define ASPECT_NAME_FERRAMANCY  "Metal"
+#define ASPECT_NAME_SPELLSWORD  "Spellsword"
 #define ASPECT_NAME_AUGMENTATION "Enhancement"
 #define ASPECT_NAME_BATTLEWARDRY "Wards"
 #define ASPECT_NAME_TELOMANCY   "Trajectory"
+#define ASPECT_NAME_CONJURATION "Summoning"
 
 // Arcyne ward tier hierarchy - higher tier wards override lower, equal or lower cannot override
 #define ARCYNE_WARD_TIER_OTHER   1 // Other Ward (cast on allies)
 #define ARCYNE_WARD_TIER_BASE    4 // Standard arcyne ward (self-cast)
 #define ARCYNE_WARD_TIER_GREATER 5 // Dragonhide / Crystalhide upgrades
 
-// Variant additive sentinel - used instead of null because DM skips null keys in for-in loops
 #define VARIANT_ADDITIVE "__additive__"
+
+// Resolves the order in which spells are sorted
+#define ASPECT_CHOICE "__choice__"
+#define ASPECT_POINTBUY "__pointbuy__"
 
 // Weapon-in-hand casting penalty — applied when casting a penalized spell while holding a non-implement rogueweapon
 #define WEAPON_CAST_PENALTY 0.3
 
 // Leyline teleportation matrix passenger limits
-#define TELEPORT_MAX_PASSENGERS 5
-#define TELEPORT_MAX_NONMAGES 2
+#define TELEPORT_MAX_PASSENGERS 6
+#define TELEPORT_MAX_NONMAGES 3
 
 // Spell implement tiers and multipliers
 #define IMPLEMENT_TIER_LESSER  1
 #define IMPLEMENT_TIER_GREATER 2
 #define IMPLEMENT_TIER_GRAND   3
 
-#define IMPLEMENT_MULT_LESSER  1.2   // 20% poke damage bonus
-#define IMPLEMENT_MULT_GREATER 1.225 // 22.5% poke damage bonus
-#define IMPLEMENT_MULT_GRAND   1.25  // 25% poke damage bonus
+// Fraction of a spell's resource cost that the Residual Focus buff returns over 20 seconds.
+#define IMPLEMENT_REFUND_LESSER  0.20
+#define IMPLEMENT_REFUND_GREATER 0.275
+#define IMPLEMENT_REFUND_GRAND   0.35
 
 // Lightning Specific constants
 #define LIGHTNING_ADAPTATION_COOLDOWN 15 SECONDS
@@ -170,10 +220,11 @@
 #define COMSIG_MOB_KICKED_SUCCESSFUL "mob_kicked_successful" //from /mob/living/proc/try_kick(). Sent to target after a kick lands (past dodge/parry).
 
 // Aspect
-#define ASPECT_RESET_BUDGET 4
+#define ASPECT_RESET_BUDGET 6
 #define ASPECT_RESET_COST_MAJOR 4
 #define ASPECT_RESET_COST_MINOR 2
 #define ASPECT_RESET_COST_UTILITY 1
+#define ASPECT_RESET_COST_CHOICE 2
 #define ARCANE_MARK_FILTER_WEAPON "arcane_mark_enchant"
 #define ARCANE_MARK_COOLDOWN 12 SECONDS
 

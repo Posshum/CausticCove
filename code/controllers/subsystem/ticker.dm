@@ -100,6 +100,12 @@ SUBSYSTEM_DEF(ticker)
 
 	/// Sunsteal gamestate bool.
 	var/sunstolen = FALSE
+	/// Sunscorch gamestate bool.
+	var/sunscorched = FALSE
+	/// World time when sunscorch begins burning creatures under open sky.
+	var/sunscorch_burn_start_time = 0
+	/// TRUE once the first sunscorch burn warning has been sent to chat.
+	var/sunscorch_burn_warning_sent = FALSE
 
 /datum/controller/subsystem/ticker/Initialize(timeofday)
 	load_mode()
@@ -275,7 +281,7 @@ SUBSYSTEM_DEF(ticker)
 				if(player.ready == PLAYER_READY_TO_PLAY)
 					if(player.client.prefs.lastclass == V)
 						if(player.IsJobUnavailable(V) != JOB_AVAILABLE)
-							to_chat(player, span_warning("You cannot be [V] and thus are not considered."))
+							to_chat(player, span_warning("You cannot be [V] and thus are not considered."), MESSAGE_TYPE_OOC)
 							continue
 				readied_jobs.Add(V)
 		/*
@@ -538,7 +544,7 @@ SUBSYSTEM_DEF(ticker)
 /datum/controller/subsystem/ticker/proc/send_tip_of_the_round(input)
 	if(!input)
 		return
-	to_chat(world, fieldset_block(span_purple("<b>Tip of the Round</b>"), span_purple("[html_encode(input)]"), "tipoftheround"))
+	to_chat(world, fieldset_block(span_purple("<b>Tip of the Round</b>"), span_purple("[html_encode(input)]"), "tipoftheround"), MESSAGE_TYPE_OOC)
 
 /datum/controller/subsystem/ticker/proc/check_queue()
 	if(!queued_players.len)
@@ -547,7 +553,7 @@ SUBSYSTEM_DEF(ticker)
 	if(!hpc)
 		listclearnulls(queued_players)
 		for (var/mob/dead/new_player/NP in queued_players)
-			to_chat(NP, span_danger("The alive players limit has been released!<br><a href='?src=[REF(NP)];late_join=override'>[html_encode(">>Join Game<<")]</a>"))
+			to_chat(NP, span_danger("The alive players limit has been released!<br><a href='?src=[REF(NP)];late_join=override'>[html_encode(">>Join Game<<")]</a>"), MESSAGE_TYPE_OOC)
 			SEND_SOUND(NP, sound('sound/blank.ogg'))
 			NP.LateChoices()
 		queued_players.len = 0
@@ -562,14 +568,14 @@ SUBSYSTEM_DEF(ticker)
 			listclearnulls(queued_players)
 			if(living_player_count() < hpc)
 				if(next_in_line && next_in_line.client)
-					to_chat(next_in_line, span_danger("A slot has opened! You have approximately 20 seconds to join. <a href='?src=[REF(next_in_line)];late_join=override'>\>\>Join Game\<\<</a>"))
+					to_chat(next_in_line, span_danger("A slot has opened! You have approximately 20 seconds to join. <a href='?src=[REF(next_in_line)];late_join=override'>\>\>Join Game\<\<</a>"), MESSAGE_TYPE_OOC)
 					SEND_SOUND(next_in_line, sound('sound/blank.ogg'))
 					next_in_line.LateChoices()
 					return
 				queued_players -= next_in_line //Client disconnected, remove he
 			queue_delay = 0 //No vacancy: restart timer
 		if(25 to INFINITY)  //No response from the next in line when a vacancy exists, remove he
-			to_chat(next_in_line, span_danger("No response received. You have been removed from the line."))
+			to_chat(next_in_line, span_danger("No response received. You have been removed from the line."), MESSAGE_TYPE_OOC)
 			queued_players -= next_in_line
 			queue_delay = 0
 
@@ -731,18 +737,18 @@ SUBSYSTEM_DEF(ticker)
 
 	var/skip_delay = check_rights()
 	if(delay_end && !skip_delay)
-		to_chat(world, span_boldannounce("A game master has delayed the round end."))
+		to_chat(world, span_boldannounce("A game master has delayed the round end."), MESSAGE_TYPE_OOC)
 		return
 
 	SStriumphs.end_triumph_saving_time()
-	to_chat(world, span_boldannounce("Rebooting World in [DisplayTimeText(delay)]. [reason]"))
+	to_chat(world, span_boldannounce("Rebooting World in [DisplayTimeText(delay)]. [reason]"), MESSAGE_TYPE_OOC)
 
 	var/start_wait = world.time
 	UNTIL(round_end_sound_sent || (world.time - start_wait) > (delay * 2))	//don't wait forever
 	sleep(delay - (world.time - start_wait))
 
 	if(delay_end && !skip_delay)
-		to_chat(world, span_boldannounce("Reboot was cancelled by an admin."))
+		to_chat(world, span_boldannounce("Reboot was cancelled by an admin."), MESSAGE_TYPE_OOC)
 		return
 	if(end_string)
 		end_state = end_string
@@ -750,14 +756,14 @@ SUBSYSTEM_DEF(ticker)
 	var/statspage = CONFIG_GET(string/roundstatsurl)
 	var/gamelogloc = CONFIG_GET(string/gamelogurl)
 	if(statspage)
-		to_chat(world, span_info("Round statistics and logs can be viewed <a href=\"[statspage][GLOB.round_id]\">at this website!</a>"))
+		to_chat(world, span_info("Round statistics and logs can be viewed <a href=\"[statspage][GLOB.round_id]\">at this website!</a>"), MESSAGE_TYPE_OOC)
 	else if(gamelogloc)
-		to_chat(world, span_info("Round logs can be located <a href=\"[gamelogloc]\">at this website!</a>"))
+		to_chat(world, span_info("Round logs can be located <a href=\"[gamelogloc]\">at this website!</a>"), MESSAGE_TYPE_OOC)
 
-	log_game(span_boldannounce("Rebooting World. [reason]"))
+	log_game(span_boldannounce("Rebooting World. [reason]"), MESSAGE_TYPE_OOC)
 
 	if(end_party)
-		to_chat(world, span_boldannounce("It's over!"))
+		to_chat(world, span_boldannounce("It's over!"), MESSAGE_TYPE_OOC)
 		world.Del()
 	else
 		world.Reboot()
@@ -789,24 +795,25 @@ SUBSYSTEM_DEF(ticker)
 /datum/controller/subsystem/ticker/proc/on_sunsteal()
 	GLOB.todoverride = "night"
 	settod()
-	priority_announce("The Sun is torn from the sky!", "Terrible Omen", 'sound/misc/astratascream.ogg')
+	priority_announce("The Sun is torn from the sky, the world is bleeding!", "Terrible Omen", 'sound/music/wolfintro.ogg') //THE WORLD IS DYING, YOU SHOULD BE SCARED
 	addomen(OMEN_SUNSTEAL)
 	SSParticleWeather.run_weather(/datum/particle_weather/fog/blood, TRUE)
 	for(var/mob/living/carbon/human/astrater as anything in GLOB.human_list)
 		if(!istype(astrater.patron, /datum/patron/divine/astrata))
 			continue
-		to_chat(astrater, span_userdanger("You feel the pain of [astrater.patron]!"))
+		to_chat(astrater, span_userdanger("You feel the pain of [astrater.patron]!"), MESSAGE_TYPE_INFO)
+		astrater.playsound_local(get_turf(astrater), 'sound/misc/astratascream.ogg', 60, FALSE, pressure_affected = FALSE) //Only Astratians can hear their godess scream in agony.
 		astrater.emote("painscream", intentional = FALSE)
 
 	for(var/turf/open/water/W in world)
 		W.water_reagent = /datum/reagent/blood
-		W.water_color = "#C80000"
+		W.water_color = BLOOD_COLOR_RED
 		W.mapped = FALSE
 		W.update_icon()
 		CHECK_TICK
 
 	for(var/obj/machinery/light/light in GLOB.machines)
-		if(prob(40))
+		if(prob(70))
 			light.extinguish()
 		else
 			light.flicker(rand(2, 5))
@@ -837,10 +844,66 @@ SUBSYSTEM_DEF(ticker)
 				if(isfloorturf(_T))
 					new /mob/living/carbon/human/species/skeleton/npc(_T)
 
-/// Returns universe state to normal after the sunstealer has been slain
+
+//vheslyn suns tuff. sunscorcher? sunsteal? Get it/? ahaaa bites my lip
+/datum/controller/subsystem/ticker/proc/sunscorch(mob/living/sunscorcher)
+	ASSERT(sunscorcher)
+	sunscorched = TRUE
+	sunscorch_burn_start_time = world.time + 2 MINUTES
+	sunscorch_burn_warning_sent = FALSE
+	RegisterSignal(sunscorcher, list(COMSIG_QDELETING, COMSIG_MOB_DEATH), PROC_REF(on_sunscorcher_death))
+	INVOKE_ASYNC(src, PROC_REF(on_sunscorch)) // Invoke async since on_sunscorch() sleeps in CHECK_TICK
+
+// VHESLYN SUN STUFF
+/datum/controller/subsystem/ticker/proc/on_sunscorch()
+	GLOB.todoverride = "day"
+	settod()
+	priority_announce("WAVE OF AGONY. ASTRATA BLOTS AS AN IMPOSSIBLY-SHAPED NOOSPHERIC GLOME RADIATES BURNING FEAR-HEAT. SCORCHING RAY OF NOTHING; THE WORM SCREAMS DOWN UPON ME IN MALICE. DEADLY HEAT BEGINS TO CREEP INTO THE AIR.", "THE WORM AWAKENS, THE WORLD BURNS // EKPYROSIS - GOD O GOD WHERE'RT THOU?", 'sound/villain/ascendant_intro.ogg')
+	addomen(OMEN_SUNSCORCH)
+	for(var/mob/living/carbon/human/nocite as anything in GLOB.human_list)
+		if(!istype(nocite.patron, /datum/patron/divine/noc))
+			continue
+		to_chat(nocite, span_userdanger("AGONY. I CAN NOT HEAR [nocite.patron]. THEY ARE LOST TO ME."))
+		nocite.emote("painscream", intentional = FALSE)
+
+	for(var/obj/machinery/light/light in GLOB.machines) //this entire block may  cause insane lag i'm not sure sorry
+		if(prob(70))
+			light.seton(TRUE)
+		else
+			light.flicker(rand(2, 5))
+		CHECK_TICK
+
+	for(var/obj/item/flashlight/flare/torch/torch in GLOB.weather_act_upon_list)
+		torch.fire_act(1, 5)
+		CHECK_TICK
+
+	for(var/obj/structure/soil/soil in GLOB.soil_list)
+		soil.plant_dead = TRUE
+		soil.produce_ready = FALSE
+		soil.update_icon()
+		CHECK_TICK
+
+	for(var/mob/living/carbon/human/human in GLOB.human_list)
+		if(istype(human.patron, /datum/patron/divine/astrata))
+			continue
+
+		human.stress_freakout()
+
+/// Returns universe state to normal (minus the water) after the sunstealer has been slain, some neat flavor to show its finally over.
 /datum/controller/subsystem/ticker/proc/on_sunstealer_death()
 	GLOB.todoverride = null
 	sunstolen = FALSE
+	priority_announce("The air remains unnaturally cold as a wounded sun rises once more.", "A long night comes to an end", 'sound/misc/otavanlament.ogg') //THE WORLD IS TORN OPEN, THE ROT TO SEE. WHY DO YOU STILL ENDURE?
+	settod()
+	SSParticleWeather.run_weather(/datum/particle_weather/rain_gentle, TRUE)
+
+/// Returns universe state to normal after the sunscorcher has been slain.
+/datum/controller/subsystem/ticker/proc/on_sunscorcher_death()
+	GLOB.todoverride = null
+	sunscorched = FALSE
+	sunscorch_burn_start_time = 0
+	sunscorch_burn_warning_sent = FALSE
+	priority_announce("ASTRATA's now-weary light slowly seeps back into existence. The WORM recedes; the sky is safe. God is here. God is here and all is well once more.", "THIS DAMNED SUN /// EKPYROSIS ENDS", 'sound/misc/otavanlament.ogg')
 	settod()
 	SSParticleWeather.run_weather(/datum/particle_weather/rain_gentle, TRUE)
 

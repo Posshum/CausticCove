@@ -27,7 +27,7 @@
 
 
 /datum/supply_pack/rogue/food/raisinbreads
-	name = "Raisin Bread"
+	name = "Raisin Loaf"
 	cost = 30
 	contains = list(
 					/obj/item/reagent_containers/food/snacks/rogue/raisinbread,
@@ -39,14 +39,14 @@
 	name = "Egg"
 	cost = 20
 	contains = list(
-					/obj/item/reagent_containers/food/snacks/egg,
-					/obj/item/reagent_containers/food/snacks/egg,
-					/obj/item/reagent_containers/food/snacks/egg,
-					/obj/item/reagent_containers/food/snacks/egg,
-					/obj/item/reagent_containers/food/snacks/egg,
-					/obj/item/reagent_containers/food/snacks/egg,
-					/obj/item/reagent_containers/food/snacks/egg,
-					/obj/item/reagent_containers/food/snacks/egg,
+					/obj/item/reagent_containers/food/snacks/rogue/egg,
+					/obj/item/reagent_containers/food/snacks/rogue/egg,
+					/obj/item/reagent_containers/food/snacks/rogue/egg,
+					/obj/item/reagent_containers/food/snacks/rogue/egg,
+					/obj/item/reagent_containers/food/snacks/rogue/egg,
+					/obj/item/reagent_containers/food/snacks/rogue/egg,
+					/obj/item/reagent_containers/food/snacks/rogue/egg,
+					/obj/item/reagent_containers/food/snacks/rogue/egg,
 				)
 
 /datum/supply_pack/rogue/food/coffee
@@ -83,7 +83,7 @@
 	contains = list(
 					/obj/item/reagent_containers/food/snacks/grown/rogue/rosa_petals_dried,
 					/obj/item/reagent_containers/food/snacks/grown/rogue/rosa_petals_dried,
-					/obj/item/reagent_containers/food/snacks/grown/rogue/rosa_petals_dried, 
+					/obj/item/reagent_containers/food/snacks/grown/rogue/rosa_petals_dried,
 					/obj/item/reagent_containers/food/snacks/grown/rogue/rosa_petals_dried,
 					/obj/item/reagent_containers/food/snacks/grown/rogue/rosa_petals_dried,
 					/obj/item/reagent_containers/food/snacks/grown/rogue/rosa_petals_dried,
@@ -92,7 +92,7 @@
 				)
 
 /datum/supply_pack/rogue/food/pepper
-	name = "Pepper"
+	name = "Pepper Mill"
 	cost = 30
 	contains = list(/obj/item/reagent_containers/peppermill)
 
@@ -107,11 +107,38 @@
 
 /datum/supply_pack/rogue/food/honey
 	name = "Honey"
+	cost = 30
+	contains = list(
+					/obj/item/reagent_containers/food/snacks/rogue/honey,
+					/obj/item/reagent_containers/food/snacks/rogue/honey,
+					/obj/item/reagent_containers/food/snacks/rogue/honey,
+				)
+
+/datum/supply_pack/rogue/food/spiderhoney
+	name = "Spider Honey"
 	cost = 40
 	contains = list(
 					/obj/item/reagent_containers/food/snacks/rogue/honey/spider,
 					/obj/item/reagent_containers/food/snacks/rogue/honey/spider,
 					/obj/item/reagent_containers/food/snacks/rogue/honey/spider,
+				)
+
+/datum/supply_pack/rogue/food/sugar
+	name = "Sugar"
+	cost = 45
+	contains = list(
+					/obj/item/reagent_containers/food/snacks/sugar,
+					/obj/item/reagent_containers/food/snacks/sugar,
+					/obj/item/reagent_containers/food/snacks/sugar,
+					/obj/item/reagent_containers/food/snacks/sugar,
+					/obj/item/reagent_containers/food/snacks/sugar,
+				)
+
+/datum/supply_pack/rogue/food/allspice
+	name = "Allspice"
+	cost = 50 //about double the price of its crafting ingredients
+	contains = list(
+					/obj/item/reagent_containers/food/snacks/allspice,
 				)
 
 /datum/supply_pack/rogue/food/chocolate

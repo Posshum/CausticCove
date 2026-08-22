@@ -7,14 +7,14 @@
 	spawn_positions = 1
 
 	allowed_sexes = list(MALE, FEMALE) //same as town guard
-	allowed_races = RACES_ALL_KINDS //Caustic edit from RACES_NO_CONSTRUCT
+	forbidden_races = list() //Caustic edit from list(RACES_CONSTRUCT RACES_DESPISED)
 	tutorial = "You've known combat your entire life. There isn't a way to kill a man you havent practiced in the tapestries of war itself. You wouldn't call yourself a hero--those belong to the men left rotting in the fields where you honed your ancient trade. You don't sleep well at night anymore, you don't like remembering what you've had to do to survive. Trading adventure for stable pay was the only logical solution, and maybe someday you'll get to lay down the blade and rest your weary body..."
-	allowed_ages = list(AGE_OLD) //VETERANS!! ARE!!! OLD!!!
+	allowed_ages = list(AGE_MIDDLEAGED, AGE_OLD) //being a veteran means knowing when to quit before you are truly disabled
 	advclass_cat_rolls = list(CTAG_VETERAN = 20)
 	display_order = JDO_VETERAN
 	whitelist_req = TRUE
 	give_bank_account = 75 //Caustic edit Imagine being landed and starting dirt poor lmao what
-	min_pq = 5 //Should...probably actually be a veteran of at least a few weeks before trying to teach others
+	min_pq = 12 //CC Edit - You are a veteran, you're old, you know a lot about how to fight in this world and aren't just an XP machine.
 	max_pq = null
 	round_contrib_points = 2
 
@@ -105,7 +105,7 @@
 		/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1
 		)
-	H.verbs |= /mob/proc/haltyell
+	add_verb(H, /mob/proc/haltyell)
 	if(H.mind)
 		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.")
 
@@ -223,7 +223,7 @@
 		/obj/item/rope/chain = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1
 		)
-	H.verbs |= /mob/proc/haltyell
+	add_verb(H, /mob/proc/haltyell)
 	if(H.mind)
 		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.")
 	H.adjust_blindness(-3)
@@ -274,7 +274,8 @@
 	outfit = /datum/outfit/job/roguetown/vet/calvaryman
 
 	category_tags = list(CTAG_VETERAN)
-	traits_applied = list(TRAIT_HEAVYARMOR, TRAIT_MEDIUMARMOR, TRAIT_STEELHEARTED, TRAIT_NOBLE)
+	traits_applied = list(TRAIT_HEAVYARMOR, TRAIT_MEDIUMARMOR, TRAIT_STEELHEARTED, TRAIT_NOBLE, TRAIT_MANORHOLDERSMALL)
+	noble_income = 15
 	subclass_stats = list(
 		STATKEY_CON = 2,
 		STATKEY_WIL = 2,
@@ -327,7 +328,7 @@
 		/obj/item/rogueweapon/scabbard/sheath = 1,
 		/obj/item/roguekey/veteran = 1
 		)
-	H.verbs |= /mob/proc/haltyell
+	add_verb(H, /mob/proc/haltyell)
 	if(H.mind)
 		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.")
 
@@ -451,7 +452,7 @@
 		/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1
 		)
-	H.verbs |= /mob/proc/haltyell
+	add_verb(H, /mob/proc/haltyell)
 	if(H.mind)
 		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.")
 
@@ -569,7 +570,7 @@
 		/obj/item/roguekey/veteran = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1
 		)
-	H.verbs |= /mob/proc/haltyell
+	add_verb(H, /mob/proc/haltyell)
 	H.cmode_music = 'sound/music/cmode/antag/combat_deadlyshadows.ogg' // so apparently this works for veteran, but not for advents. i dont know why.
 	if(H.mind)
 		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.")
@@ -677,7 +678,7 @@
 		/obj/item/reagent_containers/glass/bottle/rogue/poison = 1,
 		/obj/item/lockpickring/mundane,
 		)
-	H.verbs |= /mob/proc/haltyell
+	add_verb(H, /mob/proc/haltyell)
 	if(H.mind)
 		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.")
 	H.adjust_blindness(-3)

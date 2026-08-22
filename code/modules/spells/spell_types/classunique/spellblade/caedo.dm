@@ -21,7 +21,7 @@
 	charge_required = TRUE
 	weapon_cast_penalized = FALSE
 	charge_time = CHARGETIME_POKE
-	charge_drain = 0
+	hold_drain = 0
 	charge_slowdown = CHARGING_SLOWDOWN_NONE
 	charge_sound = 'sound/magic/charging.ogg'
 	cooldown_time = 12 SECONDS
@@ -145,6 +145,8 @@
 
 /datum/action/cooldown/spell/caedo/proc/second_strike(mob/living/carbon/human/user, mob/living/victim, obj/item/weapon, def_zone)
 	if(!user || QDELETED(user) || !victim || QDELETED(victim) || victim.stat == DEAD)
+		return
+	if(spell_guard_check(victim, FALSE, user))
 		return
 	var/total_damage = strike_damage
 	arcyne_strike(user, victim, weapon, total_damage, def_zone, spell_name = "Caedo", skip_animation = TRUE)

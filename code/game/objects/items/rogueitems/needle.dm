@@ -1,3 +1,11 @@
+#define SEW_HP_EXP_NORMALIZER 100
+// How much EXP per sewing action per intelligence
+// 0.6 EXP at 10 INT
+#define SEW_EXP_PER_STEP 0.06
+// How much EXP per 100 sew threshold fixed per intelligence
+// 7.5 EXP at 10 INT for 100 sew treshold
+#define SEW_EXP_FINISH 0.75
+
 /obj/item/needle
 	name = "needle"
 	icon_state = "needle"
@@ -23,6 +31,7 @@
 	var/can_repair = TRUE
 	grid_width = 32
 	grid_height = 32
+	//dropshrink = 0.75
 
 /obj/item/needle/examine()
 	. = ..()
@@ -243,9 +252,13 @@
 			if(dynwound.is_armor_maxed)
 				dynwound.is_armor_maxed = FALSE
 		if(target_wound.sew_progress < target_wound.sew_threshold)
+			if(doctor.mind)
+				doctor.mind.add_sleep_experience(/datum/skill/misc/medicine, doctor.STAINT * SEW_EXP_PER_STEP)
 			continue
 		if(doctor.mind)
-			doctor.mind.add_sleep_experience(/datum/skill/misc/medicine, doctor.STAINT * 2.5)
+			var/exp_scale = target_wound.sew_threshold / SEW_HP_EXP_NORMALIZER
+			var/base_exp = doctor.STAINT * SEW_EXP_FINISH
+			doctor.mind.add_sleep_experience(/datum/skill/misc/medicine, base_exp * exp_scale)
 		use(1)
 		target_wound.sew_wound()
 		if(patient == doctor)
@@ -297,7 +310,7 @@
 
 /obj/item/needle/aalloy
 	name = "decrepit needle"
-	icon_state = "needle" //OV Edit: Because this one missing icon is making all our map tests fail.
+	icon_state = "aneedle"
 	desc = "This decrepit old needle doesn't seem helpful for much."
 	stringamt = 5
 	maxstring = 5
@@ -306,9 +319,14 @@
 
 /obj/item/needle/bone
 	name = "bone needle"
+	icon = 'modular_causticcove/icons/roguetown/items/boneneedle.dmi'
 	icon_state = "boneneedle"
 	desc = "A sharp piece of worked bone. Perfect for stitching hide and skin alike."
 	stringamt = 10
 	maxstring = 10
 
 // Caustic Edit end
+
+#undef SEW_HP_EXP_NORMALIZER
+#undef SEW_EXP_PER_STEP
+#undef SEW_EXP_FINISH

@@ -224,6 +224,9 @@
 	effectedstats = list(STATKEY_STR = -1, STATKEY_WIL = -1, STATKEY_CON = -1, STATKEY_SPD = -1, STATKEY_LCK = -1)
 	duration = 5 MINUTES
 
+/datum/status_effect/debuff/devitalised/greater
+	duration = 30 MINUTES
+
 /atom/movable/screen/alert/status_effect/debuff/devitalised
 	name = "Devitalised"
 	desc = "Something has been taken from me, and it will take time to recover."
@@ -296,41 +299,47 @@
 	desc = "I can barely feel my limbs!"
 	icon_state = "chilled"
 
-
+/// RITUOS DEBUFFS
 /datum/status_effect/debuff/ritesexpended
 	id = "ritesexpended"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/ritesexpended
 	duration = 30 MINUTES
 
+/datum/status_effect/debuff/armamentrites
+	id = "armamentrites"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/armamentrites
+	duration = 2 HOURS
+
 /atom/movable/screen/alert/status_effect/debuff/ritesexpended
-	name = "Rites Complete"
-	desc = "It will take time before I can next perform a rite."
+	name = "Rituos Fatigatio"
+	desc = "My ritual is complete, yet not without cost. I must gift my lux tyme to recover, before I can conduct another rite."
+	icon_state = "rituos_cooldown"
+
+/datum/status_effect/debuff/lux_exhausted
+	id = "lux_exhausted"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/lux_exhausted
+	effectedstats = list(STATKEY_STR = -2, STATKEY_WIL = -2, STATKEY_LCK = -2)
+	duration = 2 HOURS
+
+/atom/movable/screen/alert/status_effect/debuff/lux_exhausted
+	name = "Rituos Langouria"
+	desc = "Body and will alike, sacrificed to complete the rites for another. Your will shall be done, but it will be quite some time before your lux can sustain another rite."
+	icon_state = "rituos_exchange"
 
 /datum/status_effect/debuff/ritesexpended_heavy
 	id = "ritesexpended_heavy"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/ritesexpended_heavy
 	duration = 1 HOURS
 
+/atom/movable/screen/alert/status_effect/debuff/armamentrites
+	name = "Rituos Desicco"
+	desc = "My ritual is complete, yet not without cost. I must gift my lux plenty of tyme to recover, before I can conduct another rite."
+	icon_state = "rituos_cooldown_greater"
+
 /atom/movable/screen/alert/status_effect/debuff/ritesexpended_heavy
-	name = "Rites Complete"
-	desc = "It will take a lot of time before I can perform a next rite. I am drained."
-
-/datum/status_effect/debuff/call_to_arms
-	id = "call_to_arms"
-	alert_type = /atom/movable/screen/alert/status_effect/debuff/call_to_arms
-	effectedstats = list(STATKEY_WIL = -2, STATKEY_CON = -2)
-	duration = 2.5 MINUTES
-
-/atom/movable/screen/alert/status_effect/debuff/call_to_arms
-	name = "Ravox's Call to Arms"
-	desc = "His voice keeps ringing in your ears, rocking your soul.."
-	icon_state = "call_to_arms_negative"
-
-/datum/status_effect/debuff/ravox_spirit_backlash
-	id = "ravox_spirit_backlash"
-	alert_type = /atom/movable/screen/alert/status_effect/debuff/ravox_spirit_backlash
-	effectedstats = list(STATKEY_WIL = -1, STATKEY_CON = -1, STATKEY_STR = -1)
-	duration = 60 SECONDS
+	name = "Rituos Desicco"
+	desc = "My ritual is complete, yet not without cost. I must gift my lux plenty of tyme to recover, before I can conduct another rite."
+	icon_state = "rituos_cooldown_greater"
 
 /atom/movable/screen/alert/status_effect/debuff/ravox_spirit_backlash
 	name = "Spiritual Backlash"
@@ -341,35 +350,6 @@
 	name = "Lux-strain"
 	desc = "My spirit is momentarily stretched thin."
 	icon_state = "astrata_gaze"
-
-/datum/status_effect/debuff/ravox_warrior_spirit
-	id = "ravox_warrior_spirit"
-	alert_type = /atom/movable/screen/alert/status_effect/debuff/ravox_warrior_spirit
-	duration = 1 MINUTES
-	effectedstats = list(STATKEY_STR = -1, STATKEY_WIL = -1, STATKEY_SPD = -1)
-
-
-/datum/status_effect/debuff/ravox_burden
-	id = "ravox_burden"
-	alert_type = /atom/movable/screen/alert/status_effect/debuff/ravox_burden
-	effectedstats = list(STATKEY_SPD = -2, STATKEY_WIL = -3)
-	duration = 12 SECONDS
-
-/atom/movable/screen/alert/status_effect/debuff/ravox_burden
-	name = "Ravox's Burden"
-	desc = "My arms and legs are restrained by divine chains!\n"
-	icon_state = "restrained"
-
-/datum/status_effect/debuff/call_to_slaughter
-	id = "call_to_slaughter"
-	alert_type = /atom/movable/screen/alert/status_effect/debuff/call_to_slaughter
-	effectedstats = list(STATKEY_WIL = -2, STATKEY_CON = -2)
-	duration = 2.5 MINUTES
-
-/atom/movable/screen/alert/status_effect/debuff/call_to_slaughter
-	name = "Call to Slaughter"
-	desc = "A putrid rotting scent fills your nose as Graggar's call for slaughter rattles you to your core.."
-	icon_state = "call_to_slaughter_negative"
 
 //For revive - your body DIDN'T rot, but it did suffer damage. Unlike being rotted, this one is only timed. Not forever.
 /datum/status_effect/debuff/revived
@@ -401,6 +381,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/rotted
 	effectedstats = list(STATKEY_STR = -2, STATKEY_PER = -2, STATKEY_INT = -2, STATKEY_WIL = -2, STATKEY_CON = -2, STATKEY_SPD = -2, STATKEY_LCK = -2)
 	duration = 30 MINUTES	//Back to a temporary 30 min duration. It hurts.
+	examine_text = "<font color='#2c8b00'>SUBJECTPRONOUN looks frail and deathly pale, bearing the lingering weakness of a body once consumed by rot.</font>"
 
 /atom/movable/screen/alert/status_effect/debuff/rotted
 	name = "Body Rot Paralysis"
@@ -986,13 +967,13 @@
 	if(!ishuman(owner))
 		return FALSE
 	var/mob/living/carbon/human/H = owner
-	var/datum/physiology/phy = H.physiology 
+	var/datum/physiology/phy = H.physiology
 	var/con_mod = H.STACON - 10
 	// con mod needs to be greater than 1 for scaling
 	if(con_mod > 0)
 		// ensure their gotten con mod does not go below 1 or exceed the bleedrate cap.
 		con_mod = clamp(con_mod, 1, CONSTITUTION_BLEEDRATE_CAP - 10)
-		// this ""equalizes"" high con ppl into bleeding more, but they SHOULD generally still 
+		// this ""equalizes"" high con ppl into bleeding more, but they SHOULD generally still
 		// bleed less than if they had just 10 con. remember: this numbers gets sent THRU their con score after.
 		phy.bleed_mod = 1.15 + (con_mod * 0.1) // at 15 con you'll bleed from a wound by .825
 	else
@@ -1004,7 +985,7 @@
 	if(!ishuman(owner))
 		return FALSE
 	var/mob/living/carbon/human/H = owner
-	var/datum/physiology/phy = H.physiology 
+	var/datum/physiology/phy = H.physiology
 	phy.bleed_mod = initial(phy.bleed_mod) // con can lower from the bleeding so we want it to just directly be set back to the initial
 	H.visible_message(span_warning("[owner] has their wounds calm..."), span_warning("My wounds stop bleeding so heavily!"))
 
@@ -1023,9 +1004,9 @@
 	if(!ishuman(owner))
 		return FALSE
 	var/mob/living/carbon/human/H = owner
-	var/datum/physiology/phy = H.physiology 
+	var/datum/physiology/phy = H.physiology
 	var/pain_mod = phy.pain_mod
-	phy.pain_mod = pain_mod * 1.25 // this then gets reduced by wil, among other things. change as needed.
+	phy.pain_mod = pain_mod * 1.15 // this then gets reduced by wil, among other things. change as needed.
 	H.visible_message(span_warning("[owner] looks to be in great pain, their wounds BLACKENING!"), span_danger("EVERYTHING HURTS!! MY WOUNDS PAIN HAS INCREASED!!"))
 
 /datum/status_effect/debuff/sensitive_nerves/on_remove()
@@ -1033,9 +1014,9 @@
 	if(!ishuman(owner))
 		return FALSE
 	var/mob/living/carbon/human/H = owner
-	var/datum/physiology/phy = H.physiology 
+	var/datum/physiology/phy = H.physiology
 	var/pain_mod = phy.pain_mod
-	phy.pain_mod = pain_mod / 1.25 // this should be a define fuuuck
+	phy.pain_mod = pain_mod / 1.15 // this should be a define fuuuck
 	H.visible_message(span_warning("[owner]'s wounds suddenly return to normal!"), span_warning("My magickally induced pain subsides!"))
 
 
@@ -1056,5 +1037,53 @@
 /atom/movable/screen/alert/status_effect/debuff/weapon_bind_debuff
 	name = "Weapon Binded"
 	desc = "Our weapons binded! That conniving sod knew right where I was aiming! I can't benefit from a weapon bind!"
-	icon = 'icons/mob/combat_debuffs.dmi'
+	icon = 'icons/mob/screen_alert_combat.dmi'
 	icon_state = "weapon_bind_debuff"
+
+/datum/status_effect/debuff/knockout
+	id = "knockout"
+	effectedstats = null
+	alert_type = null
+	duration = 12 SECONDS
+	var/knockout_power = 20 SECONDS //CC Edit - So we can make custon knockout timers.
+	var/time = 0
+
+//CC Edit - So we can make custon knockout durations.
+/datum/status_effect/debuff/knockout/on_creation(mob/living/new_owner, new_knockout_power)
+	if(new_knockout_power)
+		knockout_power = new_knockout_power
+	return ..()
+
+/datum/status_effect/debuff/knockout/tick()
+	time += 1
+	switch(time)
+		if(3)
+			if(prob(50)) //You don't always know...
+				var/msg = pick("I feel sleepy...", "I feel relaxed.", "My eyes feel a little heavy.")
+				to_chat(owner, span_warn(msg))
+
+		if(5)
+			if(prob(50))
+				owner.Slowdown(20)
+			else
+				owner.Slowdown(10)
+		if(8)
+			if(iscarbon(owner))
+				var/mob/living/carbon/C = owner
+				var/msg = pick("yawn", "cough", "clearthroat")
+				C.emote(msg, forced = TRUE)
+		if(12)
+			// it's possible that stacking effects delay this.
+			// If we hit 12 regardless we end
+			Destroy()
+
+/datum/status_effect/debuff/knockout/on_remove()
+	if(iscarbon(owner))
+		var/mob/living/carbon/C = owner
+		if(C.IsSleeping()) //No need to add more it's already pretty long.
+			return ..()
+		C.SetSleeping(knockout_power) //CC Edit - So we can make custon knockout timers.
+	..()
+
+/atom/movable/screen/alert/status_effect/debuff/knockout
+	name = "Drowsy"

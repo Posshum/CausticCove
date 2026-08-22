@@ -86,7 +86,7 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 	var/static/list/unconscious_allowed_modes = list(MODE_CHANGELING = TRUE, MODE_ALIEN = TRUE)
 	var/talk_key = get_key(message)
 
-	var/static/list/one_character_prefix = list(MODE_HEADSET = TRUE, MODE_ROBOT = TRUE, MODE_WHISPER = TRUE, MODE_SING = TRUE)
+	var/static/list/one_character_prefix = list(MODE_HEADSET = TRUE, MODE_ROBOT = TRUE, MODE_WHISPER = TRUE, MODE_PSAY = TRUE, MODE_SING = TRUE) //Caustic Edit - Add Psay here so it doesn't trim the first character of your message!
 
 	var/ic_blocked = FALSE
 	if(client && !forced && CHAT_FILTER_CHECK(message))
@@ -127,14 +127,18 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 			client.dsay(message)
 		return
 
-	if(message_mode == MODE_SING)
+	// autopunctuation
+	if(!client?.prefs?.no_autopunctuate)
+		message = autopunct_bare(message)
+
+	if(message_mode == MODE_SING || HAS_TRAIT(src, TRAIT_MUSES_GRACE))
 	#if DM_VERSION < 513
 		var/randomnote = "~"
 	#else
 		var/randomnote = pick("&#9835;", "&#9834;", "&#9836;")
 	#endif
 		spans |= SPAN_SINGING
-		message = "[randomnote] [message] [randomnote]"
+		message = "[randomnote] [capitalize(message)] [randomnote]"
 
 	if(stat == DEAD)
 		say_dead(original_message)
@@ -208,6 +212,14 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 			last_words = message
 			message_mode = MODE_WHISPER_CRIT
 			succumbed = TRUE
+	//Caustic Edit - Add in an attempt at the Psay message channel?
+	else if(message_mode == MODE_PSAY) //For now this just gets logged as a whisper
+		message_range = 0
+		var/whisper_log_type = npc_speech ? LOG_NPC_SAY : LOG_WHISPER
+		src.log_talk(message, whisper_log_type)
+		send_thoughts(message, message_range, src, bubble_type, spans, language, message_mode, original_message)
+		return
+	//Caustic Edit End
 	else
 		var/log_type = npc_speech ? LOG_NPC_SAY : LOG_SAY
 		src.log_talk(message, log_type, forced_by=forced)
@@ -262,6 +274,31 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 		to_chat(src, compose_message(src, language, message, , spans, message_mode))
 
 	return 1
+
+//Caustic Edit - Add Psay for absorbed players and their pred!
+/mob/living/proc/send_thoughts(message, message_range = 6, obj/source = src, bubble_type = bubble_icon, list/spans, datum/language/message_language=null, message_mode, original_message)
+	var/list/listening = list()
+	var/mob/living/pred
+	if(absorbed && isbelly(loc))
+		var/obj/belly/bloc = loc
+		pred = bloc.owner
+	else
+		pred = src
+
+	if(pred.client)
+		listening |= pred
+
+	for(var/obj/belly/B in pred.vore_organs)
+		for(var/mob/living/M in B.contents)
+			if(M.client && M.absorbed)
+				listening |= M
+
+	log_seen(src, null, listening, original_message, SEEN_LOG_SAY)
+
+	var/rendered = compose_message(src, message_language, message, , spans, message_mode)
+	for(var/mob/living/thinker in listening)
+		thinker.show_message(rendered)
+//Caustic Edit End
 
 /mob/living/proc/send_speech_sign(message, message_range = 6, obj/source = src, bubble_type = bubble_icon, list/spans, datum/language/message_language=null, message_mode, original_message)
 	var/static/list/eavesdropping_modes = list(MODE_WHISPER = TRUE, MODE_WHISPER_CRIT = TRUE)
@@ -333,6 +370,8 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 	if(ishuman(src))
 		var/mob/living/carbon/human/H = src
 		mob_color = H.voice_color
+		if(H.voicecolor_override)
+			mob_color = H.voicecolor_override
 	var/chatmsg = "<font color = #[mob_color]><b>[src]</b></font> " + sign_verb + "."
 	visible_message(chatmsg, runechat_message = sign_verb, log_seen = SEEN_LOG_EMOTE, ignored_mobs = understanders)
 
@@ -437,7 +476,7 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 			if(H.devotion || (H.job in GLOB.church_positions))
 				if(H.has_status_effect(/datum/status_effect/thaumaturgical_silence))
 					continue
-				
+
 				//Check for channel types.
 				if(channel_type == SPEAKING_TO_CHURCH_ONLY) //Don't send this message to folk who aren't in the church clergy.
 				//These are messages directly from the church itself, thus they have more governing power compared to other voices that may NOT be from the church.
@@ -447,13 +486,13 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 					continue
 				else if(channel_type == SPEAKING_TO_ASCENDANTS_ONLY) //Don't send this message to folk who aren't ascendant followers.
 					if(!istype(H.patron, /datum/patron/inhumen))
-						continue 
+						continue
 					to_chat(H, span_cult("A wretched voice echoes, ''[message]''"))
 					continue
 				else if(channel_type == SPEAKING_TO_SAME_PATRONS_ONLY) //Don't send this message to folk who aren't the same patron.
 					if(H.patron != patron)
-						continue 
-					to_chat(H, span_resonate("A familiar voice echoes, ''[message]''"))
+						continue
+					to_chat(H, span_abductor("A familiar voice echoes, ''[message]''"))
 					continue
 				else
 					if(job in GLOB.church_positions)
@@ -493,7 +532,8 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 					continue
 				if(!(M.client.prefs.chat_toggles & CHAT_GHOSTEARS)) //they're talking normally and we have hearing at any range off
 					continue
-		if(!is_in_zweb(src.z,tocheck.z))
+		var/turf/tocheck_turf = get_turf(tocheck) //Caustic Edit - Change it so whispers can be sent regardless of something/someone being in a container!
+		if(!is_in_zweb(speaker_turf.z,tocheck_turf.z))
 			continue
 		listening |= M
 		the_dead[M] = TRUE
@@ -519,7 +559,7 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 				listener_has_ceiling = FALSE
 		if(!hearall)
 			if((!Zs_too && !isobserver(AM)) || message_mode == MODE_WHISPER)
-				if(AM.z != src.z)
+				if(listener_turf.z != speaker_turf.z) //Caustic Edit - This should fix whispers not comparing the actual TILES.
 					continue
 		if(Zs_too && listener_turf.z != speaker_turf.z && !Zs_all)
 			if(!Zs_yell && !HAS_TRAIT(AM, TRAIT_KEENEARS) && !hearall)
@@ -538,12 +578,14 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 				if(!speaker_has_ceiling && isliving(AM))
 					var/mob/living/M = AM
 					for(var/mob/living/MH in viewers(world.view, speaker_ceiling))
-						if(M == MH && MH.z == speaker_ceiling?.z)
+						var/turf/MH_turf = get_turf(MH)
+						if(M == MH && MH_turf.z == speaker_ceiling?.z) //Caustic Edit - This should fix whispers not comparing the actual TILES.
 							speaker_obstructed = FALSE
 
 				if(!listener_has_ceiling)
 					for(var/mob/living/ML in viewers(world.view, listener_ceiling))
-						if(ML == src && ML.z == listener_ceiling?.z)
+						var/turf/ML_turf = get_turf(ML)
+						if(ML == src && ML_turf.z == listener_ceiling?.z) //Caustic Edit - This should fix whispers not comparing the actual TILES.
 							listener_obstructed = FALSE
 				if(listener_obstructed && speaker_obstructed)
 					continue
@@ -573,7 +615,7 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 			AM.Hear(eavesrendered, src, message_language, eavesdropping, , spans, message_mode, original_message)
 		else
 			AM.Hear(rendered, src, message_language, (highlighted_message ? highlighted_message : message), , spans, message_mode, original_message)
-			
+
 
 	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_LIVING_SAY_SPECIAL, src, message)
 
@@ -586,6 +628,23 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 	var/image/I = image('icons/mob/talk.dmi', src, "[bubble_type][say_test(message)]", FLY_LAYER)
 	I.appearance_flags = APPEARANCE_UI_IGNORE_ALPHA
 	INVOKE_ASYNC(GLOBAL_PROC, GLOBAL_PROC_REF(flick_overlay), I, speech_bubble_recipients, 30)
+
+	//Listening gets trimmed here if a vocal bark's present. If anyone ever makes this proc return listening, make sure to instead initialize a copy of listening in here to avoid wonkiness
+	if(SEND_SIGNAL(src, COMSIG_MOVABLE_QUEUE_BARK, listening, args) || vocal_bark || vocal_bark_id)
+		for(var/mob/M in listening)
+			if(!M.client)
+				continue
+			if((M.client.prefs.mute_barks))
+				listening -= M
+		var/is_yell = Zs_yell || Zs_all
+		var/barks = min(round((LAZYLEN(message) / vocal_speed)) + 1, BARK_MAX_BARKS)
+		var/total_delay = 0
+		vocal_current_bark = world.time
+		for(var/i in 1 to barks)
+			if(total_delay > BARK_MAX_TIME)
+				break
+			addtimer(CALLBACK(src, TYPE_PROC_REF(/atom/movable, bark), listening, message_range, (vocal_volume * (is_yell ? 1.5 : 1)), BARK_DO_VARY(vocal_pitch, vocal_pitch_range), vocal_current_bark), total_delay)
+			total_delay += rand(DS2TICKS(vocal_speed / BARK_SPEED_BASELINE), DS2TICKS(vocal_speed / BARK_SPEED_BASELINE) + DS2TICKS((vocal_speed / BARK_SPEED_BASELINE) * (is_yell ? 0.5 : 1))) TICKS
 
 /mob/proc/binarycheck()
 	return FALSE
@@ -661,6 +720,8 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 
 /mob/living/proc/radio(message, message_mode, list/spans, language)
 	switch(message_mode)
+		if(MODE_PSAY) //Caustic Edit - Add in Psay here so that it also becomes Italics like whispers
+			return ITALICS
 		if(MODE_WHISPER)
 			return ITALICS
 		if(MODE_R_HAND)
@@ -684,11 +745,13 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 		. = verb_whisper
 	else if(message_mode == MODE_WHISPER_CRIT)
 		. = "[verb_whisper] in [p_their()] last breath"
+	else if(message_mode == MODE_PSAY) //Caustic Edit - Add in accounting for Psay and the 'thinks' action
+		. = verb_thinks
 	else if(stuttering)
 		. = "stammers"
 	else if(derpspeech)
 		. = "gibbers"
-	else if(message_mode == MODE_SING)
+	else if(message_mode == MODE_SING || HAS_TRAIT(src, TRAIT_MUSES_GRACE))
 		. = verb_sing
 	else
 		. = ..()

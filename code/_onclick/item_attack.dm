@@ -11,25 +11,31 @@
   */
 /obj/item/proc/melee_attack_chain(mob/user, atom/target, params)
 	if(user.check_arm_grabbed(user.active_hand_index))
-		to_chat(user, span_notice("I can't move my arm!"))
+		to_chat(user, span_notice("I can't move my arm!"), MESSAGE_TYPE_INFO)
 		return
 	if(!user.has_hand_for_held_index(user.active_hand_index, TRUE)) //we obviously have a hadn, but we need to check for fingers/prosthetics
-		to_chat(user, span_warning("I can't move the fingers."))
+		to_chat(user, span_warning("I can't move the fingers."), MESSAGE_TYPE_INFO)
 		return
-	if(!istype(src, /obj/item/grabbing) && !istype(src, /obj/item/rogueweapon/werewolf_claw))
+	if(!istype(src, /obj/item/grabbing) && !istype(src, /obj/item/rogueweapon/werewolf_claw) && !istype(src, /obj/item/bodypart)) //Limbs/Claws are fine
 		if(HAS_TRAIT(user, TRAIT_CHUNKYFINGERS))
-			to_chat(user, span_warning("...What?"))
+			to_chat(user, span_warning("...What?"), MESSAGE_TYPE_INFO)
 			return
 		// FAR less aggressive version of chunkyfingers, designed to be used with nudist. Shrimply lets the user still use neat stuff like orison without letting them weaponize.
 		if(HAS_TRAIT(user, TRAIT_GNARLYDIGITS))
 			if(istype(src, /obj/item/rogueweapon) && !istype(src, /obj/item/rogueweapon/werewolf_claw))
-				to_chat(user, span_warning("My fingers are too misshapen to use this puny implement."))
+				to_chat(user, span_warning("My fingers are too misshapen to use this puny implement."), MESSAGE_TYPE_INFO)
 				return
 		// even less aggressive; allows use of tools but not weapons
 		if(HAS_TRAIT(user, TRAIT_TINYPAWS))
 			var/obj/item/rogueweapon/weapon = src
 			if(istype(weapon) && !weapon.is_tool)
-				to_chat(user, span_warning("I am too small to properly wield a weapon."))
+				to_chat(user, span_warning("I am too small to properly wield a weapon."), MESSAGE_TYPE_INFO)
+				return
+		// Uniquely reskinned variant, for those who don't happen to be familiars.Add a comment on  line R34Add diff commentMarkdown input:  edit mode selected.WritePreviewAdd a suggestionHeadingBoldItalicQuoteCodeLinkUnordered listNumbered listTask listMentionReferenceMore Formatting tools items 0Saved repliesAdd FilesPaste, drop, or click to add filesCancelCommentStart a review
+		if(HAS_TRAIT(user, TRAIT_WEAPONLESS))
+			var/obj/item/rogueweapon/weapon = src
+			if(istype(weapon) && !weapon.is_tool)
+				to_chat(user, span_warning("I cannot properly wield this weapon."))
 				return
 	if(tool_behaviour && target.tool_act(user, src, tool_behaviour))
 		return
@@ -130,8 +136,12 @@
 		return FALSE	
 
 	if(force && HAS_TRAIT(user, TRAIT_PACIFISM))
-		to_chat(user, span_warning("I don't want to harm other living beings!"))
+		to_chat(user, span_warning("I don't want to harm other living beings!"), MESSAGE_TYPE_INFO)
 		return
+	
+	if(force && user.has_status_effect(/datum/status_effect/debuff/deadite_grace) && M.mind)
+		to_chat(user, span_warning("Ah, Lux... I calm down considerably, but my hunger only increases."))
+		user.remove_status_effect(/datum/status_effect/debuff/deadite_grace)
 
 	if(force && user.rogue_sneaking)
 		user.mob_timers[MT_FOUNDSNEAK] = world.time
@@ -187,6 +197,8 @@
 				if(get_dist(get_turf(user), get_turf(M)) <= user.used_intent.reach)
 					user.do_attack_animation(M, user.used_intent.animname, used_item = src, used_intent = user.used_intent, simplified = TRUE)
 			return
+	if(HAS_TRAIT(user, TRAIT_DUALWIELDER))
+		user.process_dualwield(M, src, null)
 	var/rmb_stam_penalty = 0
 	if(istype(user.rmb_intent, /datum/rmb_intent/strong))
 		rmb_stam_penalty = EXTRA_STAMDRAIN_SWIFSTRONG
@@ -196,6 +208,9 @@
 	// Release drain on attacks besides unarmed attacks/grabs is 1, so it'll just be whatever the penalty is + 1.
 	// Unarmed attacks are the only ones right now that have differing releasedrain, see unarmed attacks for their calc.
 	user.stamina_add(user.used_intent.releasedrain + rmb_stam_penalty)
+	if(ishuman(M))
+		var/mob/living/carbon/human/H = M
+		H.process_golgatha_rebuke(user)
 	if(user.mob_biotypes & MOB_UNDEAD)
 		if(M.has_status_effect(/datum/status_effect/buff/necras_vow))
 			if(isnull(user.mind))
@@ -203,7 +218,7 @@
 				user.ignite_mob()
 			else
 				if(prob(30))
-					to_chat(M, span_warning("The foul blessing of the Undermaiden hurts us!"))
+					to_chat(M, span_warning("The foul blessing of the Undermaiden hurts us!"), MESSAGE_TYPE_COMBAT)
 			user.adjust_blurriness(3)
 			user.adjustBruteLoss(5)
 			user.apply_status_effect(/datum/status_effect/churned, M)
@@ -257,12 +272,11 @@
 			return
 
 	if(M.attacked_by(src, user))
-		if(user.used_intent == cached_intent)
-			var/tempsound = user.used_intent.hitsound
-			if(tempsound)
-				playsound(M.loc,  tempsound, 100, FALSE, -1)
-			else
-				playsound(M.loc,  "nodmg", 100, FALSE, -1)
+		var/tempsound = cached_intent?.hitsound
+		if(tempsound)
+			playsound(M.loc, tempsound, 100, FALSE, -1)
+		else
+			playsound(M.loc, "nodmg", 100, FALSE, -1)
 
 		if(M.has_flaw(/datum/charflaw/addiction/thrillseeker))
 			var/datum/component/arousal/CAR = M.GetComponent(/datum/component/arousal)
@@ -389,9 +403,9 @@
 			newforce = max(newforce*0.3, 1)
 			if(prob(33))
 				if(I.wielded)
-					to_chat(user, span_info("I am too weak to wield this weapon properly with both hands."))
+					to_chat(user, span_info("I am too weak to wield this weapon properly with both hands."), MESSAGE_TYPE_INFO)
 				else
-					to_chat(user, span_info("I am too weak to wield this weapon properly with one hand."))
+					to_chat(user, span_info("I am too weak to wield this weapon properly with one hand."), MESSAGE_TYPE_INFO)
 
 	switch(blade_dulling)
 		if(DULLING_CUT) //wooden that can't be attacked by clubs (trees, bushes, grass)
@@ -405,7 +419,8 @@
 						dullfactor = 0.45 + (lumberskill * 0.15)
 						if(HAS_TRAIT(user, TRAIT_WYRD_LABOURER))
 							dullfactor *= 1.5
-						lumberjacker.mind.add_sleep_experience(/datum/skill/labor/lumberjacking, (lumberjacker.STAINT*0.2))
+						if(lumberjacker.mind)
+							lumberjacker.mind.add_sleep_experience(/datum/skill/labor/lumberjacking, (lumberjacker.STAINT*0.2))
 					cont = TRUE
 				if(BCLASS_CHOP)
 					var/mob/living/lumberjacker = user
@@ -414,7 +429,8 @@
 						dullfactor = 0.3
 					else
 						dullfactor = 1.0 + (lumberskill * 0.25)
-						lumberjacker.mind.add_sleep_experience(/datum/skill/labor/lumberjacking, (lumberjacker.STAINT*0.2))
+						if(lumberjacker.mind)
+							lumberjacker.mind.add_sleep_experience(/datum/skill/labor/lumberjacking, (lumberjacker.STAINT*0.2))
 					cont = TRUE
 			if(!cont)
 				return 0
@@ -468,7 +484,7 @@
 				return 0
 		if(DULLING_PICK) //cannot deal damage if not a pick item. aka rock walls
 			if(!(user.mobility_flags & MOBILITY_STAND))
-				to_chat(user, span_warning("I need to stand up to get a proper swing."))
+				to_chat(user, span_warning("I need to stand up to get a proper swing."), MESSAGE_TYPE_INFO)
 				return 0
 			if(user.used_intent.blade_class != BCLASS_PICK && user.used_intent.blade_class != BCLASS_DRILL)
 				return 0
@@ -478,7 +494,8 @@
 			if(HAS_TRAIT(user, TRAIT_WYRD_LABOURER))
 				newforce *= 1.5
 			shake_camera(user, 1, 1)
-			miner.mind.add_sleep_experience(/datum/skill/labor/mining, (miner.STAINT*0.2))
+			if(miner.mind)
+				miner.mind.add_sleep_experience(/datum/skill/labor/mining, (miner.STAINT*0.2))
 		if(DULLING_SHAFT_CONJURED)
 			dullfactor = DULLFACTOR_COUNTERED_BY
 
@@ -501,7 +518,7 @@
 		if(dullness_ratio < SHARPNESS_TIER2_THRESHOLD)
 			var/lerpratio = LERP(0, SHARPNESS_TIER2_THRESHOLD, (dullness_ratio / SHARPNESS_TIER2_THRESHOLD))	//Yes, it's meant to LERP between 0 and 0.x using ratio / tier2. The damage falls off a cliff. Intended!
 			if(prob(33))
-				to_chat(user, span_info("The blade is dull..."))
+				to_chat(user, span_info("The blade is dull..."), MESSAGE_TYPE_INFO)
 			newforce *= (lerpratio * 2)
 
 	if(istype(user.rmb_intent, /datum/rmb_intent/strong))
@@ -516,7 +533,31 @@
 
 /obj/attacked_by(obj/item/I, mob/living/user)
 	user.changeNext_move(CLICK_CD_INTENTCAP)
-	var/newforce = get_complex_damage(I, user, blade_dulling) * user.used_intent.demolition_mod
+
+	if(I.damtype == BURN && (obj_flags & CLAMP_BREAK))
+		var/do_melt = FALSE
+		var/need_scrap = FALSE
+		if(obj_broken)
+			do_melt = TRUE
+		if(isitem(src))
+			var/obj/item/IS = src
+			if(IS.anvilrepair && IS.smeltresult == /obj/item/ingot/iron)
+				do_melt = TRUE
+				need_scrap = TRUE
+		if(do_melt)
+			playsound(user, 'sound/surgery/cautery1.ogg', 100)
+			user.visible_message(span_artery("[user] begins melting and deforming \the [src] with [I]!"))
+			var/smelting = user.get_skill_level(/datum/skill/craft/smelting)
+			var/scavenge_speed = (8 - smelting) SECONDS
+			if(do_after(user, scavenge_speed, TRUE, same_direction = TRUE, no_interrupt = TRUE))
+				user.visible_message(span_warning("[user] melts down \the [src] with [I]!"))
+				obj_destruction(need_scrap ? BRUTE : BURN)
+				playsound(user, 'sound/surgery/cautery2.ogg', 100)
+				return
+
+	var/newforce = get_complex_damage(I, user, blade_dulling)
+	if(!(obj_flags & CLAMP_BREAK))
+		newforce *= user.used_intent.demolition_mod
 	if(!newforce)
 		return 0
 	if(newforce < damage_deflection)
@@ -537,6 +578,31 @@
 	take_damage(newforce, I.damtype, I.d_type, 1)
 	if(newforce > 1)
 		I.take_damage(1, BRUTE, I.d_type)
+
+	if((obj_flags & CLAMP_BREAK) && !density && !anchored && isturf(loc))
+		var/sfx = 'sound/items/hit_normalobj.ogg'
+		if(isclothing(src))	// Lazy check for fluffy sparks
+			var/obj/item/clothing/CL = src
+			var/try_sparks = FALSE
+			if(CL.material_category == ARMOR_MAT_PLATE)
+				sfx = pick('sound/items/hit_plateobj1.ogg', 'sound/items/hit_plateobj2.ogg', 'sound/items/hit_plateobj3.ogg')
+				try_sparks = TRUE
+			if(CL.material_category == ARMOR_MAT_CHAINMAIL)
+				sfx = 'sound/items/hit_chainobj.ogg'
+				try_sparks = TRUE
+			if(try_sparks && prob(50))
+				do_sparks(2, TRUE, get_turf(src))
+		var/dist = 1
+		if(istype(user.rmb_intent, /datum/rmb_intent/strong))
+			dist++
+		if(obj_broken)
+			dist++
+		var/current_turf = get_turf(src)
+		var/throwdir = get_dir(get_turf(user), current_turf)
+		var/target_turf = get_ranged_target_turf(current_turf, throwdir, dist)
+		playsound(current_turf, sfx, 100, TRUE)
+		throw_at(target_turf, dist, 12, user, FALSE)
+
 	SEND_SIGNAL(src, COMSIG_ITEM_ATTACK_OBJ, I, user)
 	return TRUE
 
@@ -639,11 +705,11 @@
 			var/datum/component/silverbless/blesscomp = GetComponent(/datum/component/silverbless)
 			if(blesscomp?.is_blessed)
 				if(!victim.has_status_effect(/datum/status_effect/fire_handler/fire_stacks/sunder))
-					to_chat(victim, span_danger("Silver rebukes my presence! My vitae smolders, and my powers wane!"))
+					to_chat(victim, span_danger("Silver rebukes my presence! My vitae smolders, and my powers wane!"), MESSAGE_TYPE_COMBAT)
 				victim.adjust_fire_stacks(thrown ? 1 : 3, /datum/status_effect/fire_handler/fire_stacks/sunder/blessed)
 			else
 				if(!victim.has_status_effect(/datum/status_effect/fire_handler/fire_stacks/sunder/blessed))
-					to_chat(victim, span_danger("Blessed silver rebukes my presence! These fires are lashing at my very soul!"))
+					to_chat(victim, span_danger("Blessed silver rebukes my presence! These fires are lashing at my very soul!"), MESSAGE_TYPE_COMBAT)
 				victim.adjust_fire_stacks(thrown ? 1 : 3, /datum/status_effect/fire_handler/fire_stacks/sunder)
 			victim.ignite_mob()
 
@@ -760,7 +826,7 @@
 	//Janky, but you'll see BIG TEXT for both the hits you make and take.
 	if(src != user)
 		var/attack_message_self = span_combatprimary("[user] [message_verb] [src] in the [span_combatsecondarybp(message_hit_area)] with [I]!")
-		to_chat(user, "[attack_message_self][next_attack_msg.Join()]")
+		to_chat(user, "[attack_message_self][next_attack_msg.Join()]", MESSAGE_TYPE_COMBAT)
 	visible_message("[attack_message][span_combatsecondarysmall(next_attack_msg.Join())]",\
 		"[attack_message_local][next_attack_msg.Join()]", null, COMBAT_MESSAGE_RANGE, user)	//We try not to show this to the user (attacker)
 	next_attack_msg.Cut()

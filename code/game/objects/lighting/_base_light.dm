@@ -209,14 +209,11 @@
 		addtimer(CALLBACK(src, PROC_REF(broken_sparks)), delay, TIMER_UNIQUE | TIMER_NO_HASH_WAIT)
 
 /obj/machinery/light/process()
-	if(on)
-		if(initial(fueluse) > 0)
-			if(fueluse > 0)
-				fueluse = max(fueluse - 10, 0)
-			if(fueluse == 0)
-				burn_out()
-	else
+	if(!on || (initial(fueluse) <= 0)) // if we don't use fuel don't process
 		return PROCESS_KILL
+	fueluse = max(fueluse - 10, 0)
+	if(fueluse == 0) // separate check so that if we hit 0 fuel we burn out the same tick
+		burn_out()
 
 
 /obj/machinery/light/proc/burn_out()
@@ -236,9 +233,9 @@
 
 /obj/machinery/light/take_damage(damage_amount, damage_type = BRUTE, damage_flag = 0, sound_effect = 1)
 	. = ..()
-	if(. && !QDELETED(src))
+	/*if(. && !QDELETED(src)) //Caustic Edit - Lol. This was causing all "lights" to spark randomly if you hit them and they rolled the chance to "break the light tube". This includes Hearts, Cauldrons... anything like a Campfire.
 		if(prob(damage_amount * 5))
-			break_light_tube()
+			break_light_tube()*/
 
 
 

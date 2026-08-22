@@ -3,12 +3,22 @@
 	icon = 'icons/mob/sprite_accessory/ears/ears.dmi'
 	color_key_name = "Ears"
 	relevant_layers = list(BODY_ADJ_LAYER, BODY_FRONT_LAYER)
+	var/can_flick = FALSE
 
 /datum/sprite_accessory/ears/is_visible(obj/item/organ/organ, obj/item/bodypart/bodypart, mob/living/carbon/owner)
 	return is_human_part_visible(owner, HIDEEARS)
 
 /datum/sprite_accessory/ears/adjust_appearance_list(list/appearance_list, obj/item/organ/organ, obj/item/bodypart/bodypart, mob/living/carbon/owner)
 	generic_gender_feature_adjust(appearance_list, organ, bodypart, owner, OFFSET_FACE, OFFSET_FACE_F)
+
+/datum/sprite_accessory/ears/get_icon_state(obj/item/organ/organ, obj/item/bodypart/bodypart, mob/living/carbon/owner)
+	if(!can_flick)
+		return ..()
+	var/obj/item/organ/ears/ear_organ = organ
+	if(!owner || !ear_organ.is_flicking)
+		return ..()
+	if(ear_organ.is_flicking && can_flick)
+		return "[icon_state]_flick"
 
 /datum/sprite_accessory/ears/big
 	icon = 'icons/mob/sprite_accessory/ears/ears_big.dmi'
@@ -92,6 +102,7 @@
 /datum/sprite_accessory/ears/elf
 	name = "Elf"
 	icon_state = "elf"
+	can_flick = TRUE
 
 /datum/sprite_accessory/ears/elephant
 	name = "Elephant"
@@ -384,3 +395,19 @@
 	color_keys = 2
 	color_key_names = list("Outer", "Inner")
 	relevant_layers = list(BODY_ADJ_LAYER)
+
+/datum/sprite_accessory/ears/wispy
+	name = "Wispy Headwings"
+	icon_state = "wispy"
+	color_keys = 2
+	color_key_names = list("Wings", "Tips")
+	default_colors = list("#EAEAEA", "#EAEAEA")
+	relevant_layers = list(BODY_ADJ_LAYER, BODY_FRONT_LAYER)
+
+/datum/sprite_accessory/ears/small
+	name = "Small Headwings"
+	icon_state = "small"
+	color_keys = 2
+	color_key_names = list("Wings", "Tips")
+	default_colors = list("#EAEAEA", "#EAEAEA")
+	relevant_layers = list(BODY_ADJ_LAYER, BODY_FRONT_LAYER)

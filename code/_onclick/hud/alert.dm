@@ -238,7 +238,7 @@
 /atom/movable/screen/alert/mind_control/Click()
 	..()
 	var/mob/living/L = usr
-	to_chat(L, span_mind_control("[command]"))
+	to_chat(L, span_mind_control("[command]"), MESSAGE_TYPE_LOCALCHAT)
 
 /atom/movable/screen/alert/drunk //Not implemented
 	name = "Drunk"
@@ -259,7 +259,7 @@
 				for(var/obj/item/I as anything in BP.embedded_objects)
 					msg += "<a href='?src=[REF(H)];embedded_object=[REF(I)];embedded_limb=[REF(BP)]' class='warning'>[I] - [BP.name]</a>\n"
 			msg += "***"
-			to_chat(H, "[msg.Join()]")
+			to_chat(H, "[msg.Join()]", MESSAGE_TYPE_INFO)
 
 /atom/movable/screen/alert/weightless
 	name = "Weightless"
@@ -279,6 +279,11 @@
 	L.changeNext_move(CLICK_CD_RESIST)
 	if(L.mobility_flags & MOBILITY_MOVE)
 		return L.resist_fire() //I just want to start a flame in your hearrrrrrtttttt.
+
+/atom/movable/screen/alert/fire/vheslyn
+	name = "Hellfire!"
+	desc = ""
+	icon_state = "vheslynfire"
 
 /atom/movable/screen/alert/fire/sunder
 	name = "Sundered!"

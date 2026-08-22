@@ -1,6 +1,6 @@
 //Loadout Items
 
-#define ARMOR_LOADOUT_CLOTHING list("blunt" = 20, "slash" = 20, "stab" = 20, "piercing" = 0, "fire" = 0, "acid" = 0)
+#define ARMOR_LOADOUT_CLOTHING list("blunt" = 20, "slash" = 20, "stab" = 20, "piercing" = 0, "fire" = 0)
 
 /datum/loadout_item/sizespell //I'd have this even further up the list if I could, but I don't want to needlessly edit the Azure loadouts
 	name = "Scroll of Enlarge/Reduce"
@@ -116,3 +116,9 @@
 	name = "Artificer's cap"
 	path = /obj/item/clothing/head/roguetown/articap
 
+//Reform Gem option in the Loadout!
+
+/datum/loadout_item/reform_gem
+	name = "Reform Gem"
+	path = /obj/item/reformation_gem
+	cost = 0 //Make it free to grab! It's a scene tool after all.

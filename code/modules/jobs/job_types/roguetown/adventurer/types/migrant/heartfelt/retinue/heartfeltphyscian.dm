@@ -5,7 +5,7 @@
 	However, with the increase in banditry, necromancy, deadite risings, and increasing sea raider raids, there are rumors abound that Heartfelt is not what it used to be. \
 	Travellers often warn of Heartfelt having fallen already, and words of secretive cultists isn't unheard of."
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = RACES_NO_CONSTRUCT
+	forbidden_races = list(RACES_CONSTRUCT) //Caustic Edit - Just a global tweak to remove 'races_despised' from this check everywhere
 	outfit = /datum/outfit/job/roguetown/heartfelt/retinue/physician
 	maximum_possible_slots = 1
 	pickprob = 100
@@ -59,7 +59,7 @@
 		shirt = /obj/item/clothing/suit/roguetown/shirt/courtphysician/female
 		gloves = /obj/item/clothing/gloves/roguetown/courtphysician/female
 		pants = /obj/item/clothing/under/roguetown/skirt/courtphysician
-		shoes = /obj/item/clothing/shoes/roguetown/courtphysician/female/
+		shoes = /obj/item/clothing/shoes/roguetown/courtphysician/female
 	else
 		head = /obj/item/clothing/head/roguetown/courtphysician
 		armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/jacket/courtphysician

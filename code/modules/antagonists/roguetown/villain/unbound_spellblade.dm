@@ -22,6 +22,7 @@
 	L.become_skeleton()
 	ADD_TRAIT(L, TRAIT_MEDIUMARMOR, TRAIT_GENERIC)
 	ADD_TRAIT(L, TRAIT_ARCYNE, TRAIT_GENERIC)
+	ADD_TRAIT(L, TRAIT_SHATTER_KILL, TRAIT_GENERIC)
 
 /datum/antagonist/unbound_spellblade/proc/equip_spellblade()
 	owner.unknow_all_people()
@@ -170,23 +171,23 @@
 				H.mind.AddSpell(new /datum/action/cooldown/spell/caedo)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/air_strike)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/leyline_anchor)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/projectile/blade_storm)
+				H.mind.AddSpell(new /datum/action/cooldown/spell/blade_storm)
 			if("phalangite")
 				H.mind.AddSpell(new /datum/action/cooldown/spell/azurean_phalanx)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/projectile/azurean_pilum)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/advance)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/gate_of_reckoning)
 			if("macebearer")
-				H.mind.AddSpell(new /datum/action/cooldown/spell/projectile/kastvyl)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/tremor)
+				H.mind.AddSpell(new /datum/action/cooldown/spell/telegraphed_strike/spellblade/shatter)
+				H.mind.AddSpell(new /datum/action/cooldown/spell/telegraphed_strike/spellblade/tremor)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/charge)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/cataclysm)
 
 		H.mind.AddSpell(new /datum/action/cooldown/spell/recall_weapon)
 		H.mind.AddSpell(new /datum/action/cooldown/spell/empower_weapon)
 		H.mind.AddSpell(new /datum/action/cooldown/spell/bind_weapon)
-		H.mind.AddSpell(new /datum/action/cooldown/spell/mending)
-		H.mind.setup_mage_aspects(list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 4))
+		H.mind.AddSpell(new /datum/action/cooldown/spell/touch/conjure_repairkit)
+		H.mind.setup_mage_aspects(list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 5))
 
 	H.adjust_blindness(-3)
 	var/helmets = list(
@@ -226,6 +227,7 @@
 			switch(weapon_choice)
 				if("Spear")
 					r_hand = /obj/item/rogueweapon/spear
+					backr = /obj/item/rogueweapon/scabbard/gwstrap
 				if("Bardiche")
 					r_hand = /obj/item/rogueweapon/halberd/bardiche
 					backr = /obj/item/rogueweapon/scabbard/gwstrap
@@ -241,11 +243,13 @@
 					beltr = /obj/item/rogueweapon/mace/warhammer/steel
 				if("Grand Mace")
 					r_hand = /obj/item/rogueweapon/mace/goden/steel
+					backr = /obj/item/rogueweapon/scabbard/gwstrap
 				if("Battle Axe")
 					beltr = /obj/item/rogueweapon/stoneaxe/battle
 					picked_axe = TRUE
 				if("Steel Greataxe")
 					r_hand = /obj/item/rogueweapon/greataxe/steel
+					backr = /obj/item/rogueweapon/scabbard/gwstrap
 					picked_axe = TRUE
 			if(picked_axe)
 				H.adjust_skillrank_up_to(/datum/skill/combat/axes, 4, TRUE)
@@ -268,6 +272,7 @@
 		existing_eyes.Insert(H)
 
 	H.energy = H.max_energy
+	H.select_skeleton_features()
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/black
 	color = CLOTHING_BLACK

@@ -1,6 +1,8 @@
 /obj/item/clothing/head/roguetown/armingcap
 	name = "arming cap"
 	desc = "A modest arming cap. It will stop a light blow."
+	icon = 'icons/roguetown/clothing/head.dmi'
+	mob_overlay_icon = 'icons/roguetown/clothing/onmob/head.dmi' //Overrides slot icon behavior
 	icon_state = "armingcap"
 	item_state = "armingcap"
 	sleevetype = null
@@ -14,11 +16,10 @@
 	sewrepair = TRUE
 	salvage_result = /obj/item/natural/fibers
 	salvage_amount = 2 // Major materials loss
-	sellprice = 6
 
-/obj/item/clothing/head/roguetown/armingcap/padded/ComponentInitialize()
+/obj/item/clothing/head/roguetown/armingcap/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
-	AddComponent(/datum/component/armour_filtering/positive, TRAIT_HONORBOUND)
+	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
 	if(armor_class > ARMOR_CLASS_LIGHT)
 		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
@@ -30,6 +31,10 @@
 	armor = ARMOR_PADDED
 	max_integrity = ARMOR_INT_HELMET_CLOTH + 60
 
+/obj/item/clothing/head/roguetown/armingcap/padded/ComponentInitialize()
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
+	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+
 /obj/item/clothing/head/roguetown/helmet/leather
 	slot_flags = ITEM_SLOT_HEAD|ITEM_SLOT_HIP
 	name = "leather helmet"
@@ -37,14 +42,12 @@
 	body_parts_covered = HEAD|HAIR|EARS|NOSE
 	icon_state = "leatherhelm"
 	armor = ARMOR_LEATHER_NPC
-	sellprice = 10
 	anvilrepair = null
 	smeltresult = null
 	sewrepair = TRUE
 	blocksound = SOFTHIT
 	max_integrity = ARMOR_INT_HELMET_LEATHER
 	salvage_result = /obj/item/natural/hide/cured
-	sellprice = 10
 
 /obj/item/clothing/head/roguetown/helmet/leather/chapeau
 	name = "Chapeau a Naled"
@@ -76,6 +79,7 @@
 			H.update_inv_head()
 
 /obj/item/clothing/head/roguetown/helmet/leather/chapeau/AltRightClick(mob/user)
+	. = ..()
 	if(!istype(loc, /mob/living/carbon))
 		return
 	var/mob/living/carbon/H = user
@@ -102,7 +106,6 @@
 	body_parts_covered = HEAD|HAIR|EARS
 	icon_state = "volfhead"
 	item_state = "volfhead"
-	sellprice = 15
 
 /obj/item/clothing/head/roguetown/helmet/leather/saiga
 	name = "saiga skull"
@@ -118,14 +121,12 @@
 	body_parts_covered = HEAD|EARS|HAIR|NOSE|EYES
 	experimental_inhand = FALSE
 	experimental_onhip = FALSE
-	sellprice = 20
 
 /obj/item/clothing/head/roguetown/helmet/leather/advanced
 	name = "hardened leather helmet"
 	desc = "Sturdy, durable, flexible. A comfortable and reliable hood made of hardened leather."
 	icon_state = "leatherhelm"
 	max_integrity = ARMOR_INT_HELMET_HARDLEATHER
-	sellprice = 15
 	body_parts_covered = HEAD|EARS|HAIR|NOSE
 	armor = ARMOR_LEATHER
 	slot_flags = ITEM_SLOT_HEAD|ITEM_SLOT_HIP
@@ -134,7 +135,6 @@
 	sewrepair = TRUE
 	blocksound = SOFTHIT
 	salvage_result = /obj/item/natural/hide/cured
-	sellprice = 15
 
 /obj/item/clothing/head/roguetown/spellcasterhat
 	name = "spellsinger hat"
@@ -148,7 +148,6 @@
 	worn_y_dimension = 64
 	sewrepair = TRUE
 	resistance_flags = FIRE_PROOF
-	sellprice = 20 //Unique helm!
 
 // Grenzel unique drip head. Pretend it is a secrete (A type of hat with a hidden helmet underneath). Same stats as kettle
 /obj/item/clothing/head/roguetown/grenzelhofthat
@@ -171,7 +170,6 @@
 	color = "#262927"
 	detail_color = "#FFFFFF"
 	altdetail_color = "#9c2525"
-	sellprice = 40
 
 /obj/item/clothing/head/roguetown/grenzelhofthat/attack_right(mob/user)
 	..()
@@ -213,14 +211,12 @@
 	armor = ARMOR_CLOTHING
 	salvage_result = /obj/item/natural/fibers
 	salvage_amount = 1
-	sellprice = 3
 
 /obj/item/clothing/head/roguetown/briarthorns/pickup(mob/living/user)
 	. = ..()
 	to_chat(user, span_warning ("The thorns prick me."))
 	user.adjustBruteLoss(4)
 
-//kazengite update
 /obj/item/clothing/head/roguetown/mentorhat
 	name = "worn bamboo hat"
 	desc = "A reinforced bamboo hat."
@@ -233,7 +229,6 @@
 	flags_inv = HIDEEARS
 	body_parts_covered = HEAD|HAIR|EARS|NOSE|EYES
 	resistance_flags = FIRE_PROOF
-	sellprice = 10 
 
 /obj/item/clothing/head/roguetown/mentorhat/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_HONORBOUND)

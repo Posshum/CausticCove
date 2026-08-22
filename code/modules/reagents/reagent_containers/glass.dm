@@ -13,7 +13,7 @@
 
 	// Caustic Edit start
 	var/glazeable // For things that can be glazed or painted. Currently only clay containers
-	var/glazed
+	//var/glazed //There seems to be a var on /obj/item that adds this now?
 	// Caustic Edit end
 
 /obj/item/reagent_containers/glass/get_mechanics_examine(mob/user)
@@ -223,8 +223,8 @@
 		reagents.expose_temperature(hotness)
 		to_chat(user, span_notice("I heat [name] with [I]!"))
 
-	if(istype(I, /obj/item/reagent_containers/food/snacks/egg)) //breaking eggs
-		var/obj/item/reagent_containers/food/snacks/egg/E = I
+	if(istype(I, /obj/item/reagent_containers/food/snacks/rogue/egg)) //breaking eggs
+		var/obj/item/reagent_containers/food/snacks/rogue/egg/E = I
 		if(reagents)
 			if(reagents.total_volume >= reagents.maximum_volume)
 				to_chat(user, span_notice("[src] is full."))
@@ -261,7 +261,7 @@
 			user.visible_message(span_notice("[user] starts to brush the [name] with [brush]."))
 			if(do_after(user, 3 SECONDS, target = src))
 				if(!glazed)
-					var/list/designlist = list("painted", "brown", "porcelain", "shattergold", "bluegold") // Might need some changes in the future if people want to add glazeable/paintable things with different patterns
+					var/list/designlist = list("painted", "baked", "porcelain", "shattergold", "bluegold") // Might need some changes in the future if people want to add glazeable/paintable things with different patterns
 					var/design = tgui_input_list(user, "Select a design.","Ceramics Design", designlist)
 					if(!design) // If no design and no paint so it doesn't go invisible
 						to_chat(user, span_notice("You change your mind on how to glaze the [name]."))
@@ -275,8 +275,8 @@
 							to_chat(user, span_notice("I paint the [name] with the dye brush. Perhaps it is time for a detailed glaze?")) // You can paint, then glaze, but after glazing, you're done
 							update_icon()
 							return
-						if ("brown")
-							desc += " Glazed and marked to mimic unfired clay."
+						if ("baked")
+							desc += " Glazed and marked to mimic rough brown clay."
 						if ("porcelain")
 							desc += " Gilded and coated in white glaze. This is fit for nobility."
 						if ("shattergold")
@@ -289,7 +289,7 @@
 					update_icon()
 					name = "\improper [design] [name]"
 					if(sellprice)
-						sellprice += 5
+						sellprice += 40
 					to_chat(user, span_notice("I glaze the [name] with the dye brush."))
 					return
 			return

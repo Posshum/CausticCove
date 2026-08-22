@@ -12,6 +12,8 @@
 #define COMPONENT_INCOMPATIBLE 1
 /// Returned in PostTransfer to prevent transfer, similar to `COMPONENT_INCOMPATIBLE`
 #define COMPONENT_NOTRANSFER 2
+/// Same as component_incompatible, but silent for intended cases.
+#define COMPONENT_INCOMPATIBLE_SILENT 3
 
 /// Return value to cancel attaching
 #define ELEMENT_INCOMPATIBLE 1
@@ -236,10 +238,13 @@
 #define COMSIG_MOVABLE_UPDATE_GLIDE_SIZE "movable_glide_size"	//Called when the movable's glide size is updated: (new_glide_size)
 
 // /mob signals
+#define COMSIG_MOB_SLEEP "mob_sleep" 							//from base of mob/living/carbon/handle_sleep(): (mob/sleeper)
 #define COMSIG_MOB_BREAK_SNEAK "mob_break_sneak"
 #define COMSIG_MOB_DEATH "mob_death"							//from base of mob/death(): (gibbed)
 #define COMSIG_MOB_TRY_BARK "try_bark"
 #define COMSIG_MOB_TRY_EMOTE "try_emote"
+#define COMSIG_MOB_EMOTED "mob_emoted"							//from /mob/proc/emote() when a keyed emote is intentionally invoked
+#define COMSIG_MOB_MEDITATED "mob_meditated"						//from /datum/emote/living/meditate/run_emote() when a meditation focus completes uninterrupted: ()
 #define COMSIG_MOB_MODIFY_AGGRO_LINES "comsig_mob_modify_aggro_lines"
 #define COMSIG_MOB_MODIFY_DEATH_LINES "comsig_mob_modify_death_lines"
 
@@ -264,6 +269,7 @@
 	#define COMPONENT_ITEM_NO_DEFENSE 2
 #define COMSIG_MOB_ITEM_BEING_ATTACKED "mob_item_being_attacked"	//from base of /obj/item/attack(): (mob/M, mob/user)
 #define COMSIG_MOB_APPLY_DAMGE	"mob_apply_damage"				//from base of /mob/living/proc/apply_damage(): (damage, damagetype, def_zone)
+	#define COMPONENT_DAMAGE_HANDLED (1<<1)
 #define COMSIG_MOB_AFTERATTACK_SUCCESS "mob_afterattack_success"//from base of /mob/living/carbon/human/attack_animal(): (mob/living/simple_animal/M)
 #define COMSIG_MOB_ITEM_AFTERATTACK "mob_item_afterattack"		//from base of obj/item/afterattack(): (atom/target, mob/user, proximity_flag, click_parameters)
 #define COMSIG_MOB_ITEM_ATTACK_QDELETED "mob_item_attack_qdeleted"	//from base of obj/item/attack_qdeleted(): (atom/target, mob/user, proxiumity_flag, click_parameters)
@@ -444,6 +450,9 @@
 //Creamed
 #define COMSIG_COMPONENT_CLEAN_FACE_ACT "clean_face_act"		//called when you wash your face at a sink: (num/strength)
 
+//Bed
+#define COMSIG_SLEEPING_ON_BED "sleeping_on_bed" //from base of /mob/living/carbon/proc/handle_sleep(): (mob/living/sleeper, obj/structure/bed)
+
 //Food
 #define COMSIG_FOOD_EATEN "food_eaten"		//from base of obj/item/reagent_containers/food/snacks/attack(): (mob/living/eater, mob/feeder)
 
@@ -537,3 +546,5 @@
 #define  COMSIG_MOB_KICKED	"mob_kicked"	//from /datum/species/proc/kicked(mob/living/carbon/human/user, mob/living/carbon/human/target). This is for when the mob has BEEN kicked.
 #define COMSIG_STATUS_EFFECT_HAG_CURSE_CLEARED "status_effect_hag_curse_cleared" // Sent when a hag curse is cleared by the curse status effect
 #define COMSIG_SLEEPY_TIME "sleepy_time" // from /mob/living/carbon/human/update_tod(todd)
+#define COMSIG_PROJECTILE_ATTACK_EFFECT "projectile_attack_effect" //Handles the application of specific effects, like silver-based sundering, via ranged damage.
+#define COMSIG_PROJECTILE_ATTACK_EFFECT_SELF "projectile_attack_effect_self" //Ditto.

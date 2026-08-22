@@ -2,7 +2,7 @@
 	name = "Licker"
 	tutorial = "You have recently been embraced as a vampire. You do not know whom your sire is, strange urges, unnatural strength, a thirst you can barely control. You were outed as a monster and are now on the run."
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = RACES_NO_CONSTRUCT
+	forbidden_races = list(RACES_CONSTRUCT) //Caustic Edit - Just a global tweak to remove 'races_despised' from this check everywhere
 	outfit = /datum/outfit/job/roguetown/wretch/licker
 	class_select_category = CLASS_CAT_ACCURSED
 	category_tags = list(CTAG_WRETCH)
@@ -34,13 +34,13 @@
 		to_chat(H, span_danger("You are NOT an Antagonistic role. You are at most a 'soft-antag'. You are an outcast, an outlaw or a heretic. You are unwanted by society and potentially wanted with a bounty. Play this role in good faith and understand that sowing too much chaos will lead to consequences. This role does not give you the go ahead to attack others without warning, frag or spam skeletons in town. Your goal as a wretch is to pursue your personal goals and reach the end of the week alive and not in captivity. Remember this is HRP.")) //giving this notice, since its part of the bounty system
 		//leaving the below in if people want to give lickers outlaw/bounty status again, this will keep it off the trader roles but combat roles will have to choose a bounty
 		/*var/list/traderjobs = list("Aristocrat",
-									"Scholar", 
-								   "Peddler", 
-								   "Jeweler", 
-								   "Harlequin", 
-								   "Doomsayer", 
-								   "Cuisiner", 
-								   "Brewer") 
+									"Scholar",
+								   "Peddler",
+								   "Jeweler",
+								   "Harlequin",
+								   "Doomsayer",
+								   "Cuisiner",
+								   "Brewer")
 		if(H.advjob in traderjobs)
 			REMOVE_TRAIT(H, TRAIT_OUTLAW, JOB_TRAIT) //removing since these are non-combat roles and they need to be able to use the stocks and miesters to blend in
 			to_chat(H, span_danger("You are playing an Antagonist role. By choosing to spawn as a Wretch, you are expected to actively create conflict with other players. Failing to play this role with the appropriate gravitas may result in punishment for Low Roleplay standards.")) //giving this notice, since its part of the bounty system
@@ -52,15 +52,26 @@
 
 /datum/reagent/vampsolution
 	metabolization_rate = 0.5
+	var/stun_timer
 
 /datum/reagent/vampsolution/on_mob_life(mob/living/carbon/M)
 	M.set_drugginess(30)
+
 	if(prob(5))
 		if(M.gender == FEMALE)
-			M.emote(pick("twitch_s","giggle"))
+			M.emote(pick("twitch_s", "giggle"))
 		else
-			M.emote(pick("twitch_s","chuckle"))
+			M.emote(pick("twitch_s", "chuckle"))
+
 	M.apply_status_effect(/datum/status_effect/debuff/vampbite)
+
+	// stuns NPCs, to make your future blood-drain be more a net win than a net loss
+	if((!M.mind && world.time >= stun_timer))
+		M.Stun(3 SECONDS)
+		M.Immobilize(3 SECONDS)
+		M.apply_status_effect(/datum/status_effect/debuff/exposed)
+		stun_timer = world.time + 6 SECONDS
+
 	..()
 
 /atom/movable/screen/fullscreen/vampsolution

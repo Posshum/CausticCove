@@ -266,7 +266,9 @@
 	var/turf/T = get_turf(owner)
 	new /obj/effect/temp_visual/bleed/explode(T)
 	for(var/d in GLOB.alldirs)
-		new /obj/effect/temp_visual/dir_setting/bloodsplatter(T, d)
+		var/obj/effect/temp_visual/dir_setting/bloodsplatter/splatter = new(T, d)
+		var/mob/living/L = owner
+		splatter.set_blood_color(L?.get_blood_color())
 	playsound(T, "desceration", 100, TRUE, -1)
 
 /datum/status_effect/neck_slice
@@ -777,7 +779,7 @@
 /datum/status_effect/debuff/baited
 	id = "bait"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/baited
-	duration = 20 SECONDS
+	duration = 15 SECONDS
 
 /atom/movable/screen/alert/status_effect/debuff/baited
 	name = "Baited"
@@ -792,13 +794,13 @@
 /datum/status_effect/debuff/baitcd
 	id = "baitcd"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/baitedcd
-	duration = 30 SECONDS
+	duration = BAIT_RCLICK_CD
 
 /datum/status_effect/debuff/baitcd/on_creation(mob/living/new_owner, new_dur)
 	if(new_dur)
 		duration = new_dur
 	return ..()
-	
+
 
 /atom/movable/screen/alert/status_effect/debuff/feintcd
 	name = "Feint Cool down"
@@ -870,11 +872,46 @@
 		duration = new_dur
 	return ..()
 
+/datum/status_effect/debuff/exposed/on_apply()
+	. = ..()
+	lock_casting(duration)
+
+/datum/status_effect/debuff/exposed/refresh(mob/living/new_owner, new_dur)
+	. = ..()
+	lock_casting(new_dur || initial(duration))
+
+/datum/status_effect/debuff/exposed/proc/lock_casting(lock_dur)
+	if(!owner)
+		return
+	lock_dur = min(lock_dur, EXPOSED_CAST_LOCKOUT)
+	var/datum/status_effect/debuff/cast_disrupted/existing = owner.has_status_effect(/datum/status_effect/debuff/cast_disrupted)
+	if(existing)
+		existing.duration = max(existing.duration, world.time + lock_dur)
+		return
+	owner.apply_status_effect(/datum/status_effect/debuff/cast_disrupted, lock_dur)
+
+/atom/movable/screen/alert/status_effect/debuff/cast_disrupted
+	name = "Casting Disrupted"
+	desc = "My concentration is broken. I cannot gather magicka until I recover."
+	icon = 'icons/mob/screen_alert_combat.dmi'
+	icon_state = "castdisrupted"
+
+/datum/status_effect/debuff/cast_disrupted
+	id = "cast_disrupted"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/cast_disrupted
+	duration = EXPOSED_CAST_LOCKOUT
+	status_type = STATUS_EFFECT_UNIQUE
+
+/datum/status_effect/debuff/cast_disrupted/on_creation(mob/living/new_owner, new_dur)
+	if(new_dur)
+		duration = new_dur
+	return ..()
+
 /atom/movable/screen/alert/status_effect/debuff/vulnerable
 	name = "Vulnerable"
 	desc = "A mistake. I can be hit through my parry and dodge to a lighter effect!"
 	icon_state = "vulnerable"
-	icon = 'icons/mob/combat_debuffs.dmi'
+	icon = 'icons/mob/screen_alert_combat.dmi'
 
 /datum/status_effect/debuff/vulnerable
 	id = "nofeintlite"

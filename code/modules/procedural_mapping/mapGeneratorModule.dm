@@ -11,6 +11,7 @@
 	var/list/excluded_turfs = list()
 	var/list/allowed_turfs = list()
 	var/list/allowed_areas = list()
+	var/list/excluded_areas = list() //Caustic Edit - Add Excluded areas option!
 	var/include_subtypes = TRUE
 
 //Syncs the module up with its mother
@@ -27,6 +28,7 @@
 	excluded_turfs = typecacheof(excluded_turfs)
 	allowed_turfs = typecacheof(allowed_turfs)
 	allowed_areas = typecacheof(allowed_areas, only_root_path = !include_subtypes)
+	excluded_areas = typecacheof(excluded_areas, only_root_path = !include_subtypes) //Caustic Edit - Adding in Excluded Areas to mapgenmodules
 	var/list/map = mother.map
 	for(var/turf/T in map)
 		place(T)
@@ -45,6 +47,13 @@
 
 	if(allowed_turfs.len && !allowed_turfs[T.type])
 		return
+
+	//Caustic Edit - Add excluded areas option!
+	if(excluded_areas.len)
+		var/area/A = get_area(T)
+		if(excluded_areas[A.type])
+			return
+	//Caustic Edit End
 
 	if(allowed_areas.len)
 		var/area/A = get_area(T)

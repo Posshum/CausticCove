@@ -75,6 +75,7 @@ GLOBAL_LIST_INIT(capstone_pool, list(
 	user.STAWIL += 2
 	user.STASPD += 2
 	user.STALUC += 2
+	user.update_sight() //Caustic Edit - To go with the Perception-Darksight, just refresh it in case they have it.
 
 	//check what ascendpoint they are on and add that trait
 	switch(ascendpoints)
@@ -91,7 +92,6 @@ GLOBAL_LIST_INIT(capstone_pool, list(
 		if(3)
 			ADD_TRAIT(user, TRAIT_NOPAIN, TRAIT_GENERIC)
 			ADD_TRAIT(user, TRAIT_NOPAINSTUN, TRAIT_GENERIC)
-			user.mind.AddSpell(new /datum/action/cooldown/spell/projectile/fireball)
 			user.mind.AddSpell(new /datum/action/cooldown/spell/projectile/lightning_bolt)
 			to_chat(user, span_userdanger("I have many enemies- AND they HAVE NOTHING. TEN OF SWORDS, UPRIGHT"))
 		if(4)
@@ -141,6 +141,7 @@ GLOBAL_LIST_INIT(capstone_pool, list(
 	user.STAWIL += 2
 	user.STASPD += 2
 	user.STALUC += 2
+	user.update_sight() //Caustic Edit - To go with the Perception-Darksight, just refresh it in case they have it.
 
 	switch(ascend_stage)
 		if(1)
@@ -164,31 +165,22 @@ GLOBAL_LIST_INIT(capstone_pool, list(
 			priority_announce("The sky begins to turn quicker - MAJOR ARCANA: THE HANGED MAN, REVERSED", "THE DREAMER ", 'sound/villain/dreamer_warning.ogg')
 		if(3)
 			to_chat(user, span_danger("AGONY. SPLITTING HEADACHE. THROBBING OF THE SOUL."))
-			//Caustic Edit
-			if(user.show_redflash())
-				user.flash_fullscreen("redflash3")
-			//Caustic Edit End
-			user.emote("agony", forced = TRUE)
+			user.flash_fullscreen("redflash3")
+			user.emote("superagony", forced = TRUE)
 			sleep(20)
 			to_chat(user, span_userdanger("THEW ORLD is not real. my BREATH IS gone. my heart barely baeats. my veins are empty."))
 			sleep(50)
 			to_chat(user, span_userdanger("i am god. i am god. i am god. i am god. i am god. i am god. i am god. i am god. i am god. i am god. i am god. i am god."))
 			sleep(30)
 			to_chat(user, span_userdanger("i am god i am god i am go di am ogod I AM GOD I AM GOD I AM GOD I AM GOD I AM GOD I AM GOD I AM GOD"))
-			//Caustic Edit
-			if(user.show_redflash())
-				user.flash_fullscreen("redflash3")
-			//Caustic Edit End
-			user.emote("agony", forced = TRUE)
+			user.flash_fullscreen("redflash3")
+			user.emote("superagony", forced = TRUE)
 			user.Stun(30)
 			user.Knockdown(30)
 			sleep(30)
 			to_chat(user, span_userdanger("i am god i am god i am go di am ogod I AM GOD I AM GOD I AM GOD I AM GOD I AM GOD I AM GOD I AM GOD"))
-			//Caustic Edit
-			if(user.show_redflash())
-				user.flash_fullscreen("redflash3")
-			//Caustic Edit End
-			user.emote("agony", forced = TRUE)
+			user.flash_fullscreen("redflash3")
+			user.emote("superagony", forced = TRUE)
 			user.Stun(100)
 			user.Knockdown(100)
 			for(var/i = 1, i <= 10, i++)
@@ -215,6 +207,7 @@ GLOBAL_LIST_INIT(capstone_pool, list(
 			user.STAWIL += 10
 			user.STASPD += 10
 			user.STALUC += 6
+			user.update_sight() //Caustic Edit - To go with the Perception-Darksight, just refresh it in case they have it.
 
 			heavensaysdanger() //Roger, our deal is honored; you will be rewarded in heaven.
 			addomen(ASCEND_ASCENDANT)

@@ -64,17 +64,6 @@
 					crimes -= crime
 					return
 
-/datum/datacore/proc/payCitation(id, cDataId, amount)
-	for(var/datum/data/record/R in security)
-		if(R.fields["id"] == id)
-			var/list/crimes = R.fields["citation"]
-			for(var/datum/data/crime/crime in crimes)
-				if(crime.dataId == text2num(cDataId))
-					crime.paid = crime.paid + amount
-					var/datum/bank_account/D = SSeconomy.get_dep_account(ACCOUNT_SEC)
-					D.adjust_money(amount)
-					return
-
 /datum/datacore/proc/addMinorCrime(id = "", datum/data/crime/crime)
 	for(var/datum/data/record/R in security)
 		if(R.fields["id"] == id)
@@ -289,15 +278,7 @@ GLOBAL_LIST_EMPTY(fake_ckeys)
 		var/id = num2hex(record_id_num++,6)
 		if(!C)
 			C = H.client
-		var/image = get_id_photo(H, C)
-		var/datum/picture/pf = new
-		var/datum/picture/ps = new
-		pf.picture_name = "[H]"
-		ps.picture_name = "[H]"
-		pf.picture_desc = ""
-		ps.picture_desc = ""
-		pf.picture_image = icon(image, dir = SOUTH)
-		ps.picture_image = icon(image, dir = WEST)
+		var/image = get_id_photo(H, C, show_directions)
 
 		//These records should ~really~ be merged or something
 		//General Record

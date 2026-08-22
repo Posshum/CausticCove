@@ -28,6 +28,8 @@
 	var/debuff_type = /datum/status_effect/debuff/revived
 	var/structure_range = 1
 	var/harms_undead = TRUE
+	var/zizo = FALSE
+	var/matthios = FALSE
 	priest_excluded = TRUE
 
 /obj/effect/proc_holder/spell/invoked/resurrect/start_recharge()
@@ -54,29 +56,30 @@
 			revert_cast()
 			return FALSE
 
-		var/found_structure = FALSE
-		var/list/search_area = oview(structure_range, target)
+		if(!zizo)
+			var/found_structure = FALSE
+			var/list/search_area = oview(structure_range, target)
 
-		for(var/atom/A in search_area)
-			// Check if the atom itself is the required structure type
-			if(istype(A, required_structure))
-				found_structure = TRUE
-				break
+			for(var/atom/A in search_area)
+				// Check if the atom itself is the required structure type
+				if(istype(A, required_structure))
+					found_structure = TRUE
+					break
 
-			if(istype(A, /turf))
-				var/turf/T = A
-				for(var/obj/O in T.contents)
-					if(istype(O, required_structure))
-						found_structure = TRUE
-						break // Found it in the turf, no need to check further
-			if(found_structure)
-				break
+				if(istype(A, /turf))
+					var/turf/T = A
+					for(var/obj/O in T.contents)
+						if(istype(O, required_structure))
+							found_structure = TRUE
+							break // Found it in the turf, no need to check further
+				if(found_structure)
+					break
 
-		if(!found_structure)
-			var/atom/temp_structure = required_structure
-			to_chat(user, span_warning("I need a holy [initial(temp_structure.name)] near [target]."))
-			revert_cast()
-			return FALSE
+			if(!found_structure)
+				var/atom/temp_structure = required_structure
+				to_chat(user, span_warning("I need a holy [initial(temp_structure.name)] near [target]."))
+				revert_cast()
+				return FALSE
 		//OV edit
 		if(istype(target, /mob/living/simple_animal/hostile/retaliate/rogue/ooze_blob/suffering))
 			target.revive()
@@ -85,13 +88,17 @@
 		if(!target.check_revive(user))
 			revert_cast()
 			return FALSE
+
 		if(target.mob_biotypes & MOB_UNDEAD && harms_undead) //positive energy harms the undead
-			target.visible_message(
-				span_danger("[target] is unmade by divine magic!"), 
-				span_userdanger("I'm unmade by divine magic!")
-			)
-			target.gib()
+			if(alert(user, "[target]'s body rattles and seizes under the divine force. This will likely unmake them permanently. Continue?", "Divine Revival", "PURGE THE UNCLEAN!", "Stop") != "PURGE THE UNCLEAN!")
+				to_chat(user, span_notice("You halt the rite before the divine force can fully take hold."))
+				revert_cast()
+				return FALSE
+			target.visible_message(span_danger("[target] is unmade by divine magic!"), span_userdanger("Holy power tears my undead form apart!"))
+			playsound(target.loc, 'sound/magic/churn.ogg', 100, TRUE)
+			target.dust()
 			return TRUE
+
 		to_chat(user, span_notice("You feel the energies of life flow through you, and into [target.name]... All that's left is hope for the best...")) //CC Edit: Feedback
 		if(alert(target, "They are calling for you. Are you ready?", "Revival", "I need to wake up", "Don't let me go") != "I need to wake up")
 			target.visible_message(span_notice("Nothing happens. They are not being let go."))
@@ -133,6 +140,25 @@
 	return TRUE
 
 /obj/effect/proc_holder/spell/invoked/resurrect/proc/validate_items(atom/center)
+	// Zizo revivals require nearby bleeding sacrifice instead of items
+	if(zizo)
+		for(var/mob/living/L in range(1, center))
+			if(L == center)
+				continue
+			if(QDELETED(L))
+				continue
+			if(L.stat == DEAD)
+				continue
+
+			if(L.get_bleed_rate() > 0)
+				return ""
+
+		return "A living, bleeding victim"
+
+	if(matthios)
+	// Matthios revivals will drain mammon actively now
+		return ""
+
 	var/list/current_required_items = get_current_required_items()
 	var/list/available_items = list()
 	var/list/missing_items = list()
@@ -146,7 +172,7 @@
 	for(var/item_type in current_required_items)
 		var/needed = current_required_items[item_type]
 		var/have = available_items[item_type] || 0
-		
+
 		if(have < needed) {
 			var/obj/item/I = item_type
 			var/amount_needed = needed - have
@@ -192,7 +218,8 @@
 	debuff_type = /datum/status_effect/debuff/dreamfiend_curse
 	//This will be Abyssor's statue soon.
 	required_structure = /turf/open/water/ocean
-	overlay_state = "terrors"
+	action_icon = 'icons/mob/actions/abyssormiracles.dmi'
+	overlay_icon = 'icons/mob/actions/abyssormiracles.dmi'
 
 /datum/status_effect/debuff/dreamfiend_curse
 	id = "dreamfiend_curse"
@@ -246,7 +273,9 @@
 /obj/effect/proc_holder/spell/invoked/summon_dreamfiend_curse
 	name = "Confront Terror"
 	desc = "Summon the dreamfiend haunting you to confront it directly"
-	overlay_state = "terrors"
+	action_icon = 'icons/mob/actions/abyssormiracles.dmi'
+	overlay_icon = 'icons/mob/actions/abyssormiracles.dmi'
+	overlay_state = "revive"
 	chargetime = 0
 	invocations = list(span_danger("begins to smell of saltwater. You can hear waves crashing nearby..."))
 	invocation_type = "emote"
@@ -257,7 +286,7 @@
 	var/timed_cooldown
 
 /obj/effect/proc_holder/spell/invoked/summon_dreamfiend_curse/cast(list/targets, mob/living/user)
-	if (world.time < timed_cooldown) 
+	if (world.time < timed_cooldown)
 		to_chat(user, span_warning("You must gather your strength before you are ready to confront your terror!"))
 		to_chat(user, span_warning("Time remaining: [max(0, timed_cooldown - world.time)/10] seconds."))
 		revert_cast()
@@ -305,6 +334,8 @@
 	)
 	debuff_type = /datum/status_effect/debuff/metabolic_acceleration
 	sound = 'sound/magic/heartbeat.ogg'
+	overlay_icon = 'icons/mob/actions/eoramiracles.dmi'
+	action_icon = 'icons/mob/actions/eoramiracles.dmi'
 	overlay_state = "eora_revive"
 
 /atom/movable/screen/alert/status_effect/nutrition_drain
@@ -345,6 +376,8 @@
 	desc = "Resurrects the chosen target, bringing them back from the dead. Side effects may include crippling weaknesses from other godly rites, ending up \
 	butt-naked in the middle of the kingdom's throne room, and much, much, more. </br>Unlike a regular Healing miracle, \
 	this can affect - and resurrect - devout Psydonians as well."
+	action_icon = 'icons/mob/actions/xylixmiracles.dmi'
+	//we don't adjust the overlay, intended to be disguised as regular anastasis. its funnier that way.
 	debuff_type = /datum/status_effect/debuff/random_revival
 	alt_required_items = list(
 		/obj/item/clothing/neck/roguetown/psicross/wood = 1
@@ -573,6 +606,9 @@
 		/obj/item/natural/bone = 7
 	)
 	debuff_type = /datum/status_effect/debuff/ravox_revival
+	action_icon = 'icons/mob/actions/ravoxmiracles.dmi'
+	overlay_icon = 'icons/mob/actions/ravoxmiracles.dmi'
+	overlay_state = "revive"
 
 /obj/effect/proc_holder/spell/invoked/resurrect/dendor
 	name = "Wild Rite of Anastasis"
@@ -616,9 +652,8 @@
 	ore. </br>Casting this on an undead or unholy target will smite them with explosive results. </br>Depending on how far gone \
 	the spirit is, the 'Anastasis' blessing might need to be casted multiple times before successfully resurrecting them. </br>Unlike a regular Healing miracle, this \
 	can affect - and resurrect - devout Psydonians as well."
-	required_items = list(
-		/obj/item/rogueore/gold = 1 // Was thinking Eclipsum combo of gold/silver but that'd probably be *too* expensive. Probably the costliest revival, while having a anastasis equal debuff.
-	)
+	recharge_time = 20 MINUTES //Double the cooldown, no more gold cost, it simply doesn't work with the new economy and transmutation changes.
+	required_items = list()
 	debuff_type = /datum/status_effect/debuff/revived
 	sound = 'sound/magic/revive.ogg'
 	action_icon = 'icons/mob/actions/undividedmiracles.dmi'

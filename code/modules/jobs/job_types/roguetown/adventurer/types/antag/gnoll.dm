@@ -6,13 +6,13 @@
 	faction = "Station"
 	total_positions = 4 //1 //Caustic Edit - Increased count
 	spawn_positions = 4 //1 //Caustic Edit - Increased count
-	allowed_races = RACES_NO_CONSTRUCT
+	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED)
 	tutorial = "You have proven yourself worthy to Graggar, and he's granted you his blessing most divine. Now you hunt for worthy opponents, seeking out those strong enough to make you bleed."
 	outfit = null
 	outfit_female = null
 	display_order = JDO_GNOLL
 	show_in_credits = TRUE
-	min_pq = 10
+	min_pq = 20 //CC Edit 10 -> 20, Relatively RP dependant.
 	max_pq = null
 	allowed_patrons = list(/datum/patron/inhumen/graggar)
 
@@ -35,9 +35,9 @@
 		/datum/virtue/utility/notable, //No resident (????) or free-money-stash gnolls
 		/datum/virtue/utility/bronzelimbs, //They should feel pain in their limbs given their state
 		/datum/virtue/movement/acrobatic, //This should be given to them when they are actually after a Hunted
-		/datum/virtue/utility/woodwalker, //This should be given to them when they are actually after a Hunted
-		/datum/virtue/combat/crossbowman,	//Absolutely not on a class like this
-		/datum/virtue/combat/bowman
+		// /datum/virtue/utility/woodwalker, //This should be given to them when they are actually after a Hunted
+		// /datum/virtue/combat/crossbowman,	//Absolutely not on a class like this
+		// /datum/virtue/combat/bowman
 		)
 	job_subclasses = list(
 		/datum/advclass/gnoll/berserker,
@@ -64,7 +64,7 @@
 		if(H.mind && !H.mind.has_antag_datum(/datum/antagonist/gnoll))
 			var/datum/antagonist/new_antag = new /datum/antagonist/gnoll()
 			H.mind.add_antag_datum(new_antag)
-			H.verbs |= /mob/living/carbon/human/proc/gnoll_inspect_skin
+			add_verb(H, /mob/living/carbon/human/proc/gnoll_inspect_skin)
 
 /datum/outfit/job/roguetown/gnoll/proc/don_pelt(mob/living/carbon/human/H)
 	if(H.mind)
@@ -133,7 +133,7 @@
 
 /mob/living/carbon/human/proc/gnoll_inspect_skin()
 	set name = "Inspect Pelt"
-	set category = "Gnoll"
+	set category = "IC.Gnoll"
 	set desc = "Examine your gnoll skin armor"
 	if(!istype(skin_armor, /obj/item/clothing/suit/roguetown/armor/regenerating/skin/gnoll_armor))
 		to_chat(src, span_warning("You don't have any gnoll skin armor to inspect!"))

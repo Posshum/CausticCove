@@ -1,6 +1,6 @@
 /datum/action/cooldown/spell/mending
 	button_icon = 'icons/mob/actions/roguespells.dmi'
-	name = "Mending"
+	name = "Greater Mending"
 	desc = "Uses arcyne energy to mend an item, prosthetic or artificial being. Effect of repair scales off of your Intelligence."
 	button_icon_state = "mending"
 	sound = 'sound/magic/whiteflame.ogg'
@@ -35,6 +35,7 @@
 	. = ..()
 	if(!.)
 		return FALSE
+
 	// ITEM PATH (unchanged)
 	if(istype(cast_on, /obj/item))
 		var/obj/item/I = cast_on
@@ -72,10 +73,11 @@
 					continue
 				if(BP.status == BODYPART_ROBOTIC && (BP.brute_dam > 0 || BP.burn_dam > 0 || length(BP.wounds)))
 					return TRUE
+
 		if(owner)
 			to_chat(owner, span_warning("There is nothing here that magic can mend."))
 		return FALSE
-	
+
 	if(owner)
 		to_chat(owner, span_warning("I need to target something tangible!"))
 	return FALSE
@@ -187,3 +189,10 @@
 	repair_percent = 0.10
 	cooldown_time = 30 SECONDS
 	point_cost = 1
+
+
+/datum/action/cooldown/spell/mending
+	exclusive_group = "mending"
+
+/datum/action/cooldown/spell/mending/lesser
+	exclusive_group = "mending"

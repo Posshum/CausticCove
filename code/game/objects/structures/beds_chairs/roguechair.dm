@@ -45,6 +45,7 @@
 		if(user.m_intent == MOVE_INTENT_SNEAK)
 			hideinside(user)
 			return
+		return ..()
 
 /obj/structure/chair/bench/proc/hideinside(mob/living/user)
 	var/sneak_level = user.get_skill_level(/datum/skill/misc/sneaking) || 0
@@ -408,6 +409,13 @@
 	. += span_info("Once awake, hit the 'RESIST' hotkey or left-click the bed to 'unbuckle' yourself. Once unbuckled, pressing the 'V' key will allow you to fully rise up.")
 	. += span_info("Note that you can still sleep anywhere you wish, even without a bed, by simply laying down and closing your eyes. While this can work in a pinch to stave off tiredness or bolster your characters to survive a critical wound, it's much less ideal.")
 	. += span_info("Some structures can be used as hiding places. Toggle the 'SNEAK' button on your HUD, then click the structure to hide in it. You can stop hiding by clicking the structure again, or by moving out of it.")
+
+//CC Edit - Make all the chairs state their sleep quality, even if they are all just 0.5. It's still 1 HP/tick of healing!
+/obj/structure/bed/rogue/Initialize()
+	. = ..()
+	if(sleepy)
+		desc += " (Sleep Quality: [sleepy] )"
+	
 
 /obj/structure/bed/rogue/proc/damage_bed(dam_value)
 	if(sleepy <= 2) // the bed is already pretty awful and broken (i.e: straw bed/bedroll), so don't break it even further

@@ -18,6 +18,8 @@
 				used = pick('sound/vo/male/gen/deathgurgle (1).ogg','sound/vo/male/gen/deathgurgle (2).ogg','sound/vo/male/gen/deathgurgle (3).ogg')
 			if("agony")
 				used = list('sound/vo/male/gen/agony (1).ogg','sound/vo/male/gen/agony (2).ogg','sound/vo/male/gen/agony (4).ogg','sound/vo/male/gen/agony (5).ogg','sound/vo/male/gen/agony (6).ogg','sound/vo/male/gen/agony (7).ogg','sound/vo/male/gen/agony (8).ogg','sound/vo/male/gen/agony (9).ogg','sound/vo/male/gen/agony (10).ogg','sound/vo/male/gen/agony (3).ogg','sound/vo/male/gen/agony (11).ogg','sound/vo/male/gen/agony (12).ogg','sound/vo/male/gen/agony (13).ogg')
+			if("superagony") // to bypass painless override, use responsibly
+				used = list('sound/vo/male/gen/agony (1).ogg','sound/vo/male/gen/agony (2).ogg','sound/vo/male/gen/agony (4).ogg','sound/vo/male/gen/agony (5).ogg','sound/vo/male/gen/agony (6).ogg','sound/vo/male/gen/agony (7).ogg','sound/vo/male/gen/agony (8).ogg','sound/vo/male/gen/agony (9).ogg','sound/vo/male/gen/agony (10).ogg','sound/vo/male/gen/agony (3).ogg','sound/vo/male/gen/agony (11).ogg','sound/vo/male/gen/agony (12).ogg','sound/vo/male/gen/agony (13).ogg')
 			if("breathgasp")
 				used = list('sound/vo/male/gen/breathgasp (1).ogg','sound/vo/male/gen/breathgasp (2).ogg','sound/vo/male/gen/breathgasp (3).ogg')
 			if("burp")
@@ -177,4 +179,14 @@
 				used = list('sound/vo/LizardSqueal.ogg')
 			if("thump")
 				used = list('sound/vo/LizardThump.ogg')
+			// Caustic Edit start
+			if("foxscream")
+				used = list('modular_causticcove/sound/vo/vulp_scream1.ogg', 'modular_causticcove/sound/vo/vulp_scream2.ogg', 'modular_causticcove/sound/vo/vulp_scream3.ogg', 'modular_causticcove/sound/vo/vulp_scream4.ogg')
+			if("snarl")
+				used = list('modular_causticcove/sound/vo/dog_snarl1.ogg', 'modular_causticcove/sound/vo/dog_snarl2.ogg', 'modular_causticcove/sound/vo/dog_snarl3.ogg')
+			if("con_squeak")
+				used = list('modular_causticcove/sound/vo/construct_squeak.ogg')
+			if("weh")
+				used = 'sound/vo/weh.ogg'
+			// Caustic Edit end
 	return used

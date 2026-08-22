@@ -6,7 +6,7 @@
 	total_positions = 1
 	spawn_positions = 1
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = ACCEPTED_RACES
+	forbidden_races = list() //Caustic Edit - Just a global tweak to remove 'races_despised' from this check everywhere
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED, AGE_OLD)
 	tutorial = "You are the most experienced of the Crown's Soldiery, leading the men-at-arms in maintaining order and attending to threats and crimes below the court's attention. \
 				See to those under your command and fill in the gaps knights leave in their wake. Obey the orders of your Marshal and the Crown."
@@ -20,7 +20,7 @@
 	advclass_cat_rolls = list(CTAG_SERGEANT = 20)
 
 	give_bank_account = TRUE
-	min_pq = 6
+	min_pq = 10 // CC Edit - Leadership role, do not be someone who doesn't know the game's combat just because it fits your character's "lore".
 	max_pq = null
 	cmode_music = 'sound/music/combat_ManAtArms.ogg'
 	job_traits = list(TRAIT_GUARDSMAN, TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR)
@@ -34,21 +34,11 @@
 /datum/job/roguetown/sergeant/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
 	. = ..()
 	if(ishuman(L))
-		var/mob/living/carbon/human/H = L
-		if(ishuman(L))
-			if(istype(H.cloak, /obj/item/clothing/cloak/tabard/stabard/guard))
-				var/obj/item/clothing/S = H.cloak
-				var/index = findtext(H.real_name, " ")
-				if(index)
-					index = copytext(H.real_name, 1,index)
-				if(!index)
-					index = H.real_name
-				S.name = "sergeant surcoat ([index])"
+		addtimer(CALLBACK(L, TYPE_PROC_REF(/mob, cloak_and_title_setup)), 50)
 
 //All skills/traits are on the loadouts. All are identical. Welcome to the stupid way we have to make sub-classes...
 /datum/outfit/job/roguetown/sergeant
 	pants = /obj/item/clothing/under/roguetown/chainlegs
-	cloak = /obj/item/clothing/cloak/tabard/stabard/guard
 	neck = /obj/item/clothing/neck/roguetown/gorget
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather/reinforced
 	saiga_shoes = /obj/item/clothing/shoes/roguetown/horseshoes
@@ -103,7 +93,7 @@
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/order/hold)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/order/onfeet)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/convertrole/guard) // We'll just use Watchmen as sorta conscripts yeag?
-	H.verbs |= list(/mob/living/carbon/human/proc/request_outlaw, /mob/proc/haltyell, /mob/living/carbon/human/mind/proc/setorders)
+	add_verb(H, list(/mob/living/carbon/human/proc/request_outlaw, /mob/proc/haltyell, /mob/living/carbon/human/mind/proc/setorders))
 	backpack_contents = list(
 		/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1,
 		/obj/item/rope/chain = 1,
@@ -152,4 +142,4 @@
 		var/armorchoice = input(H, "Choose your armor.", "TAKE UP ARMOR") as anything in armors
 		armor = armors[armorchoice]
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_UPPER_MIDDLE_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_UPPER_MIDDLE_CLASS, H)

@@ -53,6 +53,7 @@
 	var/mouseControlObject = null
 	var/middragtime = 0
 	var/atom/middragatom
+	var/tcompare
 	var/charging = 0
 	var/chargedprog = 0
 	var/sections
@@ -67,10 +68,7 @@
 	var/charge_start_timeofday = 0
 	var/last_cooldown_warn = 0
 	var/charge_was_blocked_by_cooldown = FALSE
-
-	// (CC Edit) Intended for click-dragging behavior
-	var/is_dragging = FALSE
-	var/atom/drag_target = null // Sets to be target at the start of a drag
+	var/blocked_lmb = FALSE
 
 /atom
 	var/blockscharging = FALSE
@@ -81,6 +79,15 @@
 /client/MouseDown(object, location, control, params)
 	charge_was_blocked_by_cooldown = FALSE
 	var/list/modifiers = params2list(params)
+
+	if(modifiers["left"])
+		if(blocked_lmb)
+			return
+		if(lmb_throttle(object, modifiers))
+			blocked_lmb = TRUE
+			return
+		if(!modifiers["shift"] || mob.BehindAtom(object, mob.dir))
+			mob.face_atom(object, location, control, params)
 
 	if(mob.incapacitated())
 		return
@@ -97,14 +104,14 @@
 	// New spell system intercepted this click — skip old cursor/intent handling
 	if(signal_result & COMPONENT_CLIENT_MOUSEDOWN_INTERCEPT)
 		return
-	
-	drag_target = object //CC Edit - Mouse Dragging Fix
-	is_dragging = FALSE //CC Edit End
+
+	tcompare = object
 
 	if(mouse_down_icon)
 		mouse_pointer_icon = mouse_down_icon
 
 	var/delay = mob.CanMobAutoclick(object, location, params)
+
 	var/was_charging = charging
 
 	if(was_charging && mob.used_intent)
@@ -183,14 +190,14 @@
 			mouse_pointer_icon = mob.mmb_intent.pointer
 
 /client/proc/handle_left_click(atom/object, location, control, params, list/modifiers)
-	if(!modifiers["shift"] || mob.BehindAtom(object, mob.dir))
-		mob.face_atom(object, location, control, params)
+	var/cooldown = (mob.active_hand_index == 1) ? mob.next_lmove : mob.next_rmove
+
 	if(modifiers["right"])
 		return
 
-	var/cooldown = (mob.active_hand_index == 1) ? mob.next_lmove : mob.next_rmove
 	if(cooldown > world.time)
 		charge_was_blocked_by_cooldown = TRUE
+		blocked_lmb = TRUE
 		return
 
 	mob.atkswinging = "left"
@@ -208,8 +215,19 @@
 	return TRUE
 
 /client/MouseUp(object, location, control, params)
+	var/list/modifiers = params2list(params)
+	if(modifiers["left"])
+		blocked_lmb = FALSE
+
+	if(lmb_throttle(object, modifiers, no_swing = TRUE))
+		return
+
 	if(SEND_SIGNAL(src, COMSIG_CLIENT_MOUSEUP, object, location, control, params) & COMPONENT_CLIENT_MOUSEUP_INTERCEPT)
 		click_intercept_time = world.time
+
+	if(mob?.channeling_spell?.currently_charging)
+		charging = 0
+		return
 
 	if(charging && isliving(mob))
 		update_to_mob(mob, 0)
@@ -234,7 +252,6 @@
 	if(!mob.atkswinging)
 		return
 
-	var/list/modifiers = params2list(params)
 	if(modifiers["left"])
 		if(mob.atkswinging != "left")
 			mob.atkswinging = null
@@ -255,20 +272,18 @@
 		mouse_pointer_icon = mouse_up_icon
 	selected_target[1] = null
 
-	// (CC Edit) Fix for drag-drop behavior
-	// Trigger on-click when dropping on initial target (not self)
-	var/was_dragging = drag_target && is_dragging
-	if(mob.atkswinging && was_dragging)
-		var/atom/target_obj = (istype(drag_target, object) && drag_target != mob) ? drag_target : object
-
-		target_obj.Click(location, control, params)
-		drag_target = null
+	if(tcompare)
+		var/atom/target_atom = object
+		if(istype(target_atom) && tcompare != mob && (mob.atkswinging == "middle" || (mob.atkswinging && object != tcompare)))
+			target_atom.Click(location, control, params)
+		tcompare = null
 
 	if(active_mousedown_item)
 		active_mousedown_item.onMouseUp(object, location, params, mob)
 		active_mousedown_item = null
 
-	is_dragging = FALSE //CC Edit - Mouse Drag Fix addition
+	if(!isliving(mob))
+		return
 
 /client/proc/updateprogbar(atom/clicked_object)
 	if(!mob)
@@ -286,7 +301,7 @@
 		L.update_charging_movespeed(L.used_intent)
 		progress = 0
 		charge_start_time = world.time
-		charge_start_timeofday = world.timeofday
+		charge_start_timeofday = REALTIMEOFDAY
 		sections = null //commented //From what I can tell, this used to be for the mouse icon changing per % of the cast.
 		goal = L.used_intent.get_chargetime() //How much charge to get in order to cast
 		part = 1
@@ -298,6 +313,8 @@
 
 /client/Destroy()
 	STOP_PROCESSING(SSmousecharge, src)
+	if(mob?.listed_turf)
+		LAZYREMOVE(mob.listed_turf.panel_listeners, src)
 	return ..()
 
 /client/process(seconds_per_tick)
@@ -312,22 +329,20 @@
 
 /client/proc/update_to_mob(mob/living/L, seconds_per_tick)
 	if(charging)
-		var/expected_timeofday = charge_start_timeofday + goal
-		var/actual_timeofday = world.timeofday
-		var/lag_buffer = max(0, (expected_timeofday - progress - actual_timeofday))
-
-		if(progress < goal - lag_buffer) // Add a lag buffer to prevent accidentally losing a full charge due to a lag spike
-			progress = world.time - charge_start_time
-			progress = min(progress, goal)
+		progress = min(max(world.time - charge_start_time, REALTIMEOFDAY - charge_start_timeofday), goal)
+		if(progress < goal)
 			chargedprog = ((progress / goal) * 100)
 			var/new_icon = SSmousecharge.access(chargedprog)
 			if(mouse_pointer_icon != new_icon)
 				mouse_pointer_icon = new_icon
-		else //Fully charged spell
+		else //Fully charged
 			if(!doneset)
 				doneset = 1
+				if(L.used_intent?.warnie == "aimwarn")
+					L.stop_sound_channel(CHANNEL_WEAPON_DRAW)
+				if(L.used_intent?.ready_sound)
+					L.playsound_local(L, L.used_intent.ready_sound, 70, TRUE)
 				if(L.curplaying && !L.used_intent.keep_looping)
-					playsound(L, 'sound/magic/charged.ogg', 100, TRUE)
 					L.curplaying.on_mouse_up()
 				chargedprog = 100
 				var/new_icon = 'icons/effects/mousemice/swang/acharged.dmi'
@@ -382,6 +397,7 @@
 	. = 1
 
 /client/MouseDrag(src_object,atom/over_object,src_location,over_location,src_control,over_control,params)
+
 	if(mob.incapacitated())
 		return
 
@@ -410,9 +426,6 @@
 		active_mousedown_item.onMouseDrag(src_object, over_object, src_location, over_location, params, mob)
 	SEND_SIGNAL(src, COMSIG_CLIENT_MOUSEDRAG, src_object, over_object, src_location, over_location, src_control, over_control, params)
 
-	
-	// (CC Edit) Set for drag-drop behavior
-	is_dragging = TRUE;
 
 /obj/item/proc/onMouseDrag(src_object, over_object, src_location, over_location, params, mob)
 	return

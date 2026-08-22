@@ -2,7 +2,7 @@
 	name = "Arcyne Potential"
 	//Caustic edit
 	desc = "I am talented in the Arcyne arts, expanding my capacity for magic. I have become more intelligent from its studies."
-	custom_text = "Gives +3 spellpoints (or +3 utility spellpoints if pool-based), and T1 Arcyne Potential if you don't have any Arcyne."
+	custom_text = "Gives +4 utility spellpoints, and T1 Arcyne Potential if you don't have any Arcyne."
 	added_skills = list(list(/datum/skill/magic/arcane, 1, 6))
 
 /datum/virtue/combat/magical_potential/apply_to_human(mob/living/carbon/human/recipient)
@@ -11,19 +11,19 @@
 			recipient.mind?.AddSpell(new /datum/action/cooldown/spell/touch/prestidigitation)
 		//if (!HAS_TRAIT(recipient, TRAIT_MEDIUMARMOR) && !HAS_TRAIT(recipient, TRAIT_HEAVYARMOR) && !HAS_TRAIT(recipient, TRAIT_DODGEEXPERT) && !HAS_TRAIT(recipient, TRAIT_CRITICAL_RESISTANCE))
 		ADD_TRAIT(recipient, TRAIT_ARCYNE, TRAIT_GENERIC)
-		add_arcyne_potential_utilities(recipient, 3)
+		add_arcyne_potential_utilities(recipient, 4)
 		//Caustic edit end
 	else
-		add_arcyne_potential_utilities(recipient, 3)
+		add_arcyne_potential_utilities(recipient, 4)
 
 /datum/virtue/combat/magical_potential/proc/add_arcyne_potential_utilities(mob/living/carbon/human/recipient, amount)
 	if(!recipient.mind)
 		return
 	if(!LAZYLEN(recipient.mind.mage_aspect_config))
-		recipient.mind.setup_mage_aspects(list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 0))
+		recipient.mind.setup_mage_aspects(list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 0), grant_attunement = FALSE)
 	recipient.mind.mage_aspect_config["utilities"] += amount
 	recipient.mind.check_learnspell()
-	
+
 /datum/virtue/combat/devotee
 	name = "Devotee"
 	desc = "Though not officially of the Church, my relationship with my chosen Patron is strong enough to grant me the most minor of their blessings. I've also kept a psycross of my deity."
@@ -49,34 +49,34 @@
 		START_PROCESSING(SSobj, our_faith)
 	switch(recipient.patron?.type)
 		if(/datum/patron/divine/astrata)
-			recipient.mind?.special_items["Astratan Amulet"] = /obj/item/clothing/neck/roguetown/psicross/astrata
+			recipient.mind?.special_items["Amulet of Astrata"] = /obj/item/clothing/neck/roguetown/psicross/astrata
 		if(/datum/patron/divine/abyssor)
-			recipient.mind?.special_items["Abyssor Amulet"] = /obj/item/clothing/neck/roguetown/psicross/abyssor
+			recipient.mind?.special_items["Amulet of Abyssor"] = /obj/item/clothing/neck/roguetown/psicross/abyssor
 		if(/datum/patron/divine/dendor)
-			recipient.mind?.special_items["Dendor Amulet"] = /obj/item/clothing/neck/roguetown/psicross/dendor
+			recipient.mind?.special_items["Amulet of Dendor"] = /obj/item/clothing/neck/roguetown/psicross/dendor
 		if(/datum/patron/divine/necra)
-			recipient.mind?.special_items["Necran Amulet"] = /obj/item/clothing/neck/roguetown/psicross/necra
+			recipient.mind?.special_items["Amulet of Necra"] = /obj/item/clothing/neck/roguetown/psicross/necra
 		if(/datum/patron/divine/pestra)
-			recipient.mind?.special_items["Pestran Amulet"] = /obj/item/clothing/neck/roguetown/psicross/pestra
-		if(/datum/patron/divine/eora) 
-			recipient.mind?.special_items["Eoran Amulet"] = /obj/item/clothing/neck/roguetown/psicross/eora
+			recipient.mind?.special_items["Amulet of Pestra"] = /obj/item/clothing/neck/roguetown/psicross/pestra
+		if(/datum/patron/divine/eora)
+			recipient.mind?.special_items["Amulet of Eora"] = /obj/item/clothing/neck/roguetown/psicross/eora
 		if(/datum/patron/divine/noc)
-			recipient.mind?.special_items["Noc Amulet"] = /obj/item/clothing/neck/roguetown/psicross/noc
+			recipient.mind?.special_items["Amulet of Noc"] = /obj/item/clothing/neck/roguetown/psicross/noc
 		if(/datum/patron/divine/ravox)
-			recipient.mind?.special_items["Ravox Amulet"] =/obj/item/clothing/neck/roguetown/psicross/ravox
+			recipient.mind?.special_items["Amulet of Ravox"] =/obj/item/clothing/neck/roguetown/psicross/ravox
 		if(/datum/patron/divine/malum)
-			recipient.mind?.special_items["Malum Amulet"] = /obj/item/clothing/neck/roguetown/psicross/malum
+			recipient.mind?.special_items["Amulet of Malum"] = /obj/item/clothing/neck/roguetown/psicross/malum
 		if(/datum/patron/old_god)
 			ADD_TRAIT(recipient, TRAIT_PSYDONITE, TRAIT_GENERIC)
 			recipient.mind?.special_items["Psycross"] = /obj/item/clothing/neck/roguetown/psicross
 		if(/datum/patron/divine/undivided)
-			recipient.mind?.special_items["Tennite Amulet"] = /obj/item/clothing/neck/roguetown/psicross/undivided
+			recipient.mind?.special_items["Amulet of the Undivided"] = /obj/item/clothing/neck/roguetown/psicross/undivided
 		if(/datum/patron/inhumen/matthios)
-			recipient.mind?.special_items["Matthios Amulet"] = /obj/item/clothing/neck/roguetown/psicross/inhumen/matthios
+			recipient.mind?.special_items["Amulet of Matthios"] = /obj/item/clothing/neck/roguetown/psicross/inhumen/matthios
 		if(/datum/patron/inhumen/graggar)
-			recipient.mind?.special_items["Graggar Amulet"] = /obj/item/clothing/neck/roguetown/psicross/inhumen/graggar
+			recipient.mind?.special_items["Amulet of Graggar"] = /obj/item/clothing/neck/roguetown/psicross/inhumen/graggar
 		if(/datum/patron/inhumen/baotha)
-			recipient.mind?.special_items["Baotha Amulet"] = /obj/item/clothing/neck/roguetown/psicross/inhumen/baotha
+			recipient.mind?.special_items["Amulet of Baotha"] = /obj/item/clothing/neck/roguetown/psicross/inhumen/baotha
 		if(/datum/patron/inhumen/zizo)
 			recipient.mind?.special_items["Inverted Psycross"] = /obj/item/clothing/neck/roguetown/psicross/inhumen/iron
 
@@ -97,6 +97,7 @@
 	max_choices = 5
 	choice_costs = list(0, 0, 0, 2, 4, 4)
 	extra_choices = list(
+		"Arcyne Armament Skill (JMAN)" = /datum/skill/combat/arcyne,
 		"Swords Skill (JMAN)" = /datum/skill/combat/swords,
 		"Shield Skill (JMAN)" = /datum/skill/combat/shields,
 		"Dagger Skill (JMAN)" = /datum/skill/combat/knives,
@@ -108,12 +109,20 @@
 		"Polearm Skill (JMAN)" = /datum/skill/combat/polearms,
 		"Staves Skill (JMAN)" = /datum/skill/combat/staves,
 		"Wrestling Skill (JMAN)" = /datum/skill/combat/wrestling,
+		//Caustic Edit - Add the Ranged options here, too
+		"Bows Skill (JMAN)" = /datum/skill/combat/bows,
+		"Crossbows Skill (JMAN)" = /datum/skill/combat/crossbows,
+		//Caustic Edit End
 		"Stashed Messer & Parrying Dagger" = list(/obj/item/rogueweapon/sword/short/messer/iron/virtue, /obj/item/rogueweapon/huntingknife/idagger/virtue),
 		"Stashed Shield & Arming Sword" = list(/obj/item/rogueweapon/shield/wood, /obj/item/rogueweapon/sword/iron),
 		"Stashed Quarterstaff & Sling" = list(/obj/item/rogueweapon/woodstaff/quarterstaff/iron, /obj/item/gun/ballistic/revolver/grenadelauncher/sling, /obj/item/quiver/sling/iron),
-		"Stashed Spear & Mace" = list(/obj/item/rogueweapon/spear, /obj/item/rogueweapon/mace),
+		"Stashed Spear & Mace" = list(/obj/item/rogueweapon/spear, /obj/item/rogueweapon/mace, /obj/item/rogueweapon/scabbard/gwstrap),
 		"Stashed Katar & Knuckles" = list(/obj/item/rogueweapon/katar/bronze, /obj/item/clothing/gloves/roguetown/knuckles/bronze),
-		"Stashed Axe & Whip" = list(/obj/item/rogueweapon/stoneaxe/woodcut, /obj/item/rogueweapon/whip)
+		"Stashed Axe & Whip" = list(/obj/item/rogueweapon/stoneaxe/woodcut, /obj/item/rogueweapon/whip),
+		//Caustic Edit - Add the Ranged options here, too
+		"Stashed Bow & Quiver" = list(/obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve, /obj/item/quiver/arrows),
+		"Stashed Crossbow & Quiver" = list(/obj/item/gun/ballistic/revolver/grenadelauncher/crossbow, /obj/item/quiver/bolt/standard)
+		//Caustic Edit End
 	)
 
 /datum/virtue/combat/combat_virtue/apply_to_human(mob/living/carbon/human/recipient)
@@ -128,7 +137,8 @@
 					var/obj/item/I = stuff
 					recipient.mind?.special_items[capitalize(I::name)] = I
 
-/datum/virtue/combat/bowman
+//Caustic Edit - Moved these into the above Trait! Frankly it kinda makes sense.
+/*/datum/virtue/combat/bowman
 	name = "Toxophilite"
 	desc = "I've had an interest in archery from a young age, and I always keep a spare bow and quiver around."
 	custom_text = "+1 to Bows, Up to Legendary, Minimum Apprentice"
@@ -155,32 +165,138 @@
 	if(recipient.get_skill_level(/datum/skill/combat/crossbows) < SKILL_LEVEL_APPRENTICE)
 		recipient.adjust_skillrank_up_to(/datum/skill/combat/crossbows, SKILL_LEVEL_APPRENTICE, silent = TRUE)
 	else
-		added_skills = list(list(/datum/skill/combat/crossbows, 1, 6))
+		added_skills = list(list(/datum/skill/combat/crossbows, 1, 6))*/
+//Caustic Edit End
 
 /datum/virtue/combat/guarded
 	name = "Guarded"
 	desc = "I have long kept my true capabilities and vices a secret. Sometimes being deceptively weak can save one's lyfe."
-	custom_text = "Obfuscates information about you from all sorts of effects, including patron abilities & passives, Assess and other virtues."
+	custom_text = "Obfuscates information about you from all sorts of effects, including patron abilities & passives, combat information, Assess and other virtues."
 	added_traits = list(TRAIT_DECEIVING_MEEKNESS)
 
 /datum/virtue/combat/guarded/apply_to_human(mob/living/carbon/human/recipient)
 	. = ..()
-	recipient.verbs += /mob/living/carbon/human/proc/toggle_descriptors
-	recipient.verbs += /mob/living/carbon/human/proc/emote_ffsalute
+	add_verb(recipient, /mob/living/carbon/human/proc/toggle_descriptors)
+	add_verb(recipient, /mob/living/carbon/human/proc/emote_ffsalute)
+	add_verb(recipient, /mob/living/carbon/human/proc/toggle_guarded)
 
+#define SC_ROTCURED "Rotcured"
+#define SC_PALLID "Pallid"
+#define SC_BLACKBLOOD_VAMP "Blackblood (Vampyre)"
+#define SC_BLACKBLOOD_WOLF "Blackblood (Lycan)"
 
-/datum/virtue/combat/rotcured
-	name = "Rotcured"
-	desc = "I was once afflicted with the accursed rot, and was cured. It has left me changed: my limbs are weaker, but I feel no pain and have no need to breathe..."
-	custom_text = "Unlocks the 'Rotten' option in skin tone selection, if applicable."
-	// below is functionally equivalent to dying and being resurrected via astrata T4 - yep, this is what it gives you.
-	added_traits = list(TRAIT_EASYDISMEMBER, TRAIT_NOPAIN, TRAIT_NOPAINSTUN, TRAIT_NOBREATH, TRAIT_DEATHLESS, TRAIT_TOXIMMUNE, TRAIT_ZOMBIE_IMMUNE, TRAIT_ROTMAN, TRAIT_SILVER_WEAK)
+/datum/virtue/combat/second_chance
+	name = "Second Chance"
+	desc = "Not many are given second chances. Somehow, you're among the lucky bastards who were. What foul, cruel fate did you narrowly escape, changed yet still living?"
+	max_choices = 1
+	restricted = TRUE
+	races = list(/datum/species/construct/metal, /datum/species/gnoll)
 
-/datum/virtue/combat/pallid
-	name = "Pallid"
-	desc = "I was once afflicted with vampirism, and was cured. It has left me changed: silver burns my flesh, and the open sky fills me with unease. Yet I draw no breath, and my eyes pierce the darkness. Lingering traces of the curse that once claimed me."
-	custom_text = "Grants darkvision, no need to breathe, and deadite immunity. Silver weapons will set you alight. Being outdoors causes stress."
-	added_traits = list(TRAIT_PALLID, TRAIT_DARKVISION, TRAIT_NOBREATH, TRAIT_ZOMBIE_IMMUNE, TRAIT_SILVER_WEAK)
+	choice_costs = list(0, 0, 0, 0)
+
+	extra_choices = list(
+		SC_ROTCURED,
+		SC_PALLID,
+		SC_BLACKBLOOD_VAMP,
+		SC_BLACKBLOOD_WOLF,
+	)
+
+	choice_tooltips = list(
+		SC_ROTCURED = "<font color='#4a8d48'>I was once afflicted with the accursed rot, and was cured. It has left me changed: my limbs are weaker, but I feel no pain and have no need to breathe.<br><br><font color=red>(Grants Easy Dismember, Painless, Breathless, Deathless, Poison Immune, Deadite Immune, Silver Weakness.)</font><br><br><font color=white>(Additionally, you can eat brains, you don't suffer nausea, and your heart does not beat.)</font>",
+		SC_PALLID = "<font color='#8d4848'>I was once afflicted with vampirism, but was cured by something short of divine intervention. It has left me changed: silver burns my flesh, and the open sky fills me with unease. Yet I draw no breath, and my eyes pierce the darkness. Lingering traces of the curse that once claimed me. Traces I hope will fade in time.<br><br><font color=red>(Grants Darkvision, Breathless, Deadite Immunity and Silver Weakness.)</font><br><br><font color=white>(Additionally, being outdoors causes stress.)</font>",
+		SC_BLACKBLOOD_VAMP = "<font color='#8b488d'>I was once a vampyre, before the Otavan Inquisition subdued and exported me as a test subject of an experimental \"cure\" for my Quicksilver-resistant taint. This intense therapy had me warped, inside, outside, body and mind, into something 'idealistically' humen-like for Otavan standards, even if I am now no different than a sentient, hollowed ghoul.<br><br><font color=red>(Grants Nitevision, Strong Bite, Intoxicating Bite, Leaden Lux, and Silver Weakness.)</font><br><br><font color=white>(Additionally, you cannot heal from most potions, but consuming cooked food or blood grants a minor healing buff. You bleed slower and passively recover from wounds and brute damage while not thirsty, which is stronger outside of combat, with combat mode off and at nighttime. You will feel stressed when exposed to sunlight, and panic while being around or interacting with members of the Inquisition.)</font>",
+		SC_BLACKBLOOD_WOLF = "<font color='#8b488d'>I was once a lycanthrope, before the Otavan Inquisition subdued and exported me as a test subject of an experimental \"cure\" for my Quicksilver-resistant taint. This intense therapy had me warped, inside, outside, body and mind, into something 'idealistically' humen-like for Otavan standards, even if I am now no different than a sentient, hollowed ghoul.<br><br><font color=red>(Grants Nitevision, Strong Bite, Inhumen Digestion, Leaden Lux, and Silver Weakness.)</font><br><br><font color=white>(Additionally, you cannot heal from most potions, but consuming any food grants a minor healing buff. You bleed slower and passively recover from wounds and brute damage while not hungry, which is stronger outside of combat, with combat mode off and at daytime. You will feel stressed when exposed to moonlight, and panic while being around or interacting with members of the Inquisition.)</font>",
+	)
+
+/datum/virtue/combat/second_chance/apply_to_human(mob/living/carbon/human/recipient)
+	spawn(80)
+		if(QDELETED(src) || QDELETED(recipient))
+			return
+
+		if(!recipient.mind)
+			return
+
+		if(recipient.mind.has_antag_datum(/datum/antagonist/skeleton) \
+		|| recipient.mind.has_antag_datum(/datum/antagonist/lich) \
+		|| recipient.mind.has_antag_datum(/datum/antagonist/vampire) \
+		|| recipient.mind.has_antag_datum(/datum/antagonist/vampire/lord) \
+		|| recipient.mind.has_antag_datum(/datum/antagonist/werewolf) \
+		|| recipient.mind.has_antag_datum(/datum/antagonist/zombie))
+			to_chat(recipient, "Second Chance cannot be applied to your role, so it has been removed.")
+			QDEL_NULL(src)
+			return
+
+		for(var/choice in picked_choices)
+			switch(choice)
+				if(SC_ROTCURED)
+					ADD_TRAIT(recipient, TRAIT_ROTMAN, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_EASYDISMEMBER, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_NOPAIN, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_NOBREATH, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_DEATHLESS, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_TOXIMMUNE, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_NASTY_EATER, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_NITEVISION, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_ZOMBIE_IMMUNE, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_SILVER_WEAK, TRAIT_VIRTUE)
+					to_chat(recipient, "You are no longer a rotting corpse, at least not a dying one.")
+
+				if(SC_PALLID)
+					ADD_TRAIT(recipient, TRAIT_PALLID, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_DARKVISION, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_NOBREATH, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_ZOMBIE_IMMUNE, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_SILVER_WEAK, TRAIT_VIRTUE)
+					to_chat(recipient, "You are no longer one scorned by Astrata, by the mercy of the gods.")
+
+				if(SC_BLACKBLOOD_VAMP, SC_BLACKBLOOD_WOLF)
+					var/blood_color = input(recipient, "Choose the color of your blood.", "Blood Color") as anything in list("Dark Red", "Rust Red", "Coal Black")
+					switch(blood_color)
+						if("Dark Red")
+							recipient.dna.species.blood_color = "#530000"
+						if("Rust Red")
+							recipient.dna.species.blood_color = "#3D1B14"
+						if("Coal Black")
+							recipient.dna.species.blood_color = "#161616"
+						else
+							recipient.dna.species.blood_color = "#530000"
+
+					ADD_TRAIT(recipient, TRAIT_BLACKBLOOD, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_HALFHEAL, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_NASTY_EATER, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_STRONGBITE, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_NITEVISION, TRAIT_VIRTUE)
+					ADD_TRAIT(recipient, TRAIT_SILVER_WEAK, TRAIT_VIRTUE)
+					if(choice == SC_BLACKBLOOD_VAMP)
+						ADD_TRAIT(recipient, TRAIT_VAMPBITE, TRAIT_VIRTUE)
+						ADD_TRAIT(recipient, TRAIT_SUN_AVERSE, TRAIT_VIRTUE)
+					if(choice == SC_BLACKBLOOD_WOLF)
+						ADD_TRAIT(recipient, TRAIT_KNEESTINGER_IMMUNITY, TRAIT_VIRTUE)
+						ADD_TRAIT(recipient, TRAIT_MOON_AVERSE, TRAIT_VIRTUE)
+
+					// Inquisition trauma.
+					if(!(recipient.patron?.type == /datum/patron/old_god))
+						var/datum/charflaw/averse/A
+						for(var/datum/charflaw/averse/F in recipient.charflaws)
+							A = F
+							break
+
+						if(A)
+							A.chosen_group |= GLOB.averse_factions["Inquisition"]
+						else
+							A = new
+							A.set_jobflag("Inquisition")
+							recipient.charflaws += A
+
+						to_chat(recipient, span_blue("<i>You recall your horrid experiences with the Inquisition... It is rather traumatic. Best to avoid them.</i>"))
+					else
+						to_chat(recipient, span_blue("<i>You recall your horrid experiences with the Inquisition... But through your newfound faith in HIM, you ENDURE. You were but one wrong righted, after all.</i>"))
+					to_chat(recipient, span_danger("This Vice has a mechanically enforced phobia of the inquisition. While it is not IMPOSSIBLE to work around them, be aware that this quirk does imply that you have been through some horrendous times with them. If you do not want to struggle to interact with the inquisition, we suggest paring this with steelhearted or going for psydonian grit... Or picking another Virtue."))
+
+#undef SC_ROTCURED
+#undef SC_PALLID
+#undef SC_BLACKBLOOD_VAMP
+#undef SC_BLACKBLOOD_WOLF
 
 /datum/virtue/combat/dualwielder
 	name = "Dual Wielder"
@@ -199,4 +315,4 @@
 	added_traits = list(TRAIT_COMBAT_AWARE)
 
 /datum/virtue/combat/combat_aware/apply_to_human(mob/living/carbon/human/recipient)
-	recipient.verbs += /mob/living/carbon/human/proc/togglecombatawareness
+	add_verb(recipient, /mob/living/carbon/human/proc/togglecombatawareness)

@@ -29,11 +29,14 @@
 	return TRUE
 
 /datum/status_effect/buff/healing/spider_cocoon/tick()
-	if(HAS_TRAIT(owner, TRAIT_IRONMAN))
+	if(HAS_TRAIT(owner, TRAIT_NOHEAL) || HAS_TRAIT(owner, TRAIT_IRONMAN))
 		return
+	if(HAS_TRAIT(owner, TRAIT_HALFHEAL))
+		healing_on_tick /= 2
 	var/obj/effect/temp_visual/heal/H = new /obj/effect/temp_visual/heal_rogue(get_turf(owner))
 	H.color = "#4e4c4c00"
 	var/list/wCount = owner.get_wounds()
+
 	if(owner.blood_volume < BLOOD_VOLUME_NORMAL)
 		//Keeps the user alive
 		owner.blood_volume = min(owner.blood_volume+blood_healing_on_tick, BLOOD_VOLUME_NORMAL)

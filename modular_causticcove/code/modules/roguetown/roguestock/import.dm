@@ -1,10 +1,10 @@
 //So that folk can easily acquire ration papers en masse. It's hard to craft them otherwise and very tedious.
-/datum/roguestock/import/rationpapers
+/datum/crown_import/rationpapers
 	name = "Crate of Ration Papers"
 	desc = "An imported Crate of (x10) Ration Papers, created by distant talented chefs. They are used to help keep food preserved forever."
 	item_type = /obj/structure/closet/crate/chest/steward/rationpapers
-	export_price = 300 //300 Price due to being a hard thing to create, and you get 10 of them.
-	importexport_amt = 1
+	base_cost = 300 //300 Price due to being a hard thing to create, and you get 10 of them.
+	source_region_id = TRADE_REGION_ROSAWOOD
 
 /obj/structure/closet/crate/chest/steward/rationpapers/Initialize()
 	. = ..()
@@ -20,12 +20,12 @@
 	new /obj/item/ration(src)
 
 //Helps with followers of Noc specifically, these are also relatively tedious to craft. Great for anything else needing paper too.
-/datum/roguestock/import/parchmentpapers
+/datum/crown_import/parchmentpapers
 	name = "Crate of Parchment Papers"
 	desc = "An imported Crate of (x15) Parchment Papers, for when you need to do a lot of writing and enscribing."
 	item_type = /obj/structure/closet/crate/chest/steward/parchmentpapers
-	export_price = 250 //You get 15 papers. Enough for 1 Noc revive, and plenty enough for anything else needing paper.
-	importexport_amt = 1
+	base_cost = 200 //You get 15 papers. Enough for 1 Noc revive, and plenty enough for anything else needing paper.
+	source_region_id = TRADE_REGION_ROSAWOOD
 
 /obj/structure/closet/crate/chest/steward/parchmentpapers/Initialize()
 	. = ..()
@@ -66,7 +66,7 @@
 
 //Designed for rare/uncraftable items or items that are not able to be purchased at the merchant.
 //These items are typically reserved for the keep, or for very rich folk wanting to put on a new fashion statement and/or trend.
-/* /datum/roguestock/import/exoticclothes
+/* /datum/crown_import/exoticclothes
 	name = "Crate of Exotic Clothing"
 	desc = "An imported Crate of Exotic Clothing, hand weaved by the finest tailors from across the lands."
 	item_type = /obj/structure/closet/crate/chest/steward/exoticclothes
@@ -82,12 +82,12 @@
 	new /obj/item/clothing/suit/roguetown/shirt/robe/wizard(src) //Obtainable, but only by the court magos. Why not let others wear it?
  */
 
-/datum/roguestock/import/marraigecrate
+/datum/crown_import/marraigecrate
 	name = "Crate of Marriage Necessities"
 	desc = "An imported crate of goods for marraige! Includes 2 Gold Rings, 2 Apple Nut Cakes, and 3 Apfelweinheim Ciders!"
 	item_type = /obj/structure/closet/crate/chest/steward/marraigecrate
-	export_price = 1500 //We're married! Yes it cost us a fortune!
-	importexport_amt = 1
+	base_cost = 1000 //We're married! Yes it cost us a fortune!
+	source_region_id = TRADE_REGION_ROCKHILL
 
 /obj/structure/closet/crate/chest/steward/marraigecrate/Initialize()
 	. = ..()
@@ -101,13 +101,13 @@
 	new /obj/item/reagent_containers/glass/bottle/rogue/beer/apfelweinheim(src)
 	new /obj/item/reagent_containers/glass/bottle/rogue/beer/apfelweinheim(src)
 
-/datum/roguestock/import/goldarmorcrate
+/datum/crown_import/goldarmorcrate
 	name = "Crate of Kingly Golden Armor"
 	desc = "An imported Crate of Golden Armor, designed for a King! Features a partial set of Golden Armor, with Blacksteel added to fit any part not covered."
 	item_type = /obj/structure/closet/crate/chest/steward/goldarmorcrate
 	//Features Blacksteel and Gold armor. Very valuable. Should not be easily affordable by any typical means.
-	export_price = 5000 //Doubled integrity for GOLDEN armor. Should be very, very valuable and only issued out to important folk for rare occasions. Not cost effective.
-	importexport_amt = 1
+	base_cost = 5000 //Doubled integrity for GOLDEN armor. Should be very, very valuable and only issued out to important folk for rare occasions. Not cost effective.
+	source_region_id = TRADE_REGION_HAGENWALD
 
 /obj/structure/closet/crate/chest/steward/goldarmorcrate/Initialize()
 	. = ..()
@@ -122,12 +122,12 @@
 	new /obj/item/clothing/head/roguetown/helmet/heavy/knight/gold/king(src) //Armet Helm
 
 
-/datum/roguestock/import/ornatejewelry
+/datum/crown_import/ornatejewelry
 	name = "Crate of Ornate Jewelry"
 	desc = "An imported Crate of Orante Jewelry, containing a good mix of gold-plated items to make the rich look richer."
 	item_type = /obj/structure/closet/crate/chest/steward/ornatejewelry
-	export_price = 1500 //Cosmetic Jewelry, triumph jewelry, they do not have high sell prices.
-	importexport_amt = 1
+	base_cost = 1200 //Cosmetic Jewelry, triumph jewelry, they do not have high sell prices.
+	source_region_id = TRADE_REGION_HAGENWALD
 
 /obj/structure/closet/crate/chest/steward/ornatejewelry/Initialize()
 	. = ..()
@@ -137,12 +137,12 @@
 	new /obj/item/clothing/neck/roguetown/ornateamulet/noble/triumph(src)
 	new /obj/item/clothing/mask/rogue/lordmask/triumph(src)
 
-/datum/roguestock/import/fishingbait
+/datum/crown_import/fishingbait
 	name = "Crate of Rare Fishing Bait"
 	desc = "An imported Crate of Rare Fishing Bait! Contains 10 Grubs, and 5 Leeches. Fishing Equipment not included."
 	item_type = /obj/structure/closet/crate/chest/steward/fishingbait
-	export_price = 175
-	importexport_amt = 1
+	base_cost = 100
+	source_region_id = TRADE_REGION_SALTWICK
 
 /obj/structure/closet/crate/chest/steward/fishingbait/Initialize()
 	. = ..()
@@ -166,12 +166,12 @@
 	new /obj/item/natural/worms/leech(src)
 
 //The fisherman gets bait, so does the hunter! Just so they don't have to grind a bunch of mammon for it.
-/datum/roguestock/import/huntingbait
+/datum/crown_import/huntingbait
 	name = "Crate of Hunting Bait"
 	desc = "An imported Crate of Hunting Bait. Contains 7 Sweetbait, 3 bloodbait, for a total of 10 bait."
 	item_type = /obj/structure/closet/crate/chest/steward/huntingbait
-	export_price = 200
-	importexport_amt = 1
+	base_cost = 150
+	source_region_id = TRADE_REGION_BLACKHOLT
 
 /obj/structure/closet/crate/chest/steward/huntingbait/Initialize()
 	. = ..()
@@ -187,12 +187,12 @@
 	new /obj/item/bait/sweet(src)
 
 //The fisherman gets bait, so does the hunter! Just so they don't have to grind a bunch of mammon for it.
-/datum/roguestock/import/alchemyitems
+/datum/crown_import/alchemyitems
 	name = "Crate of Alchemy Ingredients"
 	desc = "An imported Crate of Alchemy Ingredients. Contains various amounts of hard to obtain alchemy items for use in potion making!"
 	item_type = /obj/structure/closet/crate/chest/steward/alchemyitems
-	export_price = 500 //Contains a lot of valuable, hard to acquire ingredients that are not associated to plants or herbs.
-	importexport_amt = 1
+	base_cost = 500 //Contains a lot of valuable, hard to acquire ingredients that are not associated to plants or herbs.
+	source_region_id = TRADE_REGION_BLACKHOLT
 
 /obj/structure/closet/crate/chest/steward/alchemyitems/Initialize()
 	. = ..()
@@ -217,12 +217,12 @@
 	new /obj/item/alch/ozium(src)
 
 //Farmers rejoice! Good fertilizer!
-/datum/roguestock/import/farmfertilizer
+/datum/crown_import/farmfertilizer
 	name = "Crate of Fertilizer"
 	desc = "An imported Crate of Fertilizer. Used within farms to ensure high quality growth in soil!"
 	item_type = /obj/structure/closet/crate/chest/steward/farmfertilizer
-	export_price = 100 //Cheap to import, just ask the steward for some, they should easily be able to get ya some.
-	importexport_amt = 1
+	base_cost = 70 //Cheap to import, just ask the steward for some, they should easily be able to get ya some.
+	source_region_id = TRADE_REGION_KINGSFIELD
 
 /obj/structure/closet/crate/chest/steward/farmfertilizer/Initialize()
 	. = ..()

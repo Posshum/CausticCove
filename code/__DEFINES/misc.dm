@@ -42,12 +42,12 @@
 #define TESTICLES_LAYER			37		//Caustic Added
 #define CROTCH_LAYER			36		//Caustic Added
 #define SHIRT_LAYER				35
-#define HANDS_PART_LAYER		34
-#define WRISTS_LAYER			33
-#define ARMOR_LAYER				32
-#define TABARD_LAYER			31
-#define BELT_LAYER				30		//only when looking south
-#define UNDER_CLOAK_LAYER		29
+#define WRISTS_LAYER			34
+#define ARMOR_LAYER				33
+#define TABARD_LAYER			32
+#define BELT_LAYER				31		//only when looking south
+#define UNDER_CLOAK_LAYER		30
+#define HANDS_PART_LAYER		29
 #define GLOVES_LAYER			28
 #define ARM_DAMAGE_LAYER		27
 #define SHIRTSLEEVE_LAYER		26
@@ -62,15 +62,17 @@
 #define CLOAK_LAYER				17		//only when looking north or west/east
 #define HOOD_LAYER				16
 #define HAIR_LAYER				15		//TODO: make part of head layer?
+#define CUSTOM_HAIR_COVERED_LAYER 14.9
 #define MASK_LAYER				14
 #define HAIREXTRA_LAYER			13
 #define MOUTH_LAYER				12
 #define HEAD_LAYER				11
 #define BACK_LAYER				10		//only when looking north
-#define HANDS_LAYER				9		//the item in hand, not the actual hands.
+#define HANDS_LAYER				9
 #define HANDCUFF_LAYER			8
 #define LEGCUFF_LAYER			7
 #define BODY_FRONT_LAYER		6
+#define CUSTOM_HAIR_LAYER		5.9
 #define BODY_FRONT_FRONT_LAYER	5
 #define HALO_LAYER				4		//blood cult ascended halo, because there's currently no better solution for adding/removing
 #define SUNDER_LAYER			3

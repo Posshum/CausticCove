@@ -65,6 +65,18 @@
 			return "antagonist"
 		else
 			return "antagonist"
+/datum/mob_descriptor/stature/bimbo
+	name = "Bimbo/Bimboy"
+/datum/mob_descriptor/stature/bimbo/get_description(mob/living/described)
+	switch(described.pronouns)
+		if(SHE_HER)
+			return "bimbo"
+		if(HE_HIM)
+			return "bimboy"
+		if(THEY_THEM)
+			return "bimbo"
+		else
+			return "bimbo"
 
 /datum/mob_descriptor/stature/thug
 	name = "Thug"
@@ -188,3 +200,156 @@
 // basterd. specifically basterd. it is funnier this way.
 /datum/mob_descriptor/stature/basterd
 	name = "Basterd"
+
+/datum/mob_descriptor/stature/hotspur
+	name = "Hotspur"
+
+/datum/mob_descriptor/stature/pest
+	name = "Pest"
+
+/datum/mob_descriptor/stature/shrew
+	name = "Shrew"
+
+/datum/mob_descriptor/stature/tyrant
+	name = "Tyrant"
+
+/datum/mob_descriptor/stature/virago
+	name = "Virago"
+
+/datum/mob_descriptor/stature/yob
+	name = "Yob"
+
+/datum/mob_descriptor/stature/adversary
+	name = "Adversary"
+
+/datum/mob_descriptor/stature/foe
+	name = "Foe"
+
+/datum/mob_descriptor/stature/gatecrasher
+	name = "Gatecrasher"
+
+/datum/mob_descriptor/stature/idol
+	name = "Idol"
+
+/datum/mob_descriptor/stature/nemesis
+	name = "Nemesis"
+
+/datum/mob_descriptor/stature/eejit
+	name = "Eejit"
+
+/datum/mob_descriptor/stature/crone
+	name = "Crone"
+
+/datum/mob_descriptor/stature/nerdowell
+	name = "Nerdowell"
+
+/datum/mob_descriptor/stature/peon
+	name = "Peon"
+
+/datum/mob_descriptor/stature/scion
+	name = "Scion"
+
+/datum/mob_descriptor/stature/swashbuckler
+	name = "Swashbuckler"
+
+/datum/mob_descriptor/stature/fatass
+	name = "Fat-Ass"
+
+/datum/mob_descriptor/stature/grapplebait
+	name = "Grapplebait"
+
+/datum/mob_descriptor/stature/buttplug
+	name = "Buttplug" //might be too silly but im risking it
+
+/datum/mob_descriptor/stature/plug
+	name = "Plug"
+
+/datum/mob_descriptor/stature/snakeinthegrass
+	name = "Snake-In-The-Grass"
+
+/datum/mob_descriptor/stature/blob
+	name = "Blob"
+
+/datum/mob_descriptor/stature/thing
+	name = "Thing"
+
+/datum/mob_descriptor/stature/dummy
+	name = "Dummy"
+
+/datum/mob_descriptor/stature/coatrack
+	name = "Coatrack"
+
+/datum/mob_descriptor/stature/plushie
+	name = "Plushie"
+
+/datum/mob_descriptor/stature/doll
+	name = "Doll"
+
+/datum/mob_descriptor/stature/rat
+	name = "Rat"
+
+/datum/mob_descriptor/stature/doorbuster
+	name = "Door-buster"
+
+/datum/mob_descriptor/stature/fruit
+	name = "Fruit"
+
+/datum/mob_descriptor/stature/calamity
+	name = "Calamity"
+
+/datum/mob_descriptor/stature/dolt
+	name = "Dolt"
+
+/datum/mob_descriptor/stature/sumac
+	name = "Sumac"
+
+/datum/mob_descriptor/stature/himbo
+	name = "Himbo"
+
+/datum/mob_descriptor/stature/chud
+	name = "Chud"
+
+/datum/mob_descriptor/stature/subject
+	name = "Subject"
+
+/datum/mob_descriptor/stature/oni
+	name = "Oni"
+
+/datum/mob_descriptor/stature/snack
+	name = "Snack"
+
+/datum/mob_descriptor/stature/ambrose
+	name = "Ambrose"
+
+/datum/mob_descriptor/stature/dweller
+	name = "Dweller"
+
+/datum/mob_descriptor/stature/outlaw
+	name = "Outlaw"
+
+/datum/mob_descriptor/stature/fleshlight //might be pushing it
+	name = "Fleshlight"
+
+/datum/mob_descriptor/stature/mess
+	name = "Mess"
+
+/datum/mob_descriptor/stature/yowler
+	name = "Yowler"
+
+/datum/mob_descriptor/stature/whiner
+	name = "Whiner"
+
+/datum/mob_descriptor/stature/rag
+	name = "Rag"
+
+/datum/mob_descriptor/stature/mop
+	name = "Mop"
+
+/datum/mob_descriptor/stature/cuddlebug
+	name = "Cuddlebug"
+
+/datum/mob_descriptor/stature/victim
+	name = "Victim"
+
+/datum/mob_descriptor/stature/jackal
+	name = "Jackal"

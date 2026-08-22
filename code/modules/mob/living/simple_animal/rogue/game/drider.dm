@@ -4,11 +4,12 @@
 	desc = "A monstrously large spider utilised by drow as mounts, better suited \
 	for the Underdark than any mammmalian mount. Fairly terrifying, but a sight one \
 	acclimates to with enough exposure."
-	pixel_x = -2
+	pixel_x = -16
 	pixel_y = 7
 	faction = list(FACTION_SPIDER_LOWERS)
 	threat_point = THREAT_DANGEROUS
 	ambush_faction = "underdark"
+	blood_toll_bucket = STATS_KILLED_GREATER_BEASTS
 	gender = MALE
 	icon_state = "drider"
 	icon_living = "drider"
@@ -18,7 +19,7 @@
 	base_intents = list(/datum/intent/simple/bite/mirespider_lurker)
 	health = 660
 	maxHealth = 660
-	pass_flags = PASSTABLE | PASSMOB
+	//pass_flags = PASSTABLE | PASSMOB //Caustic Edit - Lets just remove this for now, since as a mount it was letting people just ignite themselves by accidentally running over the braziers
 	mob_size = MOB_SMALL
 	milkies = FALSE
 	melee_damage_lower = 60
@@ -56,13 +57,7 @@
 /mob/living/simple_animal/hostile/retaliate/rogue/drider/tamed()
 	..()
 	deaggroprob = 20
-	setup_mount(
-		list(TEXT_NORTH = list(0, 9), TEXT_SOUTH = list(0, 9), TEXT_EAST = list(-1, 9), TEXT_WEST = list(-1, 9)),
-		OBJ_LAYER,
-		MOB_LAYER+0.5,
-		OBJ_LAYER,
-		OBJ_LAYER,
-	)
+	setup_mount()
 
 /mob/living/simple_animal/hostile/retaliate/rogue/drider/get_sound(input)
 	switch(input)

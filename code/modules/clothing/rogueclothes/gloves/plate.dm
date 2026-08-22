@@ -6,14 +6,12 @@
 	resistance_flags = FIRE_PROOF
 	blocksound = PLATEHIT
 	max_integrity = ARMOR_INT_SIDE_STEEL
-	blade_dulling = DULLING_BASH
 	break_sound = 'sound/foley/breaksound.ogg'
 	drop_sound = 'sound/foley/dropsound/armor_drop.ogg'
 	pickup_sound = 'sound/foley/equip/equip_armor_plate.ogg'
 	equip_sound = 'sound/foley/equip/equip_armor_plate.ogg'
 	anvilrepair = /datum/skill/craft/armorsmithing
 	smeltresult = /obj/item/ingot/steel
-	sellprice = 17
 
 	grid_width = 64
 	grid_height = 32
@@ -22,8 +20,6 @@
 /obj/item/clothing/gloves/roguetown/plate/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
-	if(armor_class > ARMOR_CLASS_LIGHT)
-		AddComponent(/datum/component/armour_filtering/negative, TRAIT_IRONMAN)
 
 /obj/item/clothing/gloves/roguetown/plate/iron
 	name = "iron plate gauntlets"
@@ -31,7 +27,6 @@
 	icon_state = "igauntlets"
 	smeltresult = /obj/item/ingot/iron
 	max_integrity = ARMOR_INT_SIDE_IRON
-	sellprice = 12
 
 /obj/item/clothing/gloves/roguetown/plate/iron/banded
 	name = "banded iron gauntlets"
@@ -52,64 +47,138 @@
 	material_category = ARMOR_MAT_PLATE
 	smeltresult = /obj/item/ingot/aaslag
 	anvilrepair = null
-	sellprice = 5
 
 /obj/item/clothing/gloves/roguetown/plate/paalloy
 	name = "ancient plate gauntlets"
-	desc = "Polished gilbranze mechanisms, meticulously interconnected to shroud splayed hands. 'Mercy' and 'innocence' are concepts paraded by the unenlightened; spill their blood without guilt, so that the world may yet be remade in Her image." 
+	desc = "Polished gilbranze mechanisms, meticulously interconnected to shroud splayed hands. 'Mercy' and 'innocence' are concepts paraded by the unenlightened; spill their blood without guilt, so that the world may yet be remade in Her image."
 	icon_state = "agauntlets"
 	smeltresult = /obj/item/ingot/aaslag
-	sellprice = 5
 
 /obj/item/clothing/gloves/roguetown/plate/graggar
 	name = "vicious gauntlets"
 	desc = "Fluted gauntlets, razor-tipped and fluidic in motion. Most are led to believe that 'might makes right', yet Graggar's truth is far more succinct - 'might makes'. Murder is the ultimate force; the only difference between you and them is that they're too afraid to admit it."
 	max_integrity = ARMOR_INT_SIDE_ANTAG
 	icon_state = "graggarplategloves"
-	sellprice = 44 //Heretical~
+	smeltresult = /obj/item/ingot/component/graggar
 
 /obj/item/clothing/gloves/roguetown/plate/graggar/Initialize()
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_HORDE, "ARMOR", "RENDERED ASUNDER")
+
+/obj/item/clothing/gloves/roguetown/plate/graggar/get_examine_highlight_status()
+	return list(EXAMINEHIGHLIGHT_HERESYSEVERITY_ALARMING, HERESYDESC_GRAGGAR_ARMOR)
+
+/obj/item/clothing/gloves/roguetown/plate/graggar/heavy
+	name = "vicious plated gauntlets"
+	desc = "Steel plated gauntlets overlaid by an ornamental imagery of fractured bone and entrails. The violet smears; a tether to the lyfe that once was - and now, a stinging reminder of what could've been."
+	icon_state = "graggarplategloves_heavy"
+	smeltresult = /obj/item/ingot/component/graggar
+
+//Caustic Edit - Let us remove and drop armors again! For fun stuffs.
+/obj/item/clothing/gloves/roguetown/plate/graggar/heavy/Initialize()
+	. = ..()
+	//ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
+
+/obj/item/clothing/gloves/roguetown/plate/graggar/heavy/dropped(mob/living/carbon/human/user)
+	. = ..()
+	/*if(QDELETED(src))
+		return
+	qdel(src)*/
+//Caustic Edit End
 
 /obj/item/clothing/gloves/roguetown/plate/matthios
 	name = "gilded gauntlets"
 	desc = "Many a man his life hath sold,"
 	icon_state = "matthiosgloves"
 	max_integrity = ARMOR_INT_SIDE_ANTAG
+	smeltresult = /obj/item/ingot/component/matthios
 
-/* //Caustic Edit - Allow dropping of Heretic Armors (so fun can happen :P)
+//Caustic Edit - Let us remove and drop armors again! For fun stuffs.
 /obj/item/clothing/gloves/roguetown/plate/matthios/Initialize()
 	. = ..()
-	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
+	//ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
 
 /obj/item/clothing/gloves/roguetown/plate/matthios/dropped(mob/living/carbon/human/user)
 	. = ..()
+	/*if(QDELETED(src))
+		return
+	qdel(src)*/
+//Caustic Edit End
+
+/obj/item/clothing/gloves/roguetown/plate/baotha
+	name = "saccharine gauntlets"
+	desc = "Belladonna's ego died on that dae, and Baotha's venomous id rose in Her stead; for it was better to numb the regret than to face the guilt.."
+	icon_state = "baothagloves"
+	item_state = "baothagloves"
+	chunkcolor = "#6d1c87"
+	max_integrity = ARMOR_INT_SIDE_ANTAG - 250
+	armor_class = ARMOR_CLASS_LIGHT
+	smeltresult = /obj/item/ingot/component/baotha
+
+/obj/item/clothing/gloves/roguetown/plate/baotha/Initialize()
+	. = ..()
+	AddComponent(/datum/component/cursed_item, TRAIT_DEPRAVED, "GLOVES")
+	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
+
+/obj/item/clothing/gloves/roguetown/plate/baotha/dropped(mob/living/carbon/human/user)
+	. = ..()
 	if(QDELETED(src))
 		return
 	qdel(src)
-*/ //Caustic Edit End
+
+/obj/item/clothing/gloves/roguetown/plate/baotha/get_examine_highlight_status()
+	return list(EXAMINEHIGHLIGHT_HERESYSEVERITY_ALARMING, HERESYDESC_BAOTHA_ARMOR)
 
 /obj/item/clothing/gloves/roguetown/plate/zizo
 	name = "avantyne gauntlets"
+	desc = "A razor-tipped finger was all it took to splay the divine fillament; now, it is time to bring down the wrath of God's hand in full. </br> Do mind the forearm's guards, however - they \
+	tend to leave a stinging bruise, whenever used to parry an incoming strike."
+	icon_state = "zizoplategauntlets_med"
+	max_integrity = ARMOR_INT_SIDE_STEEL
+	chunkcolor = "#363030"
+	material_category = ARMOR_MAT_PLATE
+	armor_class = ARMOR_CLASS_MEDIUM
+	smeltresult = /obj/item/ingot/component/zizo
+
+/obj/item/clothing/gloves/roguetown/plate/zizo/Initialize()
+	. = ..()
+	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "ARMOR")
+
+/obj/item/clothing/gloves/roguetown/plate/zizo/get_examine_highlight_status()
+	return list(EXAMINEHIGHLIGHT_HERESYSEVERITY_ALARMING, HERESYDESC_ZIZO_ARMOR)
+
+/obj/item/clothing/gloves/roguetown/plate/zizo/dropped(mob/living/carbon/human/user)
+	return ..()
+
+/obj/item/clothing/gloves/roguetown/plate/zizo/heavy
+	name = "avantyne plate gauntlets"
 	desc = "Unknowing truths, veiling the hands that prayed. Called forth from the edge of what should be known, in Her name."
 	icon_state = "zizogauntlets"
 	max_integrity = ARMOR_INT_SIDE_ANTAG
-	chunkcolor = "#363030"
-	material_category = ARMOR_MAT_PLATE
-	sellprice = 44 //CC Edit
+	smeltresult = /obj/item/ingot/component/zizo
 
-/* //Caustic Edit - Allow dropping of Heretic Armors (so fun can happen :P)
-/obj/item/clothing/gloves/roguetown/plate/zizo/Initialize()
+//Caustic Edit - Let us remove and drop armors again! For fun stuffs.
+/obj/item/clothing/gloves/roguetown/plate/zizo/heavy/Initialize()
 	. = ..()
-	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
+	//ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
 
-/obj/item/clothing/gloves/roguetown/plate/zizo/dropped(mob/living/carbon/human/user)
+/obj/item/clothing/gloves/roguetown/plate/zizo/heavy/dropped(mob/living/carbon/human/user)
 	. = ..()
-	if(QDELETED(src))
+	/*if(QDELETED(src))
 		return
-	qdel(src)
-*/ //Caustic Edit End
+	qdel(src)*/
+//Caustic Edit End
+
+/obj/item/clothing/gloves/roguetown/plate/avantyne
+	name = "avantyne-threaded sleevegloves"
+	desc = "Incongruent silks from a tymeline-most-doomed, woven to cradle the palms of God's successor. Softer than silk, yet unfettered by the blows from those who know no better."
+	icon_state = "zizoplategauntlets_med"
+	smeltresult = /obj/item/ingot/avantyne
+	armor = ARMOR_PLATE_BSTEEL
+	body_parts_covered = HANDS|ARMS
+
+/obj/item/clothing/gloves/roguetown/plate/avantyne/get_examine_highlight_status()
+	return list(EXAMINEHIGHLIGHT_HERESYSEVERITY_ALARMING, HERESYDESC_ZIZO_ARMOR)
 
 /obj/item/clothing/gloves/roguetown/plate/shadowgauntlets
 	name = "darkplate gauntlets"
@@ -130,7 +199,6 @@
 	color = "#FFFFFF"
 	detail_color = "#FFFFFF"
 	var/picked = FALSE
-	sellprice = 30
 
 /obj/item/clothing/gloves/roguetown/plate/kote/attack_right(mob/user)
 	..()

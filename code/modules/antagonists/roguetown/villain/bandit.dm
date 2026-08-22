@@ -22,7 +22,7 @@
 	storyteller_antag_flags = STORYTELLER_ANTAG_VILLAIN | STORYTELLER_ANTAG_ROUNDSTART
 	storyteller_favor_flags = STORYTELLER_FAVOR_BANDIT
 	override_candidatereq = TRUE
-	storyteller_min_players = CHARACTER_INJECTION_MIN_POP
+	storyteller_min_players = 200 //CHARACTER_INJECTION_MIN_POP //Caustic Edit - Lets bump this up to 200 so it shouldn't ever roll?
 	storyteller_slot_scaling = 2
 	storyteller_slot_default_cap = 2
 	storyteller_maxcaps = list(
@@ -50,7 +50,7 @@
 	var/mob/living/carbon/human/H = owner.current
 	if(!istype(H.patron, /datum/patron/inhumen))
 		H.set_patron(/datum/patron/inhumen/matthios)	//If you aren't a heretical worshiper, forces you to Matthios worship. (All bandits follow Matthios.)
-	H.verbs |= /mob/proc/haltyell_exhausting
+	add_verb(H, /mob/proc/haltyell_exhausting)
 	ADD_TRAIT(H, TRAIT_BANDITCAMP, TRAIT_GENERIC)
 	ADD_TRAIT(H, TRAIT_SEEPRICES, TRAIT_GENERIC)
 	ADD_TRAIT(H, TRAIT_STEELHEARTED, TRAIT_GENERIC)

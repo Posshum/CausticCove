@@ -6,8 +6,6 @@
 	total_positions = 2
 	spawn_positions = 2
 
-	allowed_races = ACCEPTED_RACES
-
 	tutorial = "You are a fully trained and accomplished physician, well-practiced \
 	in the arts of medicine and alchemy. You are quartered within the University of \
 	Azuria under the authority of the Head Physician, who has graciously negotiated your \
@@ -52,14 +50,14 @@
 	)
 	subclass_skills = list(
 		/datum/skill/combat/knives = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/combat/polearms = SKILL_LEVEL_APPRENTICE, //enhances survival chances.
+		/datum/skill/combat/staves = SKILL_LEVEL_APPRENTICE, //enhances survival chances.
 		/datum/skill/combat/wrestling = SKILL_LEVEL_NOVICE,
 		/datum/skill/craft/crafting = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/athletics = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/reading = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/medicine = SKILL_LEVEL_MASTER,
 		/datum/skill/craft/sewing = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/craft/alchemy = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/craft/alchemy = SKILL_LEVEL_EXPERT,
 	)
 
 /datum/outfit/job/roguetown/apothecary/basic/pre_equip(mob/living/carbon/human/H)
@@ -69,7 +67,7 @@
 	pants = /obj/item/clothing/under/roguetown/trou/apothecary
 	shirt = /obj/item/clothing/suit/roguetown/shirt/apothshirt
 	armor = /obj/item/clothing/suit/roguetown/shirt/robe/black
-	belt = /obj/item/storage/belt/rogue/leather/rope
+	belt = /obj/item/storage/belt/rogue/leather/rope/upgraded
 	neck = /obj/item/storage/belt/rogue/pouch/coins/poor
 	beltl = /obj/item/storage/belt/rogue/surgery_bag/full/physician
 	beltr = /obj/item/storage/keyring/apothecary
@@ -79,13 +77,14 @@
 	backr = /obj/item/storage/backpack/rogue/satchel
 	backpack_contents = list(
 		/obj/item/natural/worms/leech/cheele = 1,
-		/obj/item/recipe_book/alchemy = 1,
 		/obj/item/clothing/mask/rogue/physician = 1,
-		/obj/item/storage/keyring = 1,
-		/obj/item/roguekey/keeper = 1,
-		/obj/item/mini_flagpole/apothecary,
+		/obj/item/mini_flagpole/apothecary = 1,
+		/obj/item/flashlight/flare/torch/lantern/censer = 1,
+		/obj/item/paper/herb_censer_prep_recipe = 1,
+		/obj/item/herbmill = 1,
 	)
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/diagnose/secular)
+		H.mind.AddSpell(new /datum/action/cooldown/spell/fortifying_vapors)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_UPPER_MIDDLE_CLASS, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_UPPER_MIDDLE_CLASS, H)

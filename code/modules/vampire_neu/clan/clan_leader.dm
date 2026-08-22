@@ -5,7 +5,7 @@
 	)
 	var/list/lord_traits = list()
 	var/lord_title = "Lord"
-	var/vitae_bonus = 5 // Extra vitae for lords
+	var/vitae_bonus = 500 // Extra vitae for lords
 	var/ascended = FALSE
 
 /datum/clan_leader/lord
@@ -40,7 +40,7 @@
 
 	// Add lord verbs
 	for(var/verb_path in lord_verbs)
-		H.verbs |= verb_path
+		add_verb(H, verb_path)
 
 	// Add lord traits
 	for(var/trait in lord_traits)
@@ -59,7 +59,7 @@
 		H.mind?.RemoveSpell(spell_type)
 
 	for(var/verb_path in lord_verbs)
-		H.verbs -= verb_path
+		remove_verb(H, verb_path)
 
 	for(var/trait in lord_traits)
 		REMOVE_TRAIT(H, trait, "lord_component")

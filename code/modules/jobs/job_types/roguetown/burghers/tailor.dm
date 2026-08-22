@@ -8,7 +8,7 @@
 	spawn_positions = 1
 	display_order = 6
 	selection_color = JCOLOR_BURGHER
-	allowed_races = ACCEPTED_RACES
+	forbidden_races = list() //Caustic Edit - Just a global tweak to remove 'races_despised' from this check everywhere
 	display_order = JDO_TAILOR
 	job_traits = list(TRAIT_SEWING_EXPERT)
 	outfit = /datum/outfit/job/roguetown/tailor
@@ -49,7 +49,7 @@
 	H.adjust_blindness(-3)
 	shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt
 	pants = /obj/item/clothing/under/roguetown/tights
-	belt = /obj/item/storage/belt/rogue/leather/cloth
+	belt = /obj/item/storage/belt/rogue/leather/cloth/upgraded
 	beltr = /obj/item/storage/belt/rogue/pouch/coins/mid
 	beltl = /obj/item/rogueweapon/huntingknife/scissors/steel
 	shoes = /obj/item/clothing/shoes/roguetown/shortboots
@@ -71,7 +71,7 @@
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/fittedclothing)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/takeapprentice)
-		SStreasury.give_money_account(ECONOMIC_UPPER_MIDDLE_CLASS, H, "Savings.") //There is a better way to do this, do I care for it - of course not.
+		SStreasury.grant_savings(ECONOMIC_UPPER_MIDDLE_CLASS, H) //There is a better way to do this, do I care for it - of course not.
 
 		///CC EDIT START
 		/*
@@ -90,7 +90,6 @@
 		H.mind.teach_crafting_recipe(/datum/crafting_recipe/roguetown/leather/unique/grenzelgloves)
 		H.mind.teach_crafting_recipe(/datum/crafting_recipe/roguetown/sewing/tailor/grenzelpants)
 		H.mind.teach_crafting_recipe(/datum/crafting_recipe/roguetown/leather/unique/grenzelboots)//Grenzel
-		H.mind.teach_crafting_recipe(/datum/crafting_recipe/roguetown/sewing/tailor/hgambeson/fencer)
 		H.mind.teach_crafting_recipe(/datum/crafting_recipe/roguetown/leather/unique/fencingbreeches)//Aanvr
 		H.mind.teach_crafting_recipe(/datum/crafting_recipe/roguetown/leather/unique/openrobes)
 		H.mind.teach_crafting_recipe(/datum/crafting_recipe/roguetown/leather/unique/gronngloves)

@@ -26,6 +26,7 @@
 	/// subtrees via their own planning_subtrees list.
 	planning_subtrees = list(
 		// /datum/ai_planning_subtree/pet_planning, - TEMP COMMENT OUT
+		/datum/ai_planning_subtree/being_a_minion,
 		/datum/ai_planning_subtree/call_for_help,
 		/datum/ai_planning_subtree/generic_break_restraints,
 		/datum/ai_planning_subtree/use_powder,
@@ -39,13 +40,13 @@
 		/datum/ai_planning_subtree/flee_target,
 		/datum/ai_planning_subtree/tree_climb,
 		/datum/ai_planning_subtree/aggro_find_target,
+		/datum/ai_planning_subtree/attack_obstacle_in_path,
 		/datum/ai_planning_subtree/leap_attack,
 		/datum/ai_planning_subtree/basic_melee_attack_subtree/human_npc,
 		/datum/ai_planning_subtree/find_weapon,
 		/datum/ai_planning_subtree/equip_item,
 		/datum/ai_planning_subtree/loot,
 	)
-	idle_behavior = /datum/idle_behavior/idle_random_walk
 
 /datum/ai_controller/human_npc/TryPossessPawn(atom/new_pawn)
 	. = ..()
@@ -117,8 +118,12 @@
 		BB_ARCHER_NPC_EQUIPMENT_CACHE_EXPIRY = 0,
 		BB_ARCHER_NPC_TARGET_ARROW = null,
 		BB_ARCHER_NPC_STASHED_WEAPON = null,
+		BB_ARCHER_NPC_NEXT_SHOT = 0,
+		BB_ARCHER_NPC_REPOSITION_TURF = null,
+		BB_ARCHER_NPC_REPOSITION_UNTIL = 0,
 	)
 	planning_subtrees = list(
+		/datum/ai_planning_subtree/being_a_minion,
 		/datum/ai_planning_subtree/call_for_help,
 		/datum/ai_planning_subtree/generic_break_restraints,
 		/datum/ai_planning_subtree/use_powder,
@@ -134,6 +139,7 @@
 		/datum/ai_planning_subtree/archer_base, // Archer only
 		/datum/ai_planning_subtree/ranged_attack_subtree, // Archer only
 		/datum/ai_planning_subtree/aggro_find_target,
+		/datum/ai_planning_subtree/attack_obstacle_in_path,
 		/datum/ai_planning_subtree/leap_attack,
 		/datum/ai_planning_subtree/basic_melee_attack_subtree/human_npc,
 		/datum/ai_planning_subtree/find_weapon,

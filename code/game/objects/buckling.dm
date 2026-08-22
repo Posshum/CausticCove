@@ -46,7 +46,7 @@
 	if(!istype(M))
 		return FALSE
 
-	if(check_loc && M.loc != loc)
+	if(check_loc && !Adjacent(M)) //M.loc != loc //Caustic Edit - Lets see if we can't just tweak this to allow for 1-tile-away buckles?
 		return FALSE
 
 	if((!can_buckle && !force) || M.buckled || (buckled_mobs.len >= max_buckled_mobs) || (buckle_requires_restraints && !M.restrained()) || M == src)
@@ -74,7 +74,7 @@
 		else if(isliving(M.pulledby))
 			M.reset_offsets("pulledby")
 
-	if(!check_loc && M.loc != loc)
+	if(M.loc != loc) //Caustic Edit - Removed this check !check_loc && - so it'll just always check and move the player if needed.
 		M.forceMove(loc)
 
 	M.buckling = null
@@ -84,6 +84,7 @@
 	M.update_mobility()
 	M.throw_alert("buckled", /atom/movable/screen/alert/restrained/buckled)
 	M.set_glide_size(glide_size)
+	M.update_mob_action_buttons(UPDATE_BUTTON_STATUS)
 	post_buckle_mob(M)
 
 	SEND_SIGNAL(src, COMSIG_MOVABLE_BUCKLE, M, force)
@@ -104,6 +105,7 @@
 		buckled_mob.update_mobility()
 		buckled_mob.clear_alert("buckled")
 		buckled_mob.set_glide_size(DELAY_TO_GLIDE_SIZE(buckled_mob.total_multiplicative_slowdown()))
+		buckled_mob.update_mob_action_buttons(UPDATE_BUTTON_STATUS)
 		buckled_mobs -= buckled_mob
 		SEND_SIGNAL(src, COMSIG_MOVABLE_UNBUCKLE, buckled_mob, force)
 //		if(buckle_lying)

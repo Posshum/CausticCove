@@ -11,12 +11,10 @@
 	desc = "<b>Metallic Construct</b><br>\
 	Masterworks of artifice, metal constructs are as the name implies- entirely constructed by mortal hands. They are beings not of flesh and blood, but cold metal and the arcyne. Constructs are said to originate from works of Zizo, and they hail from the far-off lands of the Southern Empty- a great city of artifice, where the only artificers capable of understanding what is necessary to create the constructs live. For some reason, they have found themselves travelling out of the empty, as of late. Children of the Resonator Siphon.<br>\
 	<span style='color: #6a8cb7;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;'><b>+1 WIL | -2 SPD | No Hunger | No Breath | No Blood | Toxic Immunity | Shock Weakness</b></span><br><br>"
-
-	construct = 1
 	skin_tone_wording = "Material"
 	use_skin_tone_wording_for_examine = FALSE
 	default_color = "FFFFFF"
-	species_traits = list(EYECOLOR,HAIR,FACEHAIR,LIPS,STUBBLE,OLDGREY,NOBLOOD) // this already overwrites all blood-related things, I made it better at stopping bleeding completely
+	species_traits = list(EYECOLOR,HAIR,FACEHAIR,LIPS,STUBBLE,OLDGREY,NOBLOOD,MUTCOLORS) // this already overwrites all blood-related things, I made it better at stopping bleeding completely
 	///Caustic edit
 	allowed_taur_types = list(
 		/obj/item/bodypart/taur/lamia,
@@ -45,6 +43,7 @@
 		/obj/item/bodypart/taur/bunny,
 		/obj/item/bodypart/taur/biglegs,
 		/obj/item/bodypart/taur/biglegsstanced,
+		/obj/item/bodypart/taur/lupine_venard,
 	)
 	///Caustic edit end
 	default_features = MANDATORY_FEATURE_LIST
@@ -54,12 +53,13 @@
 	disliked_food = NONE
 	liked_food = NONE
 	inherent_traits = list(
-		TRAIT_IRONMAN, // this will help define better construct flags around the code, also bloodloss immunity and deathless are redundant due to NOBLOOD anyway, trait should also bar you from being infected now, same for Rotman
-		TRAIT_NOPAIN, // oh boi here we go, but Ironman now fully prevents anything above Light Armor from being equipped.
-		TRAIT_NOHUNGER, // consum rocke
-		TRAIT_NOBREATH, // nobreath should make it so snoring doesn't make noises anymore, sleep away, brothers
-		TRAIT_TOXIMMUNE, // legit once got poisoned for eating bad food LOL, fixed
-		TRAIT_ZOMBIE_IMMUNE, // Much as I wish I could simplify it, this is best centralized
+		TRAIT_IRONMAN,
+		TRAIT_LIMBATTACHMENT, // this interacts with trait_ironman, making this take a while to reattach
+		TRAIT_NOPAINSTUN, // look into this later, just remembered Ryan merged NoPainSlow (cur. TRAIT_IGNOREDAMAGESLOWDOWN) into NoPainStun, might be good to separate them again for situations where I want my character to collapse from total pain, but not flinch when being hit
+		TRAIT_NOHUNGER,
+		TRAIT_NOBREATH, 
+		TRAIT_TOXIMMUNE, 
+		TRAIT_ZOMBIE_IMMUNE,
 		)
 	changesource_flags = MIRROR_BADMIN | WABBAJACK | MIRROR_MAGIC | MIRROR_PRIDE | RACE_SWAP | SLIME_EXTRACT
 	limbs_icon_m = 'icons/roguetown/mob/bodies/m/mcom.dmi'
@@ -108,11 +108,11 @@
 		/datum/customizer/bodypart_feature/legwear,
 		/datum/customizer/bodypart_feature/piercing,
 		/datum/customizer/organ/penis/anthro,
-		/datum/customizer/organ/breasts/human,
+		/datum/customizer/organ/breasts/animal,
 		/datum/customizer/organ/vagina/human_anthro,
 		//Caustic edit
-		/datum/customizer/organ/belly/human,
-		/datum/customizer/organ/butt/human,
+		/datum/customizer/organ/belly/animal,
+		/datum/customizer/organ/butt/animal,
 		/datum/customizer/organ/testicles/anthro,
 		/datum/customizer/organ/tail/anthro,
 		/datum/customizer/organ/tail_feature/anthro,
@@ -179,6 +179,19 @@
 
 	restricted_virtues = list(/datum/virtue/utility/noble, /datum/virtue/utility/hollow)
 
+	mechanics_explanations = list("Their wounds cannot be mended with needles or surgery, but instead with mechanical repairs. Light wounds can be mended with just a hammer, but more severe injuries will require a pair of tongs or a wrench held in the off hand for the hammer to work.",
+		"Generic healing miracles used on them will be less effective the closer they are to being at perfect condition.",
+		"Spells of mending can heal their wounds.",
+		"While on the brink of death, can be temporarily stabilized by sticks or rocks.",
+		"Can easily attach any prosthetic limbs to their bodies, including their own when they are lost.",
+		"Can mine rocky terrain by trying to walk into it while in Combat Mode and while in STRONG stance.",
+		"Are vulnerable to electrocution.",
+		"Have unique interactions when certain items are used on them:\n\
+		\t<b>Gemstones, Ingots, Raw Ores, and Stones</b>: Are consumed to heal the construct.\n\
+		\t<b>Cut Tree Logs</b>: Are turned into charcoal.\n\
+		\t<b>Whole Tree Logs</b>: Are split in half.\n\
+		\t<b>Large Rocks</b>: Are broken down into stones.")
+
 /datum/species/construct/metal/check_roundstart_eligible()
 	return TRUE
 
@@ -188,13 +201,19 @@
 
 /datum/species/construct/metal/get_skin_list()
 	return list(
-		"BRASS" = "dfbd6c",
-		"IRON" = "525352",
-		"STEEL" = "babbb9",
-		"BRONZE" = "e2a670",
-		"GOLD" = "bf9b30",
-		"WOOD" = "8B4513",
-		"PORCELAIN" = "FFF5EE",
+		"BRASS" = "#dfbd6c",
+		"IRON" = "#525352",
+		"STEEL" = "#babbb9",
+		"BRONZE" = "#e2a670",
+		"GOLD" = "#bf9b30",
+		"WOOD" = "#8B4513",
+		"PORCELAIN" = "#FFF5EE",
+		"ASTRATAN MARBLE" = "#F6EEB2",
+		"NOCTURIAN MARBLE" = "#140B06",
+		"ABYSSIAN SILVER" = "#33497B",
+		"UNDERDARK CRYSTAL" = "#190C30",
+		"CANVAS" = "#D4C7B4",
+		"COTTON" = "#F3EFDB",
 	)
 
 /datum/species/construct/metal/get_hairc_list()
@@ -250,7 +269,7 @@
 			M.apply_status_effect(/datum/status_effect/debuff/integrity_rig, 3 MINUTES)
 			playsound(M, 'sound/combat/hits/blunt/woodblunt (2).ogg', 100, TRUE)
 			user.visible_message(
-				span_notice("[user] wedges the stick into [M]'s damaged lattice, crudely pinning it in place."),
+				span_notice("[user] wedges [I] into [M]'s damaged lattice, crudely pinning it in place."),
 				span_notice("A weak brace holds my damaged integrity together. It might not last")
 			)
 			qdel(S)
@@ -261,7 +280,7 @@
 			M.apply_status_effect(/datum/status_effect/debuff/integrity_rig, 6 MINUTES)
 			playsound(M, 'sound/combat/hits/blunt/woodblunt (1).ogg', 100, TRUE)
 			user.visible_message(
-				span_notice("[user] jams the small log into [M]'s exposed conduit, safely reinforcing the fracture."),
+				span_notice("[user] jams [I] into [M]'s exposed conduit, safely reinforcing the fracture."),
 				span_notice("The wooden brace steadies my damaged integrity.")
 			)
 			qdel(S)
@@ -272,7 +291,7 @@
 			M.apply_status_effect(/datum/status_effect/debuff/integrity_rig, 9 MINUTES)
 			playsound(M, pick('sound/combat/hits/onmetal/sheet (1).ogg', 'sound/combat/hits/onmetal/sheet (2).ogg', 'sound/combat/hits/onmetal/grille (1).ogg', 'sound/combat/hits/onmetal/grille (2).ogg', 'sound/combat/hits/onmetal/grille (3).ogg'), 100, TRUE)
 			user.visible_message(
-				span_warning("[user] forces the stone into [M]'s ruptured lattice. Sparks violently erupt!"),
+				span_warning("[user] forces [I] into [M]'s ruptured lattice. Sparks violently erupt!"),
 				span_notice("A dense mineral brace locks my damaged integrity into place.")
 			)
 			explosion(M, 0, 0, 0, 0, FALSE, FALSE, 0, FALSE, FALSE)
@@ -287,7 +306,7 @@
 			M.apply_status_effect(/datum/status_effect/debuff/integrity_rig, 9 MINUTES)
 			playsound(M, pick('sound/combat/hits/onmetal/sheet (1).ogg', 'sound/combat/hits/onmetal/sheet (2).ogg', 'sound/combat/hits/onmetal/grille (1).ogg', 'sound/combat/hits/onmetal/grille (2).ogg', 'sound/combat/hits/onmetal/grille (3).ogg'), 100, TRUE)
 			user.visible_message(
-				span_warning("[user] forces the scrap bits into [M]'s ruptured lattice. Sparks violently erupt, a bit safely!"),
+				span_warning("[user] forces [I] into [M]'s ruptured lattice. Sparks violently erupt, a bit safely!"),
 				span_notice("Odds bits and pieces locks my damaged integrity into place.")
 			)
 			explosion(M, 0, 0, 0, 0, FALSE, FALSE, 0, FALSE, FALSE)
@@ -299,7 +318,7 @@
 			M.apply_status_effect(/datum/status_effect/debuff/integrity_rig, 20 MINUTES)
 			playsound(M, pick('sound/combat/hits/onmetal/sheet (1).ogg', 'sound/combat/hits/onmetal/sheet (2).ogg', 'sound/combat/hits/onmetal/grille (1).ogg', 'sound/combat/hits/onmetal/grille (2).ogg', 'sound/combat/hits/onmetal/grille (3).ogg'), 100, TRUE)
 			user.visible_message(
-				span_warning("[user] appends the ingot into [M]'s ruptured lattice, stabilizing it properly."),
+				span_warning("[user] appends [I] into [M]'s ruptured lattice, stabilizing it properly."),
 				span_notice("A refined mineral brace locks my damaged integrity into place, for now.")
 			)
 			return TRUE
@@ -314,10 +333,7 @@
 				return FALSE
 		power = 5 + I.sellprice * 1.5
 		M.apply_status_effect(/datum/status_effect/buff/ingotmuncher, power)
-		user.visible_message(
-			span_notice("[user] presses [I] into their form. It fuses seamlessly, spreading throughout their shell."),
-			span_notice("I press [I] into my body. It quickly binds and greatly reinforces me.")
-		)
+		user.visible_message(span_notice("[user] presses [I] on [M]. It fuses seamlessly, spreading throughout their shell."))
 		playsound(user.loc, 'sound/magic/swap.ogg', 40)
 		playsound(user.loc, 'sound/misc/lava_death.ogg', 40)
 		qdel(I)
@@ -330,10 +346,7 @@
 				return FALSE
 		power = I.sellprice * 2
 		M.apply_status_effect(/datum/status_effect/buff/gemmuncher, power)
-		user.visible_message(
-			span_notice("[user] embeds [I] into their core. It crackles, then vanishes within."),
-			span_notice("I set [I] into my core. It sinks in... and I feel it resonate greatly, restoring me!")
-		)
+		user.visible_message(span_notice("[user] embeds [I] on [M]. It cracks and fuses, rapidly spreading throughout their shell."))
 		qdel(I)
 		playsound(user.loc, 'sound/magic/swap.ogg', 40)
 		playsound(user.loc, 'sound/misc/lava_death.ogg', 40)
@@ -553,6 +566,9 @@
 	if(!density)
 		return
 
+	if(user.get_active_held_item() || user.get_inactive_held_item())
+		return
+
 	var/obj/item/bodypart/l_arm = user.get_bodypart(BODY_ZONE_L_ARM)
 	var/obj/item/bodypart/r_arm = user.get_bodypart(BODY_ZONE_R_ARM)
 
@@ -579,6 +595,7 @@
 		span_warning("[user] winds back [user.p_their()] arm, locking in..."),
 		span_warning("I wind back my arm, preparing to demolish [src]...")
 	)
+
 
 	if(!do_after(user, IRONMAN_STARTUP_TIME, TRUE, src, TRUE, null, TRUE))
 		return
@@ -652,6 +669,9 @@
 				damage_to_deal *= 10
 
 			if(!isnull(T.turf_integrity))
+				var/min_damage = max(1, round(initial(T.turf_integrity) * 0.02))
+				damage_to_deal = max(damage_to_deal, min_damage)
+
 				T.turf_integrity -= damage_to_deal
 
 				if(T.turf_integrity <= 0)
@@ -663,23 +683,28 @@
 
 			if(istype(O, /obj/structure/flora/newtree))
 				var/obj/structure/flora/newtree/TR = O
-				TR.take_damage(damage_to_deal * 6, BRUTE, "blunt", FALSE)
+				var/min_damage = round(TR.max_integrity * 0.02)
+				TR.take_damage(max(damage_to_deal * 6, min_damage), BRUTE, "blunt", FALSE)
 
 			else if(istype(O, /obj/structure/flora/roguetree))
 				var/obj/structure/flora/roguetree/RT = O
-				RT.take_damage(damage_to_deal * 6, BRUTE, "blunt", FALSE)
+				var/min_damage = round(RT.max_integrity * 0.02)
+				RT.take_damage(max(damage_to_deal * 6, min_damage), BRUTE, "blunt", FALSE)
 
 			else if(istype(O, /obj/structure/roguewindow))
 				var/obj/structure/roguewindow/RW = O
-				RW.take_damage(damage_to_deal, BRUTE, "blunt", FALSE)
+				var/min_damage = round(RW.max_integrity * 0.02)
+				RW.take_damage(max(damage_to_deal, min_damage), BRUTE, "blunt", FALSE)
 
 			else if(istype(O, /obj/structure/mineral_door))
 				var/obj/structure/mineral_door/MD = O
-				MD.take_damage(damage_to_deal, BRUTE, "blunt", FALSE)
+				var/min_damage = round(MD.max_integrity * 0.02)
+				MD.take_damage(max(damage_to_deal, min_damage), BRUTE, "blunt", FALSE)
 
 			else if(istype(O, /obj/structure/closet))
 				var/obj/structure/closet/CL = O
-				CL.take_damage(damage_to_deal, BRUTE, "blunt", FALSE)
+				var/min_damage = round(CL.max_integrity * 0.02)
+				CL.take_damage(max(damage_to_deal, min_damage), BRUTE, "blunt", FALSE)
 
 			else if(!isnull(O.obj_integrity))
 				O.obj_integrity -= damage_to_deal
@@ -709,20 +734,15 @@
 #undef IRONMAN_SWING_TIME
 #undef IRONMAN_MAX_SWINGS
 
-/datum/stressevent/fleshlingdepression
-	stressadd = 4
-	desc = span_boldred("Excess mass on frame is causing intermittent imbalance and strain on my joints. I do not like this.")
-	timer = 999 MINUTES
+/datum/stressevent/constructendvre
+	stressadd = -10
+	desc = span_blue("As forged, I PERSIST. As commanded, I ENDURE. For HIM.")
+	timer = 1 MINUTES
 
 /datum/stressevent/integrity_rig
 	stressadd = 20
 	desc = span_boldred("CORE SHRIEKS! ABOUT TO BREAK! FORCE BINDS IT CLOSED. METAL TREMBLES. TOO MUCH WITHIN. TOO MUCH HELD. THIS IS WRONG. END ME! TERMINATE ME!")
 	timer = 999 MINUTES
-
-/datum/stressevent/constructendvre
-	stressadd = -10
-	desc = span_blue("As forged, I PERSIST. As commanded, I ENDURE. For HIM.")
-	timer = 1 MINUTES
 
 /atom/movable/screen/alert/status_effect/debuff/integrity_rig
 	name = "Jury Rigged"
@@ -749,24 +769,6 @@
 	owner.remove_stress(/datum/stressevent/integrity_rig)
 	. = ..()
 
-/datum/status_effect/debuff/ironman_medium
-	id = "ironman_medium"
-	alert_type = /atom/movable/screen/alert/status_effect/debuff/ironman_medium
-	effectedstats = list(STATKEY_WIL = -4, STATKEY_SPD = -1)
-/atom/movable/screen/alert/status_effect/debuff/ironman_medium
-	name = "Metal Fatigue I"
-	desc = "My frame bears needless burden. Additional metal drags at my joints and dulls the rhythm of my workings."
-	icon_state = "muscles"
-
-/datum/status_effect/debuff/ironman_heavy
-	id = "ironman_heavy"
-	alert_type = /atom/movable/screen/alert/status_effect/debuff/ironman_heavy
-	effectedstats = list(STATKEY_WIL = -4, STATKEY_SPD = -2)
-/atom/movable/screen/alert/status_effect/debuff/ironman_heavy
-	name = "Metal Fatigue II"
-	desc = "My frame labors under excess weight. Every motion grinds, every step strains more than they should."
-	icon_state = "muscles"
-
 /obj/effect/particle_effect/thick_steam
 	name = "steam"
 	icon_state = "smoke"
@@ -776,3 +778,8 @@
 /obj/effect/particle_effect/thick_steam/Initialize()
 	. = ..()
 	QDEL_IN(src, 20)
+
+/datum/stressevent/meditation_ironman
+	timer = 10 MINUTES
+	stressadd = -1
+	desc = span_green("My core has been successfully recalibrated. It feels invigorating.")

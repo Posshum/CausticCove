@@ -31,12 +31,24 @@ SUBSYSTEM_DEF(nightshift)
 	if(!CONFIG_GET(flag/enable_night_shifts))
 		can_fire = FALSE
 	current_tod = settod()
+
+	//CC Edit - Desert Map time shift
+	if(SSmapping.config.map_name == "Desert Town")
+		//Longer days in favor of shorter nights compared to default Cove World
+		//Nights are also slightly brighter in the desert due to a lack of foliage and often clear skies
+		nightshift_start_time = 774000		//774000=	930pm
+		nightshift_dawn_start = 198000		//198000=   530am
+		nightshift_day_start =  270000		//270000=   730am
+		nightshift_dusk_start = 666000		//630000=   630pm
+
 	return ..()
 
 /datum/controller/subsystem/nightshift/fire(resumed = FALSE)
 	if(world.time - SSticker.round_start_time < nightshift_first_check)
 		return
 	check_nightshift()
+	if(SSticker?.sunscorched)
+		process_sunscorch()
 
 /datum/controller/subsystem/nightshift/proc/announce(message)
 	priority_announce(message, sound='sound/misc/bell.ogg')
@@ -70,6 +82,21 @@ SUBSYSTEM_DEF(nightshift)
 		A.update_tod(GLOB.tod)
 	for(var/mob/living/M in GLOB.mob_list)
 		M.update_tod(GLOB.tod)
+
+/datum/controller/subsystem/nightshift/proc/process_sunscorch()
+	if(world.time < SSticker.sunscorch_burn_start_time)
+		return
+	if(!SSticker.sunscorch_burn_warning_sent)
+		SSticker.sunscorch_burn_warning_sent = TRUE
+		to_chat(world, span_userdanger("THE WORM CONSUMES THE SUN. Deadly radiance falls on Azuria. Those outside will be unmade. The back of my amygdala itches."))
+	for(var/mob/living/M as anything in GLOB.mob_living_list)
+		if(M.stat == DEAD || !isturf(M.loc))
+			continue
+		var/turf/current_turf = M.loc
+		if(!current_turf.can_see_sky())
+			continue
+		M.fire_act(1, 5)
+		CHECK_TICK
 
 /obj/proc/update_tod(todd)
 	return
@@ -124,25 +151,25 @@ SUBSYSTEM_DEF(nightshift)
 		triumphs_to_add++
 	//CC Edit End
 	adjust_triumphs(triumphs_to_add)
-	to_chat(src, span_notice("An another dae passes in Azuria...\nNights Survived: \Roman[allmig_reward]. \n"))
-	
+	to_chat(src, span_notice("An another dae passes in Azuria...\nNights Survived: \Roman[allmig_reward]. \n"), MESSAGE_TYPE_INFO)
+
 	var/int = mind.current.STAINT
-	
+
 	if(int < 10)
-		to_chat(src, span_boldwarning("I'm trying my best to learn, even if it is a little difficult..."))
+		to_chat(src, span_boldwarning("I'm trying my best to learn, even if it is a little difficult..."), MESSAGE_TYPE_INFO)
 	else
-		to_chat(src, span_notice("I reflect on my journey, my experiences, and the lessons others, and lyfe has taught me..."))
+		to_chat(src, span_notice("I reflect on my journey, my experiences, and the lessons others, and lyfe has taught me..."), MESSAGE_TYPE_INFO)
 	if(mind.sleep_adv)
 		mind.sleep_adv.retained_dust += mind.current.STAINT * DREAM_DUST_PER_INT //25% dream points for each int
 		switch(mind.sleep_adv.retained_dust)
 			if(0 to 500)
-				to_chat(src, span_notice("I managed to focus on learning a thing or two lately, but to really solidify the lessons, I think I'll need to meditate and dream on it..."))
+				to_chat(src, span_notice("I managed to focus on learning a thing or two lately, but to really solidify the lessons, I think I'll need to meditate and dream on it..."), MESSAGE_TYPE_INFO)
 			else
-				to_chat(src, span_notice("My mind has been absorbing knoweledge like a sponge... whatever that is. Curiosity drives me forwards, but reality holds me back... I really should reflect on my lessons now, if I want to realize my potential"))
+				to_chat(src, span_notice("My mind has been absorbing knoweledge like a sponge... whatever that is. Curiosity drives me forwards, but reality holds me back... I really should reflect on my lessons now, if I want to realize my potential"), MESSAGE_TYPE_INFO)
 
 		if(!stat)
-			to_chat(src, span_warning("Staying alive in these uncertain times is it's own achievement. With the spark of my mind intact, and the embers of my heart and soul burning bright, at least at the moment, I feel slightly better about todae."))
+			to_chat(src, span_warning("Staying alive in these uncertain times is it's own achievement. With the spark of my mind intact, and the embers of my heart and soul burning bright, at least at the moment, I feel slightly better about todae."), MESSAGE_TYPE_INFO)
 			mind.sleep_adv.retained_dust += 100	//Free skillpoint for you <3
-	
+
 
 

@@ -85,7 +85,7 @@
 					continue
 
 
-			var/is_muffled = (M in muffled_listeners)
+			var/is_muffled = (M.muffled || (M in muffled_listeners)) //Caustic Edit - Account for belly Muffling in sound effects! Neat?
 			if(M.playsound_local(turf_source, soundin, vol, vary, frequency, falloff, channel, pressure_affected, S, repeat, is_muffled))
 				. += M
 
@@ -117,7 +117,7 @@
 	. = ..()
 	animate(src, alpha = 0, time = duration, easing = EASE_IN)
 */
-/mob/proc/playsound_local(atom/turf_source, soundin, vol as num, vary, frequency, falloff, channel, pressure_affected = TRUE, sound/S, repeat, muffled, pref_toggle)
+/mob/proc/playsound_local(atom/turf_source, soundin, vol as num, vary, frequency, falloff, channel, pressure_affected = TRUE, sound/S, repeat, muffled)
 	if(!client || !can_hear())
 		return FALSE
 
@@ -148,19 +148,6 @@
 	var/vol2use = vol
 	if(client.prefs)
 		vol2use = vol * (client.prefs.mastervol * 0.01)
-		//Caustic Edit - Ignore this sound if these preferences are off and it's sent as one!
-		if(pref_toggle)
-			switch(pref_toggle)
-				if("digestion_noises")
-					if(!client.prefs.digestion_noises)
-						return
-				if("eating_noises")
-					if(!client.prefs.eating_noises)
-						return
-				if("belch_noises")
-					if(!client.prefs.belch_noises)
-						return
-		//Caustic Edit End
 	vol2use = min(vol2use, 100)
 
 	S.volume = vol2use
@@ -459,6 +446,13 @@
 							'sound/foley/footsteps/armor/woodarmor (1).ogg',
 							'sound/foley/footsteps/armor/woodarmor (2).ogg',
 							'sound/foley/footsteps/armor/woodarmor (3).ogg',
+							)
+			if(SFX_HEELS)
+				soundin = pick(
+							'sound/foley/footsteps/highheel1.ogg',
+							'sound/foley/footsteps/highheel2.ogg',
+							'sound/foley/footsteps/highheel3.ogg',
+							'sound/foley/footsteps/highheel4.ogg',
 							)
 	//START OF CIT CHANGES - adds random vore sounds
 			if ("hunger_sounds") soundin = pick('modular_causticcove/sound/cvore/vore/growl1.ogg','modular_causticcove/sound/cvore/vore/growl2.ogg','modular_causticcove/sound/cvore/vore/growl3.ogg','modular_causticcove/sound/cvore/vore/growl4.ogg','modular_causticcove/sound/cvore/vore/growl5.ogg')

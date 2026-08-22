@@ -1,4 +1,5 @@
 /mob/living/simple_animal/hostile/retaliate/rogue/infernal/watcher
+	threat_point = 70
 	icon = 'icons/mob/summonable/32x32.dmi'
 	name = "infernal watcher"
 	icon_state = "watcher"
@@ -59,6 +60,13 @@
 	return
 
 /mob/living/simple_animal/hostile/retaliate/rogue/infernal/watcher/MeleeAction(patience = TRUE)
+	//Caustic Cove Edit
+	if (melee_cooled_down > world.time)
+		return
+
+	melee_cooled_down = world.time + melee_cooldown
+	//Caustic Cove Edit End
+
 	for(var/t in RANGE_TURFS(1, src))
 		new /obj/effect/hotspot(t)
 		src.visible_message(span_danger("[src] emits a burst of flames from its core!"))
@@ -74,14 +82,13 @@
 
 /mob/living/simple_animal/hostile/retaliate/rogue/infernal/watcher/death(gibbed)
 	..()
-	var/turf/deathspot = get_turf(src)
-	new /obj/item/magic/infernal/core(deathspot)
-	new /obj/item/magic/infernal/core(deathspot)
-	new /obj/item/magic/infernal/fang(deathspot)
-	new /obj/item/magic/infernal/fang(deathspot)
-	new /obj/item/magic/infernal/ash(deathspot)
-	new /obj/item/magic/infernal/ash(deathspot)
-	new /obj/item/magic/melded/t1(deathspot)
+	var/turf/deathspot = get_turf(src) ///Caustic edit
+	for(var/i =1 to 2)
+		new /obj/item/magic/infernal/core(deathspot)
+	for(var/i =1 to 2)
+		new /obj/item/magic/infernal/fang(deathspot)
+	for(var/i =1 to 2)
+		new /obj/item/magic/infernal/ash(deathspot) ///Caustic edit end
 
 	update_icon()
 	spill_embedded_objects()

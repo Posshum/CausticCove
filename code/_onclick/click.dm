@@ -9,11 +9,8 @@
 /mob/var/next_move_adjust = 0 //Amount to adjust action/click delays by, + or -
 /mob/var/next_move_modifier = 1 //Value to multiply action/click delays by
 
-// CanReach caching - weakrefs to prevent hard deletes from stale cache entries
-/mob/var/datum/weakref/last_reach_target
-/mob/var/last_reach_result
-/mob/var/last_reach_time
-/mob/var/datum/weakref/last_reach_tool
+/mob/var/tmp/list/click_mods
+/mob/var/tmp/click_params
 
 //Delays the mob's next click/action by num deciseconds
 // eg: 10-3 = 7 deciseconds of delay
@@ -55,6 +52,10 @@
 			dodgetime = num
 		if(INTENT_PARRY)
 			parrydelay = num
+	hud_used?.defdelay?.mark_dirty()
+
+/mob/living/proc/changeNext_inCombat(num, override = FALSE)
+	in_combat_until = world.time + num
 	hud_used?.defdelay?.mark_dirty()
 
 /mob/living/proc/changeMaxDodge(num)
@@ -104,14 +105,14 @@
 	* mob/RangedAttack(atom,params) - used only ranged, only used for tk and laser eyes but could be changed
 */
 /mob/proc/ClickOn( atom/A, params )
-	var/list/modifiers = params2list(params)
-
 	if(curplaying)
 		curplaying.on_mouse_up()
 
 	if(world.time <= next_click)
 		return
 	next_click = world.time + 1
+
+	var/list/modifiers = params2list(params)
 
 	last_client_interact = world.time
 
@@ -123,10 +124,10 @@
 
 	if(SEND_SIGNAL(src, COMSIG_MOB_CLICKON, A, params) & COMSIG_MOB_CANCEL_CLICKON)
 		return
-	
+
 	var/mob/living/L = src
 	if(L?.wallpressed && L.m_intent == MOVE_INTENT_SNEAK && !istype(L.loc, /turf/open/transparent/openspace))
-		to_chat(src, span_warning("You need to step away from the wall first."))
+		to_chat(src, span_warning("You need to step away from the wall first."), MESSAGE_TYPE_INFO)
 		return
 
 	if(modifiers["right"] && !modifiers["shift"] && !modifiers["alt"] && !modifiers["ctrl"])
@@ -184,9 +185,9 @@
 //		changeNext_move(CLICK_CD_MELEE)
 //		ShiftMiddleClickOn(A)
 //		return
-//	if(modifiers["shift"] && modifiers["ctrl"])
-//		CtrlShiftClickOn(A)
-//		return
+	if(modifiers["shift"] && modifiers["ctrl"])
+		CtrlShiftClickOn(A)
+		return
 	if(modifiers["shift"] && modifiers["right"])
 		ShiftRightClickOn(A, params)
 		return
@@ -255,6 +256,10 @@
 		return
 
 	var/turf/my_turf = get_turf(src) // For canreach caching purposes
+	if(isopenturf(A) && !in_throw_mode && !used_intent.noaa && !used_intent.tranged && !used_intent.tshield)
+		if(get_dist(my_turf, A) > used_intent.reach && (!W || W.force_dynamic))
+			atkswinging = null
+			return
 
 	// operate three levels deep here (item in backpack in src; item in box in backpack in src, not any deeper)
 	if(!isturf(A) && A == loc || (A in contents) || (A.loc in contents) || (A.loc && (A.loc.loc in contents)))
@@ -268,16 +273,25 @@
 			resolveAdjacentClick(A,W,params)
 			return
 
+	//Caustic Edit - Allow clicking on things inside bellies!
+	if(isbelly(A.loc) && A.loc == loc)
+		resolveAdjacentClick(A, W, params)
+		return
+	//Caustic Edit End
+
 	if(W)
 		if(ismob(A))
-			if(CanReach(A,W))
-				var/turf/target_turf = get_turf(A)
-				if(get_dist(my_turf, target_turf) <= used_intent.reach)
-					if(!used_intent.noaa)
-						if(used_intent.cleave)
-							used_intent.cleave.show_cleave_visuals(src, target_turf)
-						else
-							do_attack_animation(target_turf, used_intent.animname, W, used_intent = src.used_intent)
+			var/turf/target_turf = get_turf(A)
+			if(target_turf && get_dist(my_turf, target_turf) > used_intent.reach)
+				resolveRangedClick(A,W,params,used_hand)
+				atkswinging = null
+				return
+			if(target_turf && CanReach(A,W))
+				if(!used_intent.noaa)
+					if(used_intent.cleave)
+						used_intent.cleave.show_cleave_visuals(src, target_turf)
+					else
+						do_attack_animation(target_turf, used_intent.animname, W, used_intent = src.used_intent)
 				resolveAdjacentClick(A,W,params)
 				return
 
@@ -320,7 +334,10 @@
 
 	// Allows you to click on a box's contents, if that box is on the ground, but no deeper than that
 	if(isturf(A) || isturf(A.loc) || (A.loc && isturf(A.loc.loc)))
-		if(CanReach(A) || CanReach(A, W))
+		var/can_reach = CanReach(A)
+		if(!can_reach && W)
+			can_reach = CanReach(A, W)
+		if(can_reach)
 			if(isopenturf(A))
 				var/turf/T = A
 				if(used_intent.noaa)
@@ -329,12 +346,12 @@
 				if(T)
 					var/mob/target
 					for(var/mob/M in T)
-						if(M.invisibility || M == src)
+						if(M.invisibility || M == src || M.stat == DEAD || isbelly(M.loc)) //Caustic Edit - Lets not target dead mobs, nor mobs that are in a belly! This must be how that's been happening?
 							continue
 						target = M
 						break
 					if(target)
-						if(target.Adjacent(src) || (CanReach(target, W) && used_intent.effective_range_type))
+						if(target.Adjacent(src) || (used_intent.effective_range_type && CanReach(target, W)))
 							if(used_intent.cleave)
 								used_intent.cleave.show_cleave_visuals(src, T)
 							else
@@ -397,12 +414,102 @@
 		if(SWINGDELAY_PENALTY)
 			apply_status_effect(/datum/status_effect/swingdelay/penalty, delay)
 			return TRUE
-		if(SWINGDELAY_CANCEL)
-			apply_status_effect(/datum/status_effect/swingdelay/disrupt, delay)
+		if(SWINGDELAY_CANCEL, SWINGDELAY_CANCELSLOW)
+			apply_status_effect(/datum/status_effect/swingdelay/disrupt, delay, (used_intent.swingdelay_type == SWINGDELAY_CANCELSLOW ? TRUE : FALSE))
 			return TRUE
 
-/mob/living/proc/is_swinging()
-	return (has_status_effect(/datum/status_effect/swingdelay) || has_status_effect(/datum/status_effect/swingdelay/disrupt))
+/mob/living/proc/is_swinging(disrupt_only = FALSE)
+	if(!disrupt_only)
+		return (has_status_effect(/datum/status_effect/swingdelay) || has_status_effect(/datum/status_effect/swingdelay/disrupt))
+	else
+		return (has_status_effect(/datum/status_effect/swingdelay/disrupt))
+
+/mob/living/proc/can_dualwield(obj/item/mainhand, obj/item/offhand)
+	if(!mainhand || !offhand)
+		return FALSE
+	if(istype(mainhand, /obj/item/rogueweapon/shield) || istype(mainhand, /obj/item/flashlight/flare/torch) || istype(mainhand, /obj/item/lantern) || istype(mainhand, /obj/item/flashlight))
+		return FALSE
+	if(istype(offhand, /obj/item/rogueweapon/shield) || istype(mainhand, /obj/item/flashlight/flare/torch) || istype(mainhand, /obj/item/lantern) || istype(mainhand, /obj/item/flashlight))
+		return FALSE
+	if(mainhand.w_class >= WEIGHT_CLASS_HUGE)
+		return FALSE
+	if(offhand.w_class >= WEIGHT_CLASS_HUGE)
+		return FALSE
+	if(mainhand.wlength >= WLENGTH_GREAT)
+		return FALSE
+	if(offhand.wlength >= WLENGTH_GREAT)
+		return FALSE
+	if(mainhand.associated_skill)
+		if(get_skill_level(mainhand.associated_skill) < SKILL_LEVEL_JOURNEYMAN)
+			return FALSE
+	if(offhand.associated_skill)
+		if(get_skill_level(offhand.associated_skill) < SKILL_LEVEL_JOURNEYMAN)
+			return FALSE
+
+	return TRUE
+
+/mob/living/proc/process_dualwield(atom/A, obj/item/attack_weapon, params)
+	if(!HAS_TRAIT(src, TRAIT_DUALWIELDER))
+		return
+
+	if(dualwield_processing)
+		return
+
+	var/obj/item/mainhand = get_active_held_item()
+	var/obj/item/offhand = get_inactive_held_item()
+
+	// Weapon attack validation
+	if(attack_weapon)
+		if(!offhand)
+			return
+
+		if(attack_weapon == offhand)
+			return
+
+		if(check_arm_grabbed(get_inactive_hand_index()))
+			return
+
+		if(!can_dualwield(attack_weapon, offhand))
+			return
+
+	// Unarmed validation
+	else
+		if(mainhand || offhand)
+			return
+
+	// Combo timeout
+	if(world.time > dualwield_resets_in)
+		dualwield_attack_count = 0
+		dualwield_finisher = FALSE
+
+	dualwield_resets_in = world.time + 3 SECONDS
+
+	// Finisher attack
+	if(dualwield_finisher)
+		dualwield_finisher = FALSE
+		dualwield_processing = TRUE
+
+		if(stamina_add(3))
+			balloon_alert_to_viewers("<font color='#bb2b2b'>Dual Hit!!</font>")
+			visible_message("<font color='#ffc400'>Dual Hit!</font>", "<font color='#ffc400'>Dual Hit!</font>")
+			if(attack_weapon && offhand)
+				offhand.melee_attack_chain(src, A, params)
+			else
+				UnarmedAttack(A, TRUE, params)
+
+		dualwield_processing = FALSE
+		return
+
+	// Build combo
+	dualwield_attack_count++
+
+	if(dualwield_attack_count >= 3)
+		dualwield_attack_count = 0
+		dualwield_finisher = TRUE
+
+	// Swap only after everything else is finished
+	if(attack_weapon)
+		swap_hand()
 
 //Branching path for Adjacent clicks with or without items
 //DOES NOT ACTUALLY KNOW IF YOU'RE ADJACENT, DO NOT CALL ON IT'S OWN
@@ -411,24 +518,6 @@
 		return
 	if(W)
 		W.melee_attack_chain(src, A, params)
-		if(isliving(src))
-			var/mob/living/L = src
-
-
-			if(HAS_TRAIT(L, TRAIT_DUALWIELDER) && L.last_used_double_attack <= world.time)
-				var/obj/item/offh = L.get_inactive_held_item()
-				var/dual_wielding = offh && (istype(W, offh) || istype(offh, W)) && W != offh && !L.check_arm_grabbed(L.get_inactive_hand_index())
-				if(dual_wielding && !L.is_swinging())
-					var/forceoffhand = L.dualwieldpitystacks >= L.dualwieldpitythreshhold
-					if(forceoffhand)
-						L.dualwieldpitystacks = 0
-						if(L.stamina_add(3))
-							L.last_used_double_attack = world.time + 2.5 SECONDS
-							to_chat(L, span_warning("An opening! I strike with my off-hand."))
-							offh.melee_attack_chain(src, A, params)
-					else
-						L.dualwieldpitystacks++
-
 	else
 		if(ismob(A))
 			var/adf = used_intent.clickcd
@@ -437,6 +526,7 @@
 			else if(istype(rmb_intent, /datum/rmb_intent/swift))
 				adf = max(round(adf * CLICK_CD_MOD_SWIFT), CLICK_CD_INTENTCAP)
 			changeNext_move(adf)
+
 		UnarmedAttack(A,1,params)
 
 	var/invis_timer = mob_timers[MT_INVISIBILITY]
@@ -486,10 +576,19 @@
 	return FALSE
 
 /atom/movable/proc/CanReach(atom/ultimate_target, obj/item/tool, view_only = FALSE)
+	var/usedreach = 1
+	if(tool)
+		usedreach = tool.reach
 	if(ismob(src))
-		var/mob/M = src
-		if(M.last_reach_target?.resolve() == ultimate_target && M.last_reach_time == world.time && M.last_reach_tool?.resolve() == tool)
-			return M.last_reach_result
+		var/mob/user = src
+		if(user.used_intent)
+			usedreach = user.used_intent.reach
+
+	if(isturf(ultimate_target))
+		var/reached = Adjacent(ultimate_target)
+		if(!reached && (tool || (!iscarbon(src) && usedreach >= 2)))
+			reached = CheckToolReach(src, ultimate_target, usedreach)
+		return reached
 
 	// A backwards depth-limited breadth-first-search to see if the target is
 	// logically "in" anything adjacent to us.
@@ -505,21 +604,8 @@
 			if(closed[target] || isarea(target))  // avoid infinity situations
 				continue
 			closed[target] = TRUE
-			var/usedreach = 1
-			if(tool)
-				usedreach = tool.reach
-			if(ismob(src))
-				var/mob/user = src
-				if(user.used_intent)
-					usedreach = user.used_intent.reach
 			if(isturf(target) || isturf(target.loc) || IsDirectlyAccessible(target)) //Directly accessible atoms
 				if(Adjacent(target) || ( (tool || (!iscarbon(src) && usedreach >= 2)) && CheckToolReach(src, target, usedreach))) //Adjacent or reaching attacks
-					if(ismob(src))
-						var/mob/M = src
-						M.last_reach_target = WEAKREF(ultimate_target)
-						M.last_reach_result = TRUE
-						M.last_reach_time = world.time
-						M.last_reach_tool = WEAKREF(tool)
 					return TRUE
 
 			if (!target.loc)
@@ -530,12 +616,6 @@
 
 		checking = next
 
-	if(ismob(src))
-		var/mob/M = src
-		M.last_reach_target = WEAKREF(ultimate_target)
-		M.last_reach_result = FALSE
-		M.last_reach_time = world.time
-		M.last_reach_tool = WEAKREF(tool)
 	return FALSE
 
 /atom/movable/proc/IsDirectlyAccessible(atom/target)
@@ -577,25 +657,32 @@ GLOBAL_LIST_EMPTY(reach_dummy_pool)
 		return FALSE
 
 	switch(reach)
-		if(0)
-			return FALSE
-		if(1)
+		if(0, 1)
 			return FALSE
 		if(2 to INFINITY)
-			var/obj/effect/dummy = new(start)
-			dummy.pass_flags |= PASSTABLE
-			dummy.movement_type = FLYING
-			dummy.invisibility = INVISIBILITY_ABSTRACT
+			var/obj/effect/dummy
+			if(length(GLOB.reach_dummy_pool))
+				dummy = GLOB.reach_dummy_pool[GLOB.reach_dummy_pool.len]
+				GLOB.reach_dummy_pool.len--
+				dummy.forceMove(start)
+			else
+				dummy = new(start)
+				dummy.name = "reach_check_dummy"
+				dummy.pass_flags |= PASSTABLE
+				dummy.movement_type = FLYING
+				dummy.invisibility = INVISIBILITY_ABSTRACT
+			. = FALSE
 			for(var/i in 1 to reach)
 				if(dummy.CanReach(there))
-					qdel(dummy)
-					return TRUE
+					. = TRUE
+					break
 				var/turf/T = get_step(dummy, get_dir(dummy, there))
 				if(!T || !dummy.Move(T))
-					qdel(dummy)
-					return FALSE
-			qdel(dummy)
-			return FALSE
+					break
+
+			dummy.moveToNullspace()
+			GLOB.reach_dummy_pool += dummy
+			return .
 
 
 // Default behavior: ignore double clicks (the second click that makes the doubleclick call already calls for a normal click)
@@ -696,7 +783,7 @@ GLOBAL_LIST_EMPTY(reach_dummy_pool)
 		return
 //	A.AltClick(src)
 //	else
-//		to_chat(src, span_warning("I need an empty hand to sort through the items here."))
+//		to_chat(src, span_warning("I need an empty hand to sort through the items here."), MESSAGE_TYPE_INFO)
 
 
 /*
@@ -746,8 +833,7 @@ GLOBAL_LIST_EMPTY(reach_dummy_pool)
 /atom/proc/AltClickNoInteract(mob/user, atom/A)
 	var/turf/T = get_turf(A)
 	if(T && user.TurfAdjacent(T))
-		user.listed_turf = T
-		user.client.statpanel = T.name
+		user.client.open_listed_turf(T)
 
 /mob/proc/TurfAdjacent(turf/T)
 	return T.Adjacent(src)
@@ -758,6 +844,7 @@ GLOBAL_LIST_EMPTY(reach_dummy_pool)
 */
 /mob/proc/CtrlShiftClickOn(atom/A)
 	A.CtrlShiftClick(src)
+	callout_point(A)
 	return
 
 
@@ -775,8 +862,7 @@ GLOBAL_LIST_EMPTY(reach_dummy_pool)
 //	SEND_SIGNAL(src, COMSIG_CLICK_ALT, user)
 	var/turf/T = get_turf(src)
 	if(T && (isturf(loc) || isturf(src)) && user.TurfAdjacent(T))
-		user.listed_turf = T
-		user.client.statpanel = T.name
+		user.client.open_listed_turf(T)
 
 /mob/proc/CtrlRightClickOn(atom/A, params)
 	pointed(A)
@@ -852,6 +938,13 @@ GLOBAL_LIST_EMPTY(reach_dummy_pool)
 	var/datum/component/riding/human/riding_datum = LoadComponent(/datum/component/riding/human)
 	riding_datum.handle_vehicle_layer()
 	riding_datum.handle_vehicle_offsets()
+
+/client/proc/lmb_throttle(atom/object, list/modifiers, no_swing = FALSE)
+	if(!mob || !modifiers["left"] || world.time > mob.next_click)
+		return FALSE
+	if(no_swing && mob.atkswinging)
+		return FALSE
+	return !istype(object, /atom/movable/screen) || istype(object, /atom/movable/screen/click_catcher)
 
 //debug
 /atom/movable/screen/proc/scale_to(x1,y1)

@@ -3,6 +3,8 @@
 #define VOLUME_PER_STEW_COOK_AFTER 1 // Volume to deduct after the sleep is over
 #define DEEP_FRY_TIME 5 SECONDS // Default deep fry time
 #define OIL_CONSUMED 5 // Amount of oil consumed per deep fry (1 fat = 4 fry)
+#define BOILING_TIME 5 SECONDS // Default boiling time
+#define WATER_CONSUMED 5
 
 /obj/machinery/light/rogue/firebowl
 	name = "brazier"
@@ -152,6 +154,22 @@
 		return TRUE
 	return ..()
 
+// Caustic Edit
+/obj/machinery/light/rogue/campfire/fireplace/OnCrafted(dirin)
+	pixel_x = 0
+	pixel_y = 0
+	switch(dirin)
+		if(NORTH)
+			pixel_y = 32
+		if(SOUTH)
+			pixel_y = -32
+		if(EAST)
+			pixel_x = 32
+		if(WEST)
+			pixel_x = -32
+	. = ..()
+// Caustic Edit End
+
 /obj/machinery/light/rogue/candle
 	name = "candles"
 	desc = "Tiny flames flicker to the slightest breeze and offer enough light to see."
@@ -162,6 +180,8 @@
 	cookonme = FALSE
 	pixel_y = 32
 	soundloop = null
+
+	var/move_on_craft = TRUE // Caustic Edit
 
 /obj/machinery/light/rogue/candle/off
 	name = "candles"
@@ -184,15 +204,16 @@
 /obj/machinery/light/rogue/candle/OnCrafted(dirin)
 	pixel_x = 0
 	pixel_y = 0
-	switch(dirin)
-		if(NORTH)
-			pixel_y = 32
-		if(SOUTH)
-			pixel_y = -32
-		if(EAST)
-			pixel_x = 32
-		if(WEST)
-			pixel_x = -32
+	if(move_on_craft) // Caustic Edit. Allows floor candles to not shift 1 tile forwards on crafting
+		switch(dirin)
+			if(NORTH)
+				pixel_y = 32
+			if(SOUTH)
+				pixel_y = -32
+			if(EAST)
+				pixel_x = 32
+			if(WEST)
+				pixel_x = -32
 	. = ..()
 
 /obj/machinery/light/rogue/candle/attack_hand(mob/user)
@@ -242,6 +263,8 @@
 	layer = TABLE_LAYER
 	cookonme = FALSE
 
+	move_on_craft = FALSE // Caustic Edit
+
 /obj/machinery/light/rogue/candle/floorcandle/alt
 	icon_state = "floorcandlee1"
 	base_state = "floorcandlee"
@@ -269,6 +292,8 @@
 	crossfire = FALSE
 	plane = GAME_PLANE_UPPER
 	cookonme = FALSE
+
+	var/move_on_craft = TRUE // Caustic Edit
 
 //CC Edit: Optimizing torches to only be in SSobj when off a torch holder
 /obj/machinery/light/rogue/torchholder/Entered(atom/movable/arrived, atom/old_loc)
@@ -317,6 +342,13 @@
 
 /obj/machinery/light/rogue/torchholder/OnCrafted(dirin, user)
 	dirin = turn(dirin, 180)
+	// Caustic Edit / Actually offsets crafted sconces
+	if(move_on_craft)
+		switch(dirin)
+			if(SOUTH)
+				pixel_y = 32
+	// Caustic Edit end
+	. = ..()
 	QDEL_NULL(torchy)
 	on = FALSE
 	set_light(0)
@@ -441,6 +473,7 @@
 	layer = TABLE_LAYER
 	climb_offset = 14
 	on = FALSE
+	max_integrity = 200
 	roundstart_forbid = TRUE
 	cookonme = TRUE
 	soundloop = /datum/looping_sound/fireloop
@@ -448,6 +481,7 @@
 	var/obj/item/food = null
 	var/mob/living/carbon/human/lastuser
 	var/datum/looping_sound/boilloop/boilloop
+	var/give_pan_xp = FALSE //Caustic Edit - If this is true, the user gets XP for cooking something on a pan!
 
 /obj/machinery/light/rogue/hearth/get_mechanics_examine(mob/user)
 	. = ..()
@@ -533,7 +567,7 @@
 		if(istype(attachment, /obj/item/cooking/pan))
 			if(W.type in subtypesof(/obj/item/reagent_containers/food/snacks))
 				var/obj/item/reagent_containers/food/snacks/S = W
-				if(istype(W, /obj/item/reagent_containers/food/snacks/egg)) // added
+				if(istype(W, /obj/item/reagent_containers/food/snacks/rogue/egg)) // added
 					if(W.icon_state != "rawegg")
 						playsound(get_turf(user), 'modular/Neu_Food/sound/eggbreak.ogg', 100, TRUE, -1)
 						sleep(25) // to get egg crack before frying hiss
@@ -541,6 +575,7 @@
 				if(!food)
 					S.forceMove(src)
 					food = S
+					give_pan_xp = FALSE //Caustic Edit - Add trigger for giving XP only if the pan has cooked something!
 					update_icon()
 					playsound(src.loc, 'sound/misc/frying.ogg', 80, FALSE, extrarange = 5)
 					return
@@ -553,6 +588,7 @@
 					playsound(src.loc, 'sound/misc/frying.ogg', 80, FALSE, extrarange = 5)
 					return
 // Stew + Deep Frying code - refactored!!
+// Now with 100% more boiling!
 		else if(istype(attachment, /obj/item/reagent_containers/glass/bucket/pot))
 			var/obj/item/reagent_containers/glass/bucket/pot = attachment
 			if(istype(W, /obj/item/reagent_containers/food/snacks))
@@ -570,7 +606,7 @@
 					if(!pot.reagents.has_reagent(/datum/reagent/consumable/oil/tallow, OIL_CONSUMED))
 						to_chat(user, span_notice("Not enough tallow."))
 						return
-					if(pot.reagents.has_reagent(/datum/reagent/water))
+					if(pot.reagents.has_reagent(/datum/reagent/water) && S.deep_fried_type && !S.boiled_type)
 						to_chat(user, span_warning("You can't deep fry in a pot with water!"))
 						return
 					if(do_after(user, DEEP_FRY_TIME / cooktime_divisor, target = src))
@@ -580,7 +616,14 @@
 						qdel(S)
 						pot.reagents.remove_reagent(/datum/reagent/consumable/oil/tallow, OIL_CONSUMED)
 						return
-			
+				if(pot.reagents.has_reagent(/datum/reagent/water) && S.boiled_type)
+					if(do_after(user, BOILING_TIME / cooktime_divisor, target = src))
+						user.visible_message(span_info("[user] boils [S] in the pot.</span>"))
+						add_sleep_experience(user, /datum/skill/craft/cooking, user.STAINT)
+						new S.boiled_type(src.loc)
+						qdel(S)
+						pot.reagents.remove_reagent(/datum/reagent/water, WATER_CONSUMED)
+						return
 			var/recipe_found = FALSE
 			for(var/datum/stew_recipe/R in GLOB.stew_recipes)
 				for(var/I in R.inputs)
@@ -634,6 +677,11 @@
 			if(food)
 				if(!user.put_in_active_hand(food))
 					food.forceMove(user.loc)
+				if(give_pan_xp)
+					if(isliving(user))
+						var/mob/living/liveuser = user
+						add_sleep_experience(user, /datum/skill/craft/cooking, liveuser.STAINT) //Caustic Edit - Readd exp from panfrying. Why was it removed :<
+					give_pan_xp = FALSE //Caustic Edit - reset this to false since we just added something!
 				food = null
 				update_icon()
 			else
@@ -690,6 +738,7 @@
 				if(C)
 					qdel(food)
 					food = C
+					give_pan_xp = TRUE //Caustic Edit - Add trigger for giving XP only if the pan has cooked something!
 		if(istype(attachment, /obj/item/reagent_containers/glass/bucket/pot))
 			if(attachment.reagents)
 				attachment.reagents.expose_temperature(400, 0.033)
@@ -840,31 +889,46 @@
 		var/list/hearers_in_range = get_hearers_in_LOS(healing_range, src, RECURSIVE_CONTENTS_CLIENT_MOBS)
 		for(var/mob/living/carbon/human/human in hearers_in_range)
 			var/distance = get_dist(src, human)
-			if(distance > healing_range || HAS_TRAIT(human, TRAIT_IRONMAN))
+			// CC Edit - Campfires only boost energy regen when you're laying down. For towners, this does not affect them.
+			if(distance > healing_range || HAS_TRAIT(human, TRAIT_IRONMAN) || isbelly(human.loc)) //Quick Vore-related edit here, if they are in a belly, don't bother continuing, they are isolated from it.
 				continue
 			human.add_stress(/datum/stressevent/campfire)
-			// CC Edit - Campfires only heal and boost energy regen when you're sleeping and laying down. For towners, this does not affect them.
-			//If the campfire is a greater firepit (densefire), apply these effects anyways.
-			if(greater_fire || human.has_status_effect(/datum/status_effect/incapacitating/sleeping) || human.job == "Towner" || istype(human.mind?.assigned_role, /datum/job/roguetown/villager))
+			//If the campfire is a greater firepit (densefire), apply this effect anyways.
 
-				if(!human.has_status_effect(/datum/status_effect/buff/campfire_stamina))
-					to_chat(human, span_info("The warmth of the fire comforts me, affording me a short rest. I would need to lie down on a bed to get a better rest."))
-				human.apply_status_effect(/datum/status_effect/buff/campfire_stamina)
-
-				if(human.resting && !human.cmode)
-					var/valid_bed = FALSE
-					var/turf/T = get_turf(human)
-					for(var/obj/O in T.contents)
-						for(var/path in acceptable_beds)
-							if(ispath(O.type, path))
-								valid_bed = TRUE
-								break
-						if(valid_bed)
+			//Check for the bed first.
+			var/valid_bed = FALSE
+			if(human.resting && !human.cmode)
+				var/turf/T = get_turf(human)
+				for(var/obj/O in T.contents)
+					for(var/path in acceptable_beds)
+						if(ispath(O.type, path))
+							valid_bed = TRUE
 							break
 					if(valid_bed)
-						if(!human.has_status_effect(/datum/status_effect/buff/campfire))
-							to_chat(human, span_info("Settling in by the flames lifts the burdens of the week."))
-						human.apply_status_effect(/datum/status_effect/buff/campfire) //CC Edit - See above comment.
+						break
+
+			//Check if we're a towner role, and NOT in cmode.
+			var/static/list/towner_jobs
+			towner_jobs = GLOB.peasant_positions | GLOB.burgher_positions | GLOB.sidefolk_positions
+			if(!human.cmode) //Don't be in cmode
+				var/is_towner = (human.mind?.assigned_role in towner_jobs)
+				var/ready_for_buff = (is_towner || human.resting)
+
+				if(!human.has_status_effect(/datum/status_effect/buff/campfire_stamina))
+					to_chat(human, span_info("The warmth of the fire comforts me, affording me a short rest. I would need to lie down, or bundle up in a bed to get a better rest."))
+				
+				if(ready_for_buff) //Can only heal if resting (or a towner)...
+					human.apply_status_effect(/datum/status_effect/buff/campfire, valid_bed)
+
+				var/datum/status_effect/buff/campfire_stamina/campfire_effect = human.apply_status_effect(/datum/status_effect/buff/campfire_stamina, valid_bed)
+				if(!campfire_effect)
+					campfire_effect = human.has_status_effect(/datum/status_effect/buff/campfire_stamina)
+				
+				if(greater_fire || ready_for_buff) //Grant stamina if we're a greater fire, or they are resting or are a towner.
+					campfire_effect.should_stamina = TRUE
+				else
+					campfire_effect.should_stamina = FALSE //Similarly, turn that bit off if they get up again, since none of the other checks should change.
+			//CC Edit End
 
 
 /obj/machinery/light/rogue/campfire/onkick(mob/user)
@@ -945,3 +1009,5 @@
 
 #undef DEEP_FRY_TIME
 #undef OIL_CONSUMED
+#undef BOILING_TIME
+#undef WATER_CONSUMED

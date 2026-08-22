@@ -21,10 +21,11 @@
 	invocation_type = INVOCATION_SHOUT
 
 	charge_required = TRUE
-	weapon_cast_penalized = TRUE
+	weapon_cast_penalized = FALSE
 	charge_time = CHARGETIME_POKE
-	charge_drain = 1
-	charge_slowdown = CHARGING_SLOWDOWN_NONE
+	charge_swingdelay_type = SWINGDELAY_PENALTY
+	hold_drain = 1
+	charge_slowdown = CHARGING_SLOWDOWN_SMALL
 	charge_sound = 'sound/magic/charging.ogg'
 	cooldown_time = 5.5 SECONDS
 
@@ -39,7 +40,8 @@
 	icon = 'icons/obj/magic_projectiles.dmi'
 	icon_state = "air_blade_stab"
 	guard_deflectable = TRUE
-	damage = 55
+	expose_caster_on_deflect = TRUE
+	damage = 66
 	damage_type = BRUTE
 	woundclass = BCLASS_STAB
 	npc_simple_damage_mult = 1.5
@@ -55,9 +57,13 @@
 	/// Max mob targets before stopping
 	var/max_hits = 3
 
+/obj/projectile/magic/arcyne_lance/greatbow
+	damage = 90
+	max_hits = 5
+
 /obj/projectile/magic/arcyne_lance/arc
 	name = "arced arcyne lance"
-	damage = 41
+	damage = 50
 	arcshot = TRUE
 	max_hits = 1 // Arced version does not pierce
 

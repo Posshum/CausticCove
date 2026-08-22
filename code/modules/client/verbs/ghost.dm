@@ -7,20 +7,20 @@ GLOBAL_LIST_INIT(ghost_verbs, list(
 	))
 
 /client/proc/ghost_up()
-	set category = "Spirit"
+	set category = "SPIRIT"
 	set name = "GhostUp"
 	if(isobserver(mob))
 		mob.ghost_up()
 
 /client/proc/ghost_down()
-	set category = "Spirit"
+	set category = "SPIRIT"
 	set name = "GhostDown"
 	if(isobserver(mob))
 		mob.ghost_down()
 
 /client/proc/descend()
 	set name = "Journey to the Underworld"
-	set category = "Spirit"
+	set category = "SPIRIT"
 
 	switch(alert("Descend to the Underworld?",,"Yes","No"))
 		if("Yes")
@@ -32,21 +32,14 @@ GLOBAL_LIST_INIT(ghost_verbs, list(
 				if(D.buried && D.funeral)
 					D.returntolobby()
 					return
-
-				var/datum/job/target_job = SSjob.GetJob(D.mind.assigned_role)
-				if(target_job)
-					if(target_job.job_reopens_slots_on_death)
-						target_job.current_positions = max(0, target_job.current_positions - 1)
-					if(target_job.same_job_respawn_delay)
-						// Store the current time for the player
-						GLOB.job_respawn_delays[src.ckey] = world.time + target_job.same_job_respawn_delay
-			verbs -= GLOB.ghost_verbs
+			remove_verb(src, GLOB.ghost_verbs)
+			init_verbs()
 			mob.returntolobby()
 		if("No")
 			usr << "You have second thoughts."
 
 /client/proc/dead_observe()
-	set category = "Spirit"
+	set category = "SPIRIT"
 	set name = "Leave Your Body"
 
 	if(mob.stat == DEAD && isliving(mob))
@@ -54,7 +47,7 @@ GLOBAL_LIST_INIT(ghost_verbs, list(
 		mob.ghostize(TRUE, ignore_zombie = TRUE)
 
 /client/proc/reenter_corpse()
-	set category = "Spirit"
+	set category = "SPIRIT"
 	set name = "Reenter Corpse"
 	if(isobserver(mob))
 		message_admins("[key_name_admin(usr)] has re-entered their dead body.")
@@ -63,7 +56,6 @@ GLOBAL_LIST_INIT(ghost_verbs, list(
 
 /mob/verb/returntolobby()
 	set name = "{RETURN TO LOBBY}"
-	set category = "OPTIONS"
 	set hidden = 1
 
 	if(key)
@@ -93,7 +85,9 @@ GLOBAL_LIST_INIT(ghost_verbs, list(
 		qdel(M)
 		return
 
-	client?.verbs -= GLOB.ghost_verbs
+	if(client)
+		remove_verb(client, GLOB.ghost_verbs)
+	client?.init_verbs()
 	M.key = key
 	if(istype(src, /mob/dead/observer)) //Be rid of clogging ghost shades
 		qdel(src)

@@ -46,6 +46,10 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 	var/datum/job/assigned_role
 	var/special_role
 	var/list/restricted_roles = list()
+	/// Persisted advclass datum, set when a class-picker resolves. Used by systems that
+	/// need to discriminate within a job's subclasses (e.g. the contract townie gate
+	/// distinguishing Pilgrim/Hunter from Pilgrim/Blacksmith).
+	var/datum/advclass/picked_advclass
 
 	/// Wizard mode & "Give Spell" badmin button.
 	var/list/spell_list = list()
@@ -147,6 +151,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 		current.mind = null
 		current = null
 	enslaved_to = null
+	picked_advclass = null
 	QDEL_NULL(sleep_adv)
 	if(islist(antag_datums))
 		QDEL_LIST(antag_datums)
@@ -423,17 +428,16 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 		if(ASPECT_MAJOR)
 			if(LAZYLEN(major_aspects) >= max_majors)
 				if(current)
-					to_chat(current, span_warning("I cannot attune to another major aspect."))
+					to_chat(current, span_warning("I cannot attune to another major aspect."), MESSAGE_TYPE_INFO)
 				return FALSE
 			LAZYADD(major_aspects, aspect)
 		if(ASPECT_MINOR)
 			if(LAZYLEN(minor_aspects) >= max_minors)
 				if(current)
-					to_chat(current, span_warning("I cannot attune to another minor aspect."))
+					to_chat(current, span_warning("I cannot attune to another minor aspect."), MESSAGE_TYPE_INFO)
 				return FALSE
 			LAZYADD(minor_aspects, aspect)
-	// Grant choice spell first so it appears first on the action bar
-	// If no explicit choice, auto-resolve: prefer one the player already has, else first in list
+	// Auto-resolve the choice spell if none was passed: prefer one the player already has, else first in list.
 	if(!choice_spell && length(aspect.choice_spells))
 		for(var/candidate in aspect.choice_spells)
 			if(has_spell(candidate))
@@ -441,9 +445,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 				break
 		if(!choice_spell)
 			choice_spell = aspect.choice_spells[1]
-	if(choice_spell)
-		aspect.grant_choice_spell(src, choice_spell)
-	aspect.grant_spells(src)
+	aspect.grant_ordered(src, choice_spell)
 	// Apply variant swaps — explicit variant takes priority, mastery config gets "mastery" by default
 	if(variant)
 		aspect.apply_variant(src, variant)
@@ -509,6 +511,45 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 	if(!can_reset_utility())
 		return FALSE
 	aspect_resets_used += ASPECT_RESET_COST_UTILITY
+	return TRUE
+
+/datum/mind/proc/can_reset_choice()
+	return get_aspect_reset_remaining() >= ASPECT_RESET_COST_CHOICE
+
+/datum/mind/proc/spend_choice_reset()
+	if(!can_reset_choice())
+		return FALSE
+	aspect_resets_used += ASPECT_RESET_COST_CHOICE
+	return TRUE
+
+/// Swap a live aspect's choice spell, reinserting the new pick at the old one's slot in the action bar.
+/datum/mind/proc/swap_choice_spell(datum/magic_aspect/aspect, new_choice)
+	if(!aspect || !new_choice || !(new_choice in aspect.choice_spells))
+		return FALSE
+	if(aspect.chosen_spell == new_choice)
+		return FALSE
+	var/old_path = aspect.resolve_variant_spell(aspect.chosen_spell)
+	var/new_path = aspect.resolve_variant_spell(new_choice)
+	var/insert_index
+	if(aspect.chosen_spell)
+		var/datum/existing = get_spell(old_path, specific = TRUE)
+		if(existing)
+			insert_index = spell_list.Find(existing)
+			RemoveSpell(existing)
+	aspect.chosen_spell = new_choice
+	if(has_spell(new_path, specific = TRUE))
+		rebuild_action_order()
+		return TRUE
+	var/datum/action/cooldown/spell/new_spell = new new_path
+	aspect.mark_aspect_spell(new_spell)
+	if(new_path != new_choice)
+		new_spell.desc = "[new_spell.desc]\n<b>Variant:</b> [capitalize(aspect.applied_variant)]"
+	if(insert_index && insert_index <= length(spell_list) + 1)
+		spell_list.Insert(insert_index, new_spell)
+		new_spell.Grant(current)
+	else
+		AddSpell(new_spell)
+	rebuild_action_order()
 	return TRUE
 
 /datum/mind/proc/set_death_time()
@@ -606,7 +647,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 
 	if(creator.mind.special_role)
 		message_admins("[ADMIN_LOOKUPFLW(current)] has been created by [ADMIN_LOOKUPFLW(creator)], an antagonist.")
-		to_chat(current, span_danger("Despite my creators current allegiances, my true master remains [creator.real_name]. If their loyalties change, so do yours. This will never change unless my creator's body is destroyed."))
+		to_chat(current, span_danger("Despite my creators current allegiances, my true master remains [creator.real_name]. If their loyalties change, so do yours. This will never change unless my creator's body is destroyed."), MESSAGE_TYPE_INFO)
 
 /datum/mind/proc/show_memory(mob/recipient, window=1)
 	if(!recipient)
@@ -637,13 +678,13 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 	if(window)
 		recipient << browse(output,"window=memory")
 	else if(all_objectives.len || memory || personal_objectives.len)
-		to_chat(recipient, "<i>[output]</i>")
+		to_chat(recipient, "<i>[output]</i>", MESSAGE_TYPE_INFO)
 
 /// output current targets to the player
 /datum/mind/proc/recall_targets(mob/recipient, window=1)
 	var/output = "<B>[recipient.real_name]'s Hitlist:</B><br>"
 	for(var/mob/living/carbon in GLOB.mob_living_list) // Iterate through all mobs in the world
-		if((carbon.real_name != recipient.real_name) && ((carbon.has_flaw(/datum/charflaw/hunted)) && (!istype(carbon, /mob/living/carbon/human/dummy))))//To be on the list they must be hunted, not be the user and not be a dummy (There is a dummy that has all vices for some reason)
+		if((carbon.real_name != recipient.real_name) && ((HAS_TRAIT(carbon, TRAIT_HUNTED)) && (!istype(carbon, /mob/living/carbon/human/dummy))))//To be on the list they must be hunted, not be the user and not be a dummy (There is a dummy that has all vices for some reason)
 			output += "<br>[carbon.real_name]"
 			output += "<br>[carbon.real_name]"
 			if (carbon.job)
@@ -726,7 +767,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 	if(href_list["remove_antag"])
 		var/datum/antagonist/A = locate(href_list["remove_antag"]) in antag_datums
 		if(!istype(A))
-			to_chat(usr,span_warning("Invalid antagonist ref to be removed."))
+			to_chat(usr,span_warning("Invalid antagonist ref to be removed."), MESSAGE_TYPE_ADMINLOG)
 			return
 		A.admin_remove(usr)
 
@@ -757,7 +798,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 					objective_pos = A.objectives.Find(old_objective)
 					break
 			if(!old_objective)
-				to_chat(usr,"Invalid objective.")
+				to_chat(usr,"Invalid objective.", MESSAGE_TYPE_ADMINLOG)
 				return
 		else
 			if(href_list["target_antag"])
@@ -822,7 +863,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 				A.objectives -= objective
 				break
 		if(!objective)
-			to_chat(usr,"Invalid objective.")
+			to_chat(usr,"Invalid objective.", MESSAGE_TYPE_ADMINLOG)
 			return
 		//qdel(objective) Needs cleaning objective destroys
 		message_admins("[key_name_admin(usr)] removed an objective for [current]: [objective.explanation_text]")
@@ -836,7 +877,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 				objective = objective
 				break
 		if(!objective)
-			to_chat(usr,"Invalid objective.")
+			to_chat(usr,"Invalid objective.", MESSAGE_TYPE_ADMINLOG)
 			return
 		objective.completed = !objective.completed
 		log_admin("[key_name(usr)] toggled the win state for [current]'s objective: [objective.explanation_text]")
@@ -874,10 +915,10 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 	var/obj_count = 1
 	for(var/datum/antagonist/antag_datum_ref in antag_datums)
 		if(length(antag_datum_ref.objectives))
-			to_chat(current, span_notice("Your [antag_datum_ref.name] objectives:"))
+			to_chat(current, span_notice("Your [antag_datum_ref.name] objectives:"), MESSAGE_TYPE_INFO)
 			for(var/datum/objective/O in antag_datum_ref.objectives)
 				O.update_explanation_text()
-				to_chat(current, "<B>[O.flavor] #[obj_count]</B>: [O.explanation_text]")
+				to_chat(current, "<B>[O.flavor] #[obj_count]</B>: [O.explanation_text]", MESSAGE_TYPE_INFO)
 				obj_count++
 
 /// Announces only personal objectives
@@ -886,7 +927,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 		var/personal_count = 1
 		for(var/datum/objective/O in personal_objectives)
 			O.update_explanation_text()
-			to_chat(current, "<B>Personal Goal #[personal_count]</B>: [O.explanation_text]")
+			to_chat(current, "<B>Personal Goal #[personal_count]</B>: [O.explanation_text]", MESSAGE_TYPE_INFO)
 			personal_count++
 
 /// Announce all objectives (both types)
@@ -906,11 +947,23 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 	// New action-based spell system
 	if(istype(spell_or_action, /datum/action/cooldown/spell))
 		var/datum/action/cooldown/spell/new_spell = spell_or_action
+
+		// check exclusivity
+		for(var/datum/action/cooldown/spell/S in spell_list)
+			if(S.exclusive_group && S.exclusive_group == new_spell.exclusive_group)
+				if(S != new_spell)
+					qdel(new_spell)
+				return // already have one of this group
+
 		for(var/datum/action/cooldown/spell/present in spell_list)
 			if(present.name == new_spell.name && present.type == new_spell.type)
+				if(present != new_spell)
+					qdel(new_spell)
 				return
 		spell_list += new_spell
 		new_spell.Grant(current)
+		if(bump_trailing_spells())
+			rebuild_action_order()
 		if(length(spell_list) == 1 && current)
 			addtimer(CALLBACK(src, PROC_REF(show_spell_tip)), 3 SECONDS)
 		return
@@ -919,15 +972,19 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 	var/obj/effect/proc_holder/spell/S = spell_or_action
 	for(var/obj/effect/proc_holder/spell/present_spell in spell_list)
 		if(present_spell.name == S.name && present_spell.type == S.type)
+			if(present_spell != S)
+				qdel(S)
 			return
 	spell_list += S
 	S.action.Grant(current)
+	if(bump_trailing_spells())
+		rebuild_action_order()
 	if(user)
 		S.on_gain(user)
 	if(length(spell_list) == 1 && current)
 		addtimer(CALLBACK(src, PROC_REF(show_spell_tip)), 3 SECONDS)
 
-/// Ensure arcyne ward and prestidigitation are present and bumped to the end of the spell list.
+/// Ensure arcyne ward and prestidigitation are present.
 /// Arcyne Ward is skipped if a dragonhide/crystalhide variant is already present (those replace it).
 /datum/mind/proc/ensure_mage_basics()
 	if(!current || !HAS_TRAIT(current, TRAIT_ARCYNE))
@@ -957,6 +1014,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 			if(active_ward && !QDELETED(active_ward))
 				new_ward_spell.conjured_ward = active_ward
 				active_ward.linked_spell = new_ward_spell
+				new_ward_spell.regen_action?.build_all_button_icons()
 		else
 			AddSpell(new /datum/action/cooldown/spell/conjure_arcyne_ward)
 	else
@@ -968,68 +1026,75 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 				qdel(ward.conjured_ward)
 			RemoveSpell(ward)
 
-	// Prestidigitation - always last
-	var/datum/presto = get_spell(/datum/action/cooldown/spell/touch/prestidigitation)
-	if(!presto)
+	if(!get_spell(/datum/action/cooldown/spell/touch/prestidigitation))
 		AddSpell(new /datum/action/cooldown/spell/touch/prestidigitation)
-	else
-		RemoveSpell(presto)
-		AddSpell(new /datum/action/cooldown/spell/touch/prestidigitation)
+
+	rebuild_action_order()
 
 
 /datum/mind/proc/show_spell_tip()
 	if(current)
-		to_chat(current, span_nicegreen("Tip: You can Ctrl-Click your hotkey bar to unlock it, then drag to rearrange your spells. Re-arranging them change which hotkeys they are bound to in order from left to right (Alt 1 to Alt 9 default). You can shift click your spells to learn more about them."))
+		to_chat(current, span_nicegreen("Tip: Ctrl-Click any spell button to enter rearrangement mode. Your bar will glow gree, spells cannot be cast and you can drag one button onto another to swap them in place. Ctrl-Click again to lock in and re-enable casting. Hotkeys are bound left to right (Alt 1 to Alt 9 default), matching the numbers shown on the buttons. Shift-click a spell to learn more about it."))
 
-/datum/mind/proc/setup_mage_aspects(list/config)
+/datum/mind/proc/setup_mage_aspects(list/config, grant_attunement = TRUE)
 	mage_aspect_config = config
+	if(grant_attunement && current)
+		ADD_TRAIT(current, TRAIT_LEYLINE_ATTUNEMENT, TRAIT_GENERIC)
 	ensure_mage_basics()
 	check_learnspell()
+
+/datum/mind/proc/get_spell_point_cost(spell_path)
+	if(!ispath(spell_path, /datum/action/cooldown/spell))
+		return 0
+	var/datum/action/cooldown/spell/S = spell_path
+	return initial(S.point_cost)
+
+/datum/mind/proc/is_utility_learned(spell_path)
+	for(var/datum/action/cooldown/spell/S in spell_list)
+		if(S.type == spell_path && S.utility_learned)
+			return TRUE
+	return FALSE
+
+/datum/mind/proc/get_utility_points_spent(list/exclude_path_strs)
+	var/total = 0
+	for(var/path in GLOB.utility_spells)
+		if(exclude_path_strs && ("[path]" in exclude_path_strs))
+			continue
+		if(!is_utility_learned(path))
+			continue
+		total += get_spell_point_cost(path)
+	return total
+
+/datum/mind/proc/has_remaining_aspect_picks()
+	if(!LAZYLEN(mage_aspect_config))
+		return FALSE
+	var/list/config = mage_aspect_config
+	if(LAZYLEN(major_aspects) < (config["major"] || 0))
+		return TRUE
+	if(LAZYLEN(minor_aspects) < (config["minor"] || 0))
+		return TRUE
+	var/max_util = config["utilities"] || 0
+	return (max_util > 0) && (get_utility_points_spent() < max_util)
 
 /datum/mind/proc/check_learnspell()
 	// Aspect config system — LearnSpell only appears until the first binding.
 	// After that, the spellbook handles edit mode.
 	if(LAZYLEN(mage_aspect_config))
-		var/list/config = mage_aspect_config
-		var/current_majors = LAZYLEN(major_aspects)
-		var/current_minors = LAZYLEN(minor_aspects)
-		var/max_maj = config["major"] || 0
-		var/max_min = config["minor"] || 0
-		var/max_util = config["utilities"] || 0
-		// Check if all slots and points are exhausted
-		var/has_remaining_slots = (current_majors < max_maj) || (current_minors < max_min)
-		var/has_remaining_util = FALSE
-		if(max_util > 0)
-			var/util_points_spent = 0
-			for(var/path in GLOB.utility_spells)
-				if(has_spell(path))
-					var/is_picked = FALSE
-					for(var/datum/action/cooldown/spell/S in spell_list)
-						if(S.type == path && S.utility_learned)
-							is_picked = TRUE
-							break
-					if(!is_picked)
-						continue
-					if(ispath(path, /datum/action/cooldown/spell))
-						var/datum/action/cooldown/spell/S = path
-						util_points_spent += initial(S.point_cost)
-					else
-						var/obj/effect/proc_holder/spell/S = path
-						util_points_spent += initial(S.cost)
-			has_remaining_util = (util_points_spent < max_util)
-		if(!has_remaining_slots && !has_remaining_util)
+		if(!has_remaining_aspect_picks())
 			RemoveSpell(/datum/action/cooldown/spell/learnspell)
+			rebuild_action_order()
 			return
-		// Still has available slots/points — remove and re-add LearnSpell to bump it to end
-		RemoveSpell(/datum/action/cooldown/spell/learnspell)
-		AddSpell(new /datum/action/cooldown/spell/learnspell())
+		if(!has_spell(/datum/action/cooldown/spell/learnspell))
+			AddSpell(new /datum/action/cooldown/spell/learnspell())
+		rebuild_action_order()
 		return
 
 	// Arcyne casters without aspects still need learnspell to open the aspect picker
 	if(current)
 		if(HAS_TRAIT(current, TRAIT_ARCYNE) && !LAZYLEN(major_aspects))
-			RemoveSpell(/datum/action/cooldown/spell/learnspell)
-			AddSpell(new /datum/action/cooldown/spell/learnspell())
+			if(!has_spell(/datum/action/cooldown/spell/learnspell))
+				AddSpell(new /datum/action/cooldown/spell/learnspell())
+			rebuild_action_order()
 			return
 
 	return
@@ -1114,6 +1179,100 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 /datum/mind/proc/RemoveAllSpells()
 	for(var/datum/S in spell_list)
 		RemoveSpell(S)
+
+/// Keep prestidigitation and learnspell at the end of the spell list when new spells are granted.
+/datum/mind/proc/bump_trailing_spells()
+	var/static/list/trailing_types = list(
+		/datum/action/cooldown/spell/touch/prestidigitation,
+		/datum/action/cooldown/spell/learnspell,
+	)
+	var/list/trailing = list()
+	for(var/path in trailing_types)
+		for(var/datum/S in spell_list)
+			if(S.type == path)
+				trailing += S
+	if(!length(trailing))
+		return FALSE
+	var/offset = length(spell_list) - length(trailing)
+	var/already_ordered = TRUE
+	for(var/i in 1 to length(trailing))
+		if(spell_list[offset + i] != trailing[i])
+			already_ordered = FALSE
+			break
+	if(already_ordered)
+		return FALSE
+	spell_list -= trailing
+	spell_list += trailing
+	return TRUE
+
+/datum/mind/proc/rebuild_action_order()
+	if(!current)
+		return
+	var/list/ordered_spell_actions = list()
+	for(var/datum/entry in spell_list)
+		var/datum/action/entry_action
+		if(istype(entry, /datum/action/cooldown/spell))
+			entry_action = entry
+		else if(istype(entry, /obj/effect/proc_holder/spell))
+			var/obj/effect/proc_holder/spell/P = entry
+			entry_action = P.action
+		if(!entry_action || !(entry_action in current.actions))
+			continue
+		ordered_spell_actions += entry_action
+	var/list/result = list()
+	var/next_spell = 1
+	for(var/datum/action/A in current.actions)
+		if(A in ordered_spell_actions)
+			if(next_spell <= length(ordered_spell_actions))
+				result += ordered_spell_actions[next_spell]
+				next_spell++
+		else
+			result += A
+	while(next_spell <= length(ordered_spell_actions))
+		result += ordered_spell_actions[next_spell]
+		next_spell++
+	current.actions = result
+	current.update_action_buttons()
+
+/datum/mind/proc/refresh_spell_buttons()
+	if(!current?.client)
+		return
+	current.update_mob_action_buttons(ALL, TRUE)
+	current.update_action_buttons()
+
+/datum/mind/proc/spell_list_entry_for_action(datum/action/A)
+	if(A in spell_list)
+		return A
+	for(var/obj/effect/proc_holder/spell/P in spell_list)
+		if(P.action == A)
+			return P
+	return null
+
+/// Adopt the visible action-bar order as the canonical spell_list order, so entering
+/// rearrangement mode can't snap a drifted bar to a stale order on the first swap.
+/datum/mind/proc/sync_spell_list_to_actions()
+	if(!current)
+		return
+	var/list/new_order = list()
+	for(var/datum/action/A in current.actions)
+		var/datum/entry = spell_list_entry_for_action(A)
+		if(entry && !(entry in new_order))
+			new_order += entry
+	for(var/datum/entry in spell_list)
+		if(!(entry in new_order))
+			new_order += entry
+	spell_list = new_order
+
+/datum/mind/proc/swap_spell_order(datum/action/a, datum/action/b)
+	if(!a || !b || a == b)
+		return FALSE
+	var/datum/entry_a = spell_list_entry_for_action(a)
+	var/datum/entry_b = spell_list_entry_for_action(b)
+	if(!entry_a || !entry_b)
+		return FALSE
+	spell_list.Swap(spell_list.Find(entry_a), spell_list.Find(entry_b))
+	rebuild_action_order()
+	return TRUE
 
 /datum/mind/proc/transfer_martial_arts(mob/living/new_character)
 	if(!ishuman(new_character))

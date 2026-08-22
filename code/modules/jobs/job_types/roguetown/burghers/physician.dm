@@ -6,7 +6,7 @@
 	total_positions = 1
 	spawn_positions = 1
 
-	allowed_races = ACCEPTED_RACES
+	forbidden_races = list() //Caustic Edit - Just a global tweak to remove 'races_despised' from this check everywhere
 	allowed_sexes = list(MALE, FEMALE)
 	display_order = JDO_PHYSICIAN
 	tutorial = "You are the Head Physician, master of the city clinic of Azure Peak \
@@ -24,7 +24,7 @@
 	advclass_cat_rolls = list(CTAG_COURTPHYS = 2)
 
 	give_bank_account = TRUE
-	min_pq = 3 //Please don't kill the duke by operating on strong intent. Play apothecary until you're deserving of the great white beak of doom
+	min_pq = 10 //CC Edit - You spawn with poison, have the ability to save lives en masse, and often deal with more intricate subjects than others. Also don't murder people on accident.
 	max_pq = null
 	round_contrib_points = 5
 
@@ -34,7 +34,7 @@
 	job_subclasses = list(
 		/datum/advclass/physician
 	)
-	spells = list(/obj/effect/proc_holder/spell/invoked/takeapprentice)
+	spells = list(/obj/effect/proc_holder/spell/invoked/takeapprentice, /datum/action/cooldown/spell/fortifying_vapors)
 
 /datum/advclass/physician
 	name = "Head Physician"
@@ -92,10 +92,12 @@
 	r_hand = /obj/item/rogueweapon/sword/rapier/courtphysician
 	backl = /obj/item/storage/backpack/rogue/satchel
 	backpack_contents = list(
-		/obj/item/reagent_containers/glass/bottle/rogue/healthpot = 2,
+		/obj/item/reagent_containers/glass/bottle/rogue/healthpot = 1,
 		/obj/item/natural/worms/leech/cheele = 1, //little buddy
 		/obj/item/reagent_containers/glass/bottle/waterskin = 1,
-		/obj/item/recipe_book/alchemy = 1,
+		/obj/item/flashlight/flare/torch/lantern/censer = 1,
+		/obj/item/herbmill = 1,
+		/obj/item/paper/herb_censer_prep_recipe = 1,
 		/obj/item/mini_flagpole/apothecary = 1,)
 	if(should_wear_femme_clothes(H))
 		head = /obj/item/clothing/head/roguetown/courtphysician/female
@@ -114,4 +116,4 @@
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/diagnose/secular)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_RICH, H)

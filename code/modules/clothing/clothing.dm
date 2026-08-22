@@ -1,12 +1,13 @@
 /obj/item/clothing
 	name = "clothing"
 	resistance_flags = FLAMMABLE
-	obj_flags = CAN_BE_HIT | UNIQUE_RENAME
+	obj_flags = CAN_BE_HIT | UNIQUE_RENAME | CLAMP_BREAK
 	break_sound = 'sound/foley/cloth_rip.ogg'
-	blade_dulling = DULLING_CUT
+	blade_dulling = FALSE
 	max_integrity = 200
 	integrity_failure = ARMOR_INTEG_FAILURE
 	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
+	has_item_quality = TRUE
 	///What level of bright light protection item has.
 	var/flash_protect = FLASH_PROTECTION_NONE
 	var/tint = 0				//Sets the item's level of visual impairment tint, normally set to the same as flash_protect
@@ -49,11 +50,12 @@
 	var/dynamic_fhair_suffix = ""//mask > head for facial hair
 	edelay_type = 0
 	var/list/allowed_sex = list(MALE,FEMALE)
+
 	var/list/allowed_race = CLOTHED_RACES_TYPES
 	var/immune_to_genderswap = FALSE
 	var/armor_class = ARMOR_CLASS_NONE
 
-	sellprice = 1
+	var/blood_color = null
 	var/naledicolor = FALSE
 	var/chunkcolor = "#5e5e5e"
 	var/material_category = ARMOR_MAT_LEATHER
@@ -69,6 +71,7 @@
 	var/boobed_detail = TRUE
 	var/sleeved_detail = TRUE
 	var/malumblessed_c = FALSE
+	var/list/worn_offsets = null  // in case it needs an extra offset to fit in a 32x32 .dmi file. Originally made by Sigma.
 	var/list/original_armor //For restoring broken armor
 
 /obj/item/clothing/New()
@@ -92,6 +95,9 @@
 		. += span_info("It looks like it will protect me from the <b>cold</b>.")
 	if(heat_protection)
 		. += span_info("It looks like it will protect me from the <b>heat</b>.")
+
+/obj/item/proc/get_detail_state(base_state)
+	return base_state
 
 /obj/item/proc/get_detail_tag() //this is for extra layers on clothes
 	return detail_tag
@@ -157,6 +163,9 @@
 			if(r_sleeve_status == SLEEVE_TORN)
 				to_chat(user, span_info("It's torn away."))
 				return
+			if(!salvage_result)
+				to_chat(user, span_warning("[src] cannot be torn."))
+				return
 			if(!do_after(user, 20, target = user))
 				return
 			if(prob(L.STASTR * 8))
@@ -179,6 +188,9 @@
 				return
 			if(l_sleeve_status == SLEEVE_TORN)
 				to_chat(user, span_info("It's torn away."))
+				return
+			if(!salvage_result)
+				to_chat(user, span_warning("[src] cannot be torn."))
 				return
 			if(!do_after(user, 20, target = user))
 				return
@@ -607,12 +619,25 @@ BLIND     // can't see anything
 	return examine_text
 
 /obj/item/clothing/generate_tooltip(examine_text)
+	var/examine_highlight_status = get_examine_highlight_status()
 	if(!armor)	// No armor
-		return examine_text
+		if(examine_highlight_status)
+			var/severity = examine_highlight_status[1]
+			var/labeled_string = get_examine_highlight_labeled_string(severity, examine_text)
+			var/tooltip_string = get_examine_highlight_tooltip_string(examine_highlight_status)
+			return SPAN_TOOLTIP_DANGEROUS_HTML(tooltip_string, labeled_string)
+		else
+			return examine_text
 
 	// Fake armor
 	if(armor.getRating("slash") == 0 && armor.getRating("stab") == 0 && armor.getRating("blunt") == 0 && armor.getRating("piercing") == 0)
-		return examine_text
+		if(examine_highlight_status)
+			var/severity = examine_highlight_status[1]
+			var/labeled_string = get_examine_highlight_labeled_string(severity, examine_text)
+			var/tooltip_string = get_examine_highlight_tooltip_string(examine_highlight_status)
+			return SPAN_TOOLTIP_DANGEROUS_HTML(tooltip_string, labeled_string)
+		else
+			return examine_text
 
 	var/str
 	str += "<b>ABSORPTION:</b> [colorgrade_rating("🔨 BLUNT", armor.blunt, elaborate = TRUE, max_tier = 5)]<br>"
@@ -620,17 +645,19 @@ BLIND     // can't see anything
 	str += "[colorgrade_rating("🪓 SLASH", armor.slash, elaborate = TRUE)] | "
 	str += "[colorgrade_rating("🗡️ STAB", armor.stab, elaborate = TRUE)] | "
 	str += "[colorgrade_rating("🏹 PIERCE", armor.piercing, elaborate = TRUE)]"
-	if(armor.fire > NONE || armor.acid > NONE)
-		str += "<br><b>RESIST:</b> "
-		var/list/resists = list()
-		if(armor.fire > NONE)
-			resists += colorgrade_rating("🔥 FIRE", armor.fire, elaborate = TRUE)
-		if(armor.acid > NONE)
-			resists += colorgrade_rating("🧪 ACID", armor.acid, elaborate = TRUE)
-		str += resists.Join(" | ")
+	if(armor.fire > NONE)
+		str += "<br><b>RESIST:</b> [colorgrade_rating("🔥 FIRE", armor.fire, elaborate = TRUE)]"
 
-	//This makes it appear darker than the rest of examine text. Draws the cursor to it like to a Wetsquires.rt link.
-	examine_text = "<font color = '#808080'>[examine_text]</font>"
+	if(examine_highlight_status)
+		var/heresy_desc = get_examine_highlight_description(examine_highlight_status)
+		var/severity = examine_highlight_status[1]
+		if(heresy_desc)
+			str += "<br>" + heresy_desc
+			str += "<br>" + get_examine_highlight_explanation(severity)
+		examine_text = get_examine_highlight_labeled_string(severity, examine_text)
+	else
+		//This makes it appear darker than the rest of examine text. Draws the cursor to it like to a Wetsquires.rt link.
+		examine_text = "<font color = '#808080'>[examine_text]</font>"
 	return SPAN_TOOLTIP_DANGEROUS_HTML(str, examine_text)
 
 /obj/item/clothing/proc/get_armor_integ()

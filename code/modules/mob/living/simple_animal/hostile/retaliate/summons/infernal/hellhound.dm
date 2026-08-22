@@ -1,5 +1,6 @@
 
 /mob/living/simple_animal/hostile/retaliate/rogue/infernal/hellhound
+	threat_point = THREAT_MODERATE
 	icon = 'icons/mob/summonable/32x32.dmi'
 	name = "hell hound"
 	desc = "This is a canine-shaped creature formed of billowing heat and snaking flames! Its maw resembles a furnace; \
@@ -54,14 +55,11 @@
 
 /mob/living/simple_animal/hostile/retaliate/rogue/infernal/hellhound/death(gibbed)
 	..()
-	var/turf/deathspot = get_turf(src)
-	new /obj/item/magic/infernal/fang(deathspot)
-	new /obj/item/magic/infernal/fang(deathspot)
-	new /obj/item/magic/infernal/fang(deathspot)
-	new /obj/item/magic/infernal/fang(deathspot)
-	new /obj/item/magic/infernal/ash(deathspot)
-	new /obj/item/magic/infernal/ash(deathspot)
-	new /obj/item/magic/infernal/ash(deathspot)
+	var/turf/deathspot = get_turf(src) ///Caustic edit
+	for(var/i =1 to 6)
+		new /obj/item/magic/infernal/fang(deathspot)
+	for(var/i =1 to 4)
+		new /obj/item/magic/infernal/ash(deathspot) ///Caustic edit end
 	update_icon()
 	spill_embedded_objects()
 	qdel(src)
@@ -78,9 +76,8 @@
 		var/mob/living/targetted = target
 		if(!isliving(target))
 			return
-		targetted.adjust_fire_stacks(3)
-		targetted.ignite_mob()
-		targetted.visible_message(span_danger("[src] sets [target] on fire!"))
+		apply_scorch_stack(targetted, 1)
+		targetted.visible_message(span_danger("[src] sears [target] with hellfire!"))
 		src.flame_cd = world.time
 	if(!QDELETED(target))
 		return target.attack_animal(src)

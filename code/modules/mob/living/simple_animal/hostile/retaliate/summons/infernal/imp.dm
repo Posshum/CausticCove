@@ -1,4 +1,5 @@
 /mob/living/simple_animal/hostile/retaliate/rogue/infernal/imp
+	threat_point = THREAT_LOW
 	icon = 'icons/mob/summonable/32x32.dmi'
 	name = "infernal imp"
 	desc = "This is a diminutive humanoid creature capable of flight. While its claws are sharp and its movements agile, \
@@ -73,16 +74,12 @@
 
 /mob/living/simple_animal/hostile/retaliate/rogue/infernal/imp/death(gibbed)
 	..()
-	var/turf/deathspot = get_turf(src)
-	new /obj/item/magic/infernal/ash(deathspot)
-	new /obj/item/magic/infernal/ash(deathspot)
-	new /obj/item/magic/infernal/ash(deathspot)
-	new /obj/item/magic/infernal/ash(deathspot)
-	new /obj/item/magic/infernal/ash(deathspot)
-	new /obj/item/magic/infernal/ash(deathspot)
+	var/turf/deathspot = get_turf(src) ///Caustic edit
+	for(var/i =1 to 6)
+		new /obj/item/magic/infernal/ash(deathspot) ///Caustic edit end
 	update_icon()
-	sleep(1)
-	qdel(src)
+	spawn(1)
+		qdel(src)
 
 
 /mob/living/simple_animal/hostile/retaliate/rogue/infernal/imp/taunted(mob/user)

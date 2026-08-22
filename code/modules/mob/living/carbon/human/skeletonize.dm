@@ -49,11 +49,12 @@
 	ADD_TRAIT(src, TRAIT_FACELESS_KNOWN, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_EASYDISMEMBER, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_LIMBATTACHMENT, TRAIT_GENERIC)
+	ADD_TRAIT(src, TRAIT_NOWW, TRAIT_GENERIC) // you're a SKELETON
 
 	// Skeleton voicepack
 	if(dna?.species)
-		dna.species.soundpack_m = new /datum/voicepack/skeleton()
-		dna.species.soundpack_f = new /datum/voicepack/skeleton()
+		dna.species.soundpack_m = GLOB.voice_packs[/datum/voicepack/skeleton]
+		dna.species.soundpack_f = GLOB.voice_packs[/datum/voicepack/skeleton]
 
 	// Undead language
 	grant_language(/datum/language/undead)

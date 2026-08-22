@@ -83,11 +83,12 @@
 					"computer_id" = client.computer_id,
 				),
 				"window" = list(
-					"fancy" = FALSE,
 					"locked" = FALSE,
 				),
 			),
 		))
+		if(client?.prefs)
+			set_chat_theme(client.prefs.statbrowser_theme)
 		return TRUE
 
 	if(type == "audio/setAdminMusicVolume")
@@ -112,3 +113,6 @@
  */
 /datum/tgui_panel/proc/send_roundrestart()
 	window.send_message("roundrestart")
+
+/datum/tgui_panel/proc/set_chat_theme(statbrowser_theme)
+	window.send_message("set_chat_theme", statbrowser_theme == "light" ? "leatherbound" : "dark")

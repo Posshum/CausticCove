@@ -5,11 +5,12 @@
 	Travellers often warn of Heartfelt having fallen already, and words of secretive cultists isn't unheard of. \
 	Despite doubts from others, your loyalty remains steadfast as you journey to the Peaks, determined to fulfill your duties."
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = ACCEPTED_RACES
+	forbidden_races = list() //Caustic Edit - Just a global tweak to remove 'races_despised' from this check everywhere
 	outfit = /datum/outfit/job/roguetown/heartfelt/hand
 	total_positions = 1
 	spawn_positions = 0
 	job_traits = list(TRAIT_NOBLE, TRAIT_HEARTFELT)
+	noble_income = 22
 	advclass_cat_rolls = list(CTAG_HFT_HAND)
 
 	job_subclasses = list(
@@ -86,18 +87,18 @@
 		)
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/convertrole/heartfelt)
-		H.verbs |= list(/mob/living/carbon/human/mind/proc/setordersheartfelt)
+		add_verb(H, list(/mob/living/carbon/human/mind/proc/setordersheartfelt))
 
 	var/helmet = list("Etruscan Bascinet","Volf Plate Helmet","Beak Helmet","Visored Sallet",)
 	var/helmet_choice = input("Choose your Helm.", "TAKE UP HELMS") as anything in helmet
 	switch(helmet_choice)
 		if("Etruscan Bascinet")
 			head = /obj/item/clothing/head/roguetown/helmet/bascinet/etruscan
-		if("Volf Plate Helmet") 
+		if("Volf Plate Helmet")
 			head = /obj/item/clothing/head/roguetown/helmet/heavy/volfplate
 		if("Beak Helmet") // GUUUUTS NO GUTS NOOOOO
 			head = /obj/item/clothing/head/roguetown/helmet/heavy/beakhelm
-		if("Visored Sallet")	
+		if("Visored Sallet")
 			head = /obj/item/clothing/head/roguetown/helmet/sallet/visored
 		else
 			head = /obj/item/clothing/head/roguetown/helmet/bascinet/etruscan
@@ -183,10 +184,11 @@
 		/datum/virtue/utility/riding
 	)
 
-	subclass_mage_aspects = list("mastery" = FALSE, "major" = 1, "minor" = 1, "utilities" = 2, "ward" = TRUE)
+	subclass_mage_aspects = list("mastery" = FALSE, "major" = 1, "minor" = 1, "utilities" = 4, "ward" = TRUE)
 
 	subclass_skills = list(
 		/datum/skill/combat/staves = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/combat/arcyne = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/swimming = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/athletics = SKILL_LEVEL_JOURNEYMAN,
@@ -216,7 +218,7 @@
 		/obj/item/reagent_containers/glass/bottle/rogue/poison = 1,
 		/obj/item/natural/feather = 1,
 		/obj/item/paper/scroll = 1,
-		/obj/item/book/spellbook = 1,
+		/obj/item/rogueweapon/spellbook = 1,
 	) //starts with a vial of poison, like all wizened evil advisors do!
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/studded
 	pants = /obj/item/clothing/under/roguetown/tights/black
@@ -229,4 +231,4 @@
 		H.change_stat("intelligence", 1)
 		H.change_stat("perception", 1)
 		if(H.mind)
-			H.mind.setup_mage_aspects(list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 3))
+			H.mind.setup_mage_aspects(list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 5))

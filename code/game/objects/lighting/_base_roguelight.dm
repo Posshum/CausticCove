@@ -11,7 +11,7 @@
 	var/no_refuel = FALSE // For special holder that don't actually refuel
 	var/cookonme = FALSE
 	var/crossfire = TRUE
-	var/can_damage = FALSE
+	var/can_damage = TRUE
 	var/roundstart_forbid = FALSE
 
 /obj/machinery/light/rogue/Initialize()
@@ -100,6 +100,13 @@
 			var/turf/T = loc
 			T.trigger_weather(src)
 
+/obj/machinery/light/rogue/CanAStarPass(ID, to_dir, atom/movable/caller)
+	if(on && crossfire && isliving(caller))
+		var/mob/living/crosser = caller
+		if(!(crosser.movement_type & (FLYING|FLOATING)) && !HAS_TRAIT(crosser, TRAIT_NOFIRE))
+			return FALSE
+	return ..()
+
 /obj/machinery/light/rogue/Crossed(atom/movable/AM, oldLoc)
 	..()
 	if(crossfire)
@@ -113,8 +120,16 @@
 	var/datum/skill/craft/cooking/cs = user?.get_skill_level(/datum/skill/craft/cooking)
 	var/cooktime_divisor = get_cooktime_divisor(cs)
 	if(cookonme && on)
+		if(istype(W, /obj/item/seeds))
+			user.visible_message("<span class='notice'>[user] starts roasting [W] over [src]...</span>")
+			if(do_after(user, 60 / cooktime_divisor, target = src))
+				var/obj/item/result = W.heating_act(src)
+				if(result)
+					user.put_in_hands(result)
+					qdel(W)
+				return TRUE
 		if(istype(W, /obj/item/reagent_containers/food/snacks))
-			if(istype(W, /obj/item/reagent_containers/food/snacks/egg))
+			if(istype(W, /obj/item/reagent_containers/food/snacks/rogue/egg))
 				to_chat(user, "<span class='warning'>I wouldn't be able to cook this over the fire...</span>")
 				return FALSE
 			var/obj/item/A = user.get_inactive_held_item()
@@ -185,9 +200,7 @@
 			if(istype(W, /obj/item/natural/dirtclod))
 				if(!user.temporarilyRemoveItemFromInventory(W))
 					return
-				on = FALSE
-				set_light(0)
-				update_icon()
+				extinguish() //Caustic Edit - This is what Waterbolt seems to call, and that works fine so, I figure this should fix Clods not properly extinguishing.
 				qdel(W)
 				src.visible_message("<span class='warning'>[user] snuffs the fire.</span>")
 				return

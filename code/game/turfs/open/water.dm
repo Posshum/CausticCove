@@ -180,6 +180,7 @@
 			L.visible_message(span_warning("[L] spasms violently upon touching the water!"), span_danger("The water... it burns me!"))
 			L.adjustFireLoss(25)
 			return
+
 		if (istype(src,/turf/open/water/bloody))
 			L.add_mob_blood(L)
 
@@ -250,8 +251,19 @@
 				if(istype(src,/turf/open/water/sewer) || istype(src,/turf/open/water/swamp) || istype(src, /turf/open/water/sewer))
 					if (istype(src, /turf/open/water/sewer))
 						user.add_stress(/datum/stressevent/sewertouched)
-					if (!HAS_TRAIT(L,TRAIT_LEECHIMMUNE)) // cleaning yourself in nasty water is a wonderful way to get leeches.
+					if (!HAS_TRAIT(L,TRAIT_LEECHIMMUNE) && !HAS_TRAIT(L,TRAIT_BOGWALKER)) // cleaning yourself in nasty water is a wonderful way to get leeches.
 						if (prob(20)) // 1 in 5 chance of getting leeched if you wash up in gross water.
+
+							if(HAS_TRAIT(L, TRAIT_LEECHRESIST))
+								var/avoid_chance = 20
+								avoid_chance += (L.STASPD - 10) * 10
+								avoid_chance += (L.STALUC - 10) * 5
+								avoid_chance = clamp(avoid_chance, 0, 100)
+								if(prob(avoid_chance))
+									return
+								else
+									to_chat(L, span_notice("Ouch! I am being sucked off!!"))
+
 							var/list/zones = list(BODY_ZONE_CHEST, BODY_ZONE_R_ARM, BODY_ZONE_L_ARM, BODY_ZONE_PRECISE_NECK, BODY_ZONE_HEAD)
 							var/zone = pick(zones)
 							var/obj/item/bodypart/BP = L.get_bodypart(zone)
@@ -418,7 +430,7 @@
 	. = ..()
 	if(!oldLoc)
 		return
-	if(HAS_TRAIT(AM, TRAIT_LEECHIMMUNE))
+	if(HAS_TRAIT(AM, TRAIT_LEECHIMMUNE) || HAS_TRAIT(AM, TRAIT_BOGWALKER))
 		return
 	if(isliving(AM) && !AM.throwing)
 		if(ishuman(AM))
@@ -435,6 +447,17 @@
 				return
 			if(C.blood_volume <= 0)
 				return
+
+			if(HAS_TRAIT(C, TRAIT_LEECHRESIST))
+				var/avoid_chance = 20
+				avoid_chance += (C.STASPD - 10) * 10
+				avoid_chance += (C.STALUC - 10) * 5
+				avoid_chance = clamp(avoid_chance, 0, 100)
+				if(prob(avoid_chance))
+					return
+				else
+					to_chat(C, span_notice("Ouch! I am being sucked off!!"))
+
 			var/list/zonee = list(BODY_ZONE_R_LEG, BODY_ZONE_L_LEG, BODY_ZONE_CHEST)
 			for(var/i = 0, i <= zonee.len, i++)
 				var/zone = pick(zonee)
@@ -461,7 +484,7 @@
 	if(!oldLoc)
 		return .
 
-	if(HAS_TRAIT(AM, TRAIT_LEECHIMMUNE))
+	if(HAS_TRAIT(AM, TRAIT_LEECHIMMUNE) ||  HAS_TRAIT(AM, TRAIT_BOGWALKER))
 		return .
 
 	if(isliving(AM) && !AM.throwing)
@@ -481,6 +504,16 @@
 
 			if(C.blood_volume <= 0)
 				return .
+
+			if(HAS_TRAIT(C, TRAIT_LEECHRESIST))
+				var/avoid_chance = 20
+				avoid_chance += (C.STASPD - 10) * 10
+				avoid_chance += (C.STALUC - 10) * 5
+				avoid_chance = clamp(avoid_chance, 0, 100)
+				if(prob(avoid_chance))
+					return
+				else
+					to_chat(C, span_notice("Ouch! I am being sucked off!!"))
 
 			var/list/zonee = list(BODY_ZONE_CHEST, BODY_ZONE_R_LEG, BODY_ZONE_L_LEG, BODY_ZONE_R_ARM, BODY_ZONE_L_ARM)
 			for(var/i = 1; i <= zonee.len; i++)
@@ -613,6 +646,20 @@
 	swim_skill = TRUE
 	wash_in = TRUE
 
+/turf/open/water/ocean/deep/dark
+	water_color = "#000211"
+
+/turf/open/water/ocean/abyssal
+	name = "darkwater"
+	desc = "Water from another realm, it's impossibly deep, like everything below the surface isn't fully within this plane."
+	icon_state = "water"
+	icon = 'icons/turf/roguefloor.dmi'
+	water_level = 3
+	water_color = "#000211"
+	slowdown = 8
+	swim_skill = TRUE
+	wash_in = FALSE
+
 /turf/open/water/pond
 	name = "pond"
 	desc = "Still and alarmingly idyllic water. Covered in concerning overgrowth of duckweed."
@@ -652,20 +699,21 @@
 	var/turf/destination = GET_TURF_BELOW(src)
 	if(!destination || !istype(destination, /turf/open/water/transparent))
 		return TRUE //Either there is nothing below, or it's _not_ an open/water/transparent type
-	
+
 	if(isliving(A))
 		var/mob/living/L = A
-		if(L.stat != UNCONSCIOUS && !L.IsImmobilized() && !L.IsKnockdown())
+		if(L.pulledby || (L.stat != UNCONSCIOUS && !L.IsImmobilized() && !L.IsKnockdown()))
 			return TRUE
-
+	if(A.throwing)
+		return TRUE
 	if(!A.can_zTravel(destination, DOWN, src)) // something is blocking their fall!
 		return TRUE
 	if(!A.can_zFall(src, DOWN, destination)) // they can't fall!
 		return TRUE
-	
+
 	return FALSE
 
-/turf/open/transparent/openspace/zPassIn(atom/movable/A, direction, turf/source)
+/turf/open/water/transparent/zPassIn(atom/movable/A, direction, turf/source)
 	if(direction == DOWN)
 		for(var/obj/O in contents)
 			if(O.obj_flags & BLOCK_Z_IN_DOWN)
@@ -683,11 +731,13 @@
 		return FALSE
 	if(HAS_TRAIT(A, TRAIT_I_AM_INVISIBLE_ON_A_BOAT))
 		return FALSE
-	
+	if(A.throwing)
+		return FALSE
+
 	if(direction == DOWN)
 		if(isliving(A))
 			var/mob/living/L = A
-			if(L.stat != UNCONSCIOUS && !L.IsImmobilized() && !L.IsKnockdown())
+			if(L.pulledby || (L.stat != UNCONSCIOUS && !L.IsImmobilized() && !L.IsKnockdown()))
 				return FALSE
 		for(var/obj/O in contents)
 			if(O.obj_flags & BLOCK_Z_OUT_DOWN)
@@ -722,21 +772,21 @@
 
 /turf/open/water/transparent/inner
 	name = "underwater depths"
-	alpha = 30 
+	alpha = 30
 	slowdown = 6
 	baseturfs = /turf/open/water/transparent/inner
 
 /turf/open/water/transparent/inner/Initialize()
 	. = ..()
-	
-	if(water_overlay) 
+
+	if(water_overlay)
 		QDEL_NULL(water_overlay)
-	if(water_top_overlay) 
+	if(water_top_overlay)
 		QDEL_NULL(water_top_overlay)
 
 /turf/open/water/transparent/inner/Entered(atom/movable/AM, atom/oldLoc)
-	. = ..() 
-	
+	. = ..()
+
 	if(ishuman(AM) && !AM.throwing)
 		playsound(AM, pick('sound/foley/watermove (1).ogg','sound/foley/watermove (2).ogg'), 40, FALSE, 0.7)
 
@@ -744,7 +794,7 @@
 	icon = 'icons/turf/roguefloor.dmi'
 	icon_state = "water"
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	plane = -2 
+	plane = -2
 	layer = 4.5
 	alpha = 140
 	anchored = TRUE
@@ -782,18 +832,18 @@
 
 /turf/open/water/transparent/surface/swamp
 	name = "murky water surface"
-	icon_state = "dirtW2" 
+	icon_state = "dirtW2"
 	water_color = "#705a43"
 	alpha = 200
 
 /turf/open/water/transparent/surface/swamp/Initialize()
-	icon_state = "dirt" 
+	icon_state = "dirt"
 	. = ..()
 
 
 /turf/open/water/transparent/surface/ocean
 	name = "salt water surface"
-	icon_state = "water" 
+	icon_state = "water"
 	water_color = "#3e7459"
 	water_reagent = /datum/reagent/water/salty
 	alpha = 160
@@ -809,7 +859,7 @@
 
 /turf/open/water/transparent/inner/swamp
 	name = "murky depths"
-	icon_state = "dirtW2" 
+	icon_state = "dirtW2"
 	water_color = "#705a43"
 	alpha = 60
 
@@ -820,7 +870,7 @@
 
 /turf/open/water/transparent/inner/ocean
 	name = "ocean depths"
-	icon_state = "water" 
+	icon_state = "water"
 	water_color = "#3e7459"
 	alpha = 40
 	baseturfs = /turf/open/water/transparent/inner/ocean
@@ -834,13 +884,13 @@
 	baseturfs = /turf/open/water/transparent/inner/pond
 
 /turf/open/water/transparent/river
-	parent_type = /turf/open/water/river 
+	parent_type = /turf/open/water/river
 	icon = 'icons/turf/roguefloor.dmi'
-	icon_state = "rockwd" 
-	
-	
-	smooth = FALSE 
-	
+	icon_state = "rockwd"
+
+
+	smooth = FALSE
+
 	plane = OPENSPACE_PLANE
 	layer = OPENSPACE_LAYER
 	vis_flags = VIS_INHERIT_ID | VIS_INHERIT_PLANE
@@ -849,12 +899,12 @@
 
 /turf/open/water/transparent/river/Initialize()
 
-	icon_state = "riverbot" 
+	icon_state = "riverbot"
 	. = ..()
-	
+
 	vis_contents += GLOB.openspace_backdrop_one_for_all
 	update_multiz(TRUE, TRUE)
-	
+
 /turf/open/water/transparent/river/surface
 	name = "surface river"
 	alpha = 150
@@ -923,12 +973,12 @@
 
 /turf/open/water/transparent/surface/swamp
 	name = "murky water surface"
-	icon_state = "dirtW2" 
+	icon_state = "dirtW2"
 	water_color = "#705a43"
 	alpha = 200
 
 /turf/open/water/transparent/inner/swamp
 	name = "murky depths"
-	icon_state = "dirtW2" 
+	icon_state = "dirtW2"
 	water_color = "#705a43"
 	alpha = 60

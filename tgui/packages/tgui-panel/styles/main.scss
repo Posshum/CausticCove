@@ -13,11 +13,11 @@
 @include meta.load-css('~tgui/styles/reset.scss');
 
 // Atomic classes
-@include meta.load-css('~tgui/styles/atomic/candystripe.scss');
-@include meta.load-css('~tgui/styles/atomic/color.scss');
-@include meta.load-css('~tgui/styles/atomic/debug-layout.scss');
-@include meta.load-css('~tgui/styles/atomic/outline.scss');
-@include meta.load-css('~tgui/styles/atomic/text.scss');
+@include meta.load-css('~tgui-core/styles/atomic/candystripe.scss');
+@include meta.load-css('~tgui-core/styles/atomic/color.scss');
+@include meta.load-css('~tgui-core/styles/atomic/debug-layout.scss');
+@include meta.load-css('~tgui-core/styles/atomic/outline.scss');
+@include meta.load-css('~tgui-core/styles/atomic/text.scss');
 @include meta.load-css('./components/roguefont.scss');
 
 // Components specific to tgui-panel
@@ -55,3 +55,21 @@
   background-color: #222;
 }
 
+.theme-leatherbound {
+  --chat-text-color: #d4c090;
+  --color-base: #241a0e;
+  --color-hyperlink: #c8a050;
+
+  .Button {
+    background-color: #3a2e1c;
+  }
+
+  .Button:hover {
+    background-color: #4a3a22;
+  }
+
+  .Tabs--horizontal .Tab {
+    border-left: 2px solid #5e472a;
+    border-top: 2px solid #5e472a;
+  }
+}

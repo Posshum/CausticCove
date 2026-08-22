@@ -75,13 +75,21 @@
 	facepull = FALSE
 
 /client/Move(n, direct)
-	if(world.time < move_delay) //do not move anything ahead of this check please
+	if(istype(mob, /mob/dead/observer))
+		var/mob/dead/observer/observer = mob
+		if(world.time < observer.next_gmove)
+			return FALSE
+	else if(world.time < move_delay) //do not move anything ahead of this check please
 		return FALSE
-	else
-		next_move_dir_add = 0
-		next_move_dir_sub = 0
+	next_move_dir_add = 0
+	next_move_dir_sub = 0
 	var/old_move_delay = move_delay
-	move_delay = world.time + world.tick_lag //this is here because Move() can now be called mutiple times per tick
+	if(istype(mob, /mob/dead/observer))
+		var/mob/dead/observer/observer = mob
+		observer.next_gmove = world.time + (world.tick_lag * GLOB.observer_move_delay_multiplier)
+		move_delay = world.time
+	else
+		move_delay = world.time + world.tick_lag //this is here because Move() can now be called mutiple times per tick
 	if(!mob || !mob.loc)
 		return FALSE
 	if(!n || !direct)
@@ -106,6 +114,12 @@
 				to_chat(src, span_warning("My spirit hasn't manifested yet."))
 		return FALSE
 	if(mob.force_moving)
+		return FALSE
+
+	var/mob/living/sliding_mob = mob
+	var/datum/status_effect/ice_slide/ice_sliding = sliding_mob.has_status_effect(/datum/status_effect/ice_slide)
+	if(ice_sliding)
+		ice_sliding.steer(direct)
 		return FALSE
 
 	if(mob.shifting)
@@ -575,6 +589,8 @@
 
 //* Updates a mob's sneaking status, rendering them invisible or visible in accordance to their status. TODO:Fix people bypassing the sneak fade by turning, and add a proc var to have a timer after resetting visibility.
 /mob/living/update_sneak_invis(reset = FALSE) //Why isn't this in mob/living/living_movements.dm? Why, I'm glad you asked!
+	if(has_status_effect(/datum/status_effect/stealth_revealed) && !reset)
+		return
 	if(!reset && world.time < mob_timers[MT_INVISIBILITY]) // Check if the mob is affected by the invisibility spell
 		rogue_sneaking = TRUE
 		return
@@ -695,10 +711,12 @@
 				m_intent = MOVE_INTENT_SNEAK
 				if(isliving(src))
 					var/mob/living/L = src
-					if((/datum/mob_descriptor/prominent/prominent_bottom in L.mob_descriptors) || (/datum/mob_descriptor/prominent/prominent_thighs in L.mob_descriptors))
+					if((/datum/mob_descriptor/prominent/prominent_bottom in L.mob_descriptors) || (/datum/mob_descriptor/prominent/prominent_thighs in L.mob_descriptors) || (/datum/mob_descriptor/prominent/cellulite_riddled_ass in L.mob_descriptors) || (/datum/mob_descriptor/prominent/thicker_than_hardtack in L.mob_descriptors) || (/datum/mob_descriptor/prominent/prominent_paws in L.mob_descriptors))
 						L.loud_sneaking = TRUE
 					else
 						L.loud_sneaking = FALSE
+					if(!L.has_status_effect(/datum/status_effect/stealth_revealed))
+						m_intent = MOVE_INTENT_SNEAK
 				update_sneak_invis()
 
 			if(MOVE_INTENT_WALK)
@@ -770,29 +788,24 @@
 					return FALSE
 	return TRUE
 
-/mob/living/proc/check_dodge_skill()
+/mob/living/proc/check_dodge_skill(check_trait = TRUE)
 	return TRUE
 
-/mob/living/carbon/human/check_dodge_skill()
-	if(!HAS_TRAIT(src, TRAIT_DODGEEXPERT))
-		return FALSE
+/mob/living/carbon/human/check_dodge_skill(check_trait = TRUE)
+	if(check_trait)
+		if(!HAS_TRAIT(src, TRAIT_DODGEEXPERT))
+			return FALSE
 	if(istype(src.wear_armor, /obj/item/clothing))
 		var/obj/item/clothing/CL = src.wear_armor
-		if(CL.armor_class == ARMOR_CLASS_HEAVY)
-			return FALSE
-		if(CL.armor_class == ARMOR_CLASS_MEDIUM)
+		if(CL.armor_class > ARMOR_CLASS_LIGHT)
 			return FALSE
 	if(istype(src.wear_shirt, /obj/item/clothing))
 		var/obj/item/clothing/CL = src.wear_shirt
-		if(CL.armor_class == ARMOR_CLASS_HEAVY)
-			return FALSE
-		if(CL.armor_class == ARMOR_CLASS_MEDIUM)
+		if(CL.armor_class > ARMOR_CLASS_LIGHT)
 			return FALSE
 	if(istype(src.wear_pants, /obj/item/clothing))
 		var/obj/item/clothing/CL = src.wear_pants
-		if(CL.armor_class == ARMOR_CLASS_HEAVY)
-			return FALSE
-		if(CL.armor_class == ARMOR_CLASS_MEDIUM)
+		if(CL.armor_class > ARMOR_CLASS_LIGHT)
 			return FALSE
 	if(istype(src.head, /obj/item/clothing))
 		var/obj/item/clothing/CL = src.head
@@ -804,7 +817,6 @@
 				if(!HAS_TRAIT(src, TRAIT_MEDIUMARMOR))
 					return FALSE
 	return TRUE
-
 
 /mob/proc/toggle_eye_intent(mob/user) //clicking the fixeye button either makes you fixeye or clears your target
 	if(fixedeye)

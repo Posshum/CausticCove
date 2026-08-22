@@ -52,6 +52,7 @@
 				var/pos = length(file_data["[escaped]"]["[category]"]) + 1
 				file_data["[escaped]"]["[category]"]["[pos]"] = mob_data
 	WRITE_FILE(json_file, json_encode(file_data))
+	dump_chronicle_stats()
 	SSblackbox.record_feedback("nested tally", "round_end_stats", num_survivors, list("survivors", "total"))
 	SSblackbox.record_feedback("nested tally", "round_end_stats", num_escapees, list("escapees", "total"))
 	SSblackbox.record_feedback("nested tally", "round_end_stats", GLOB.joined_player_list.len, list("players", "total"))
@@ -93,11 +94,14 @@
 	if(SSticker.current_state != GAME_STATE_FINISHED)
 		return
 	status_flags |= GODMODE
-	ai_controller?.set_ai_status(AI_STATUS_OFF)
 	if(client)
-		client.verbs |= /client/proc/lobbyooc
-		client.verbs |= /client/proc/view_stats
+		add_verb(client, /client/proc/lobbyooc)
+		add_verb(client, /client/proc/view_stats)
+		client.init_verbs()
 		client.show_game_over()
+		return
+	if(ai_controller)
+		ai_controller.set_ai_status(AI_STATUS_OFF)
 
 /mob/living/do_game_over()
 	..()
@@ -128,7 +132,7 @@
 
 	log_game("The round has ended.")
 
-	to_chat(world, "<BR><BR><BR><span class='reallybig'>So ends this tale on [realm_name].</span>")
+	to_chat(world, "<BR><BR><BR><span class='reallybig'>So ends this tale on [realm_name].</span>", MESSAGE_TYPE_LOCALCHAT)
 	get_end_reason()
 
 	var/list/key_list = list()
@@ -141,6 +145,7 @@
 				C.mob.playsound_local(C.mob, 'sound/music/roundend_mirthful.ogg', 100, FALSE) //Hildegard Von Blingin and Whitney Avalon's transformative cover of 'Manchild' by Sabrina Carpenter, circa 2026.
 		if(isliving(C.mob) && C.ckey)
 			key_list += C.ckey
+	var/favor_bonus = SSmerchant_trade ? SSmerchant_trade.favor_triumph_bonus() : 0
 	for(var/mob/living/carbon/human/H in GLOB.player_list)
 		if(H.stat != DEAD)
 			if(H.get_triumphs() < 0)
@@ -149,9 +154,13 @@
 			if((GLOB.round_join_times[H.ckey] + 45 MINUTES) < world.time)
 				var/datum/job/job = SSjob.GetJob(H.job)
 				if(job && job.round_contrib_points)
-					to_chat(H, "\n<font color='purple'><b>[job.round_contrib_points]</b> ROUND CONTRIBUTOR POINTS AWARDED. Thank you for playing!</font>")
+					to_chat(H, "\n<font color='purple'><b>[job.round_contrib_points]</b> ROUND CONTRIBUTOR POINTS AWARDED. Thank you for playing!</font>", MESSAGE_TYPE_LOCALCHAT)
 					add_roundpoints(job.round_contrib_points, H.ckey)
+		if(favor_bonus > 0 && H.ckey && H.job && (H.job == "Merchant" || H.job == "Shophand"))
+			H.adjust_triumphs(favor_bonus)
+			to_chat(H, "\n<font color='purple'><b>+[favor_bonus] TRIUMPHS</b> awarded for trade volume earned with the Azurian Trading Company.</font>")
 	add_roundplayed(key_list)
+
 	update_god_rankings()
 	
 	for(var/mob/M in GLOB.mob_list)
@@ -162,13 +171,13 @@
 		cb.InvokeAsync()
 	LAZYCLEARLIST(round_end_events)
 
-	to_chat(world, "Round ID: [GLOB.rogue_round_id]")
+	to_chat(world, "Round ID: [GLOB.rogue_round_id]", MESSAGE_TYPE_INFO)
 
 	sleep(5 SECONDS)
 
 	gamemode_report()
 
-	to_chat(world, personal_objectives_report())
+	to_chat(world, personal_objectives_report(), MESSAGE_TYPE_INFO)
 
 	sleep(10 SECONDS)
 
@@ -250,7 +259,7 @@
 
 
 	if(end_reason)
-		to_chat(world, span_bigbold("[end_reason]."))
+		to_chat(world, span_bigbold("[end_reason]."), MESSAGE_TYPE_LOCALCHAT)
 	else
 		var/mob/living/ruler = rulermob
 		var/ruler_name = ruler?.real_name || "an unknown sovereign"
@@ -262,11 +271,11 @@
 			"[title] [ruler_name] has kept the realm together for another week.", \
 			"The rule of [title] [ruler_name] holds firm. [realm_name] endures.", \
 			"Through strife and struggle, [title] [ruler_name] has held [realm_name] together.")
-		to_chat(world, span_bigbold("[good_ending]"))
+		to_chat(world, span_bigbold("[good_ending]"), MESSAGE_TYPE_LOCALCHAT)
 
 	// Epilogue — additional flavor text set by usurpation rites
 	if(roundend_epilogue)
-		to_chat(world, "<BR><b><i>[roundend_epilogue]</i></b>")
+		to_chat(world, "<BR><b><i>[roundend_epilogue]</i></b>", MESSAGE_TYPE_LOCALCHAT)
 
 /datum/controller/subsystem/ticker/proc/gamemode_report()
 	var/list/all_teams = list()
@@ -277,7 +286,7 @@
 		header_parts += "<br>"
 		header_parts += "<div style='text-align: center; font-size: 1.2em;'>VILLAINS:</div>"
 		header_parts += "<hr class='paneldivider'>"
-		to_chat(world, header_parts)
+		to_chat(world, header_parts, MESSAGE_TYPE_INFO)
 
 	for(var/datum/team/A in GLOB.antagonist_teams)
 		if(!A.members)
@@ -386,7 +395,7 @@
 	if(!previous)
 		var/list/report_parts = list(personal_report(C), GLOB.common_report)
 		content = report_parts.Join()
-		C.verbs -= /client/proc/show_previous_roundend_report
+		remove_verb(C, /client/proc/show_previous_roundend_report)
 		fdel(filename)
 		text2file(content, filename)
 	else
@@ -558,12 +567,12 @@
 	var/datum/action/report/R = new
 	C.player_details.player_actions += R
 	R.Grant(C.mob)
-	to_chat(C,"<a href='?src=[REF(R)];report=1'>Show roundend report again</a>")
+	to_chat(C,"<a href='?src=[REF(R)];report=1'>Show roundend report again</a>", MESSAGE_TYPE_INFO)
 
 /datum/controller/subsystem/ticker/proc/give_show_playerlist_button(client/C)
 	set waitfor = 0
-	to_chat(C,"<a href='?src=[C];playerlistrogue=1'>* SHOW PLAYER LIST *</a>")
-	to_chat(C,"<a href='byond://?src=[C];viewstats=1'>* View Statistics *</a>")
+	to_chat(C,"<a href='?src=[C];playerlistrogue=1'>* SHOW PLAYER LIST *</a>", MESSAGE_TYPE_INFO)
+	to_chat(C,"<a href='byond://?src=[C];viewstats=1'>* View Statistics *</a>", MESSAGE_TYPE_INFO)
 	C.show_round_stats(pick_assoc(GLOB.featured_stats))
 	C.commendsomeone(forced = TRUE)
 
@@ -629,7 +638,7 @@
 
 /datum/controller/subsystem/ticker/proc/save_admin_data()
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_adminprefix("Admin rank DB Sync blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_adminprefix("Admin rank DB Sync blocked: Advanced ProcCall detected."), MESSAGE_TYPE_ADMINLOG)
 		return
 	if(CONFIG_GET(flag/admin_legacy_system)) //we're already using legacy system so there's nothing to save
 		return

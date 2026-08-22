@@ -148,6 +148,8 @@ Turf and target are separate in case you want to teleport some distance from a t
 	return destination
 
 /proc/getline(atom/M,atom/N)//Ultra-Fast Bresenham Line-Drawing Algorithm
+	if(!M || !N)
+		return list()
 	var/px=M.x		//starting x
 	var/py=M.y
 	var/line[] = list(locate(px,py,M.z))
@@ -1595,12 +1597,15 @@ GLOBAL_LIST_INIT(duplicate_forbidden_vars,list(
 				contained_atom.flags_1 |= HOLOGRAM_1
 	return O
 
+//Caustic Edit - Desert Areas included.
 #define VALID_HUNTING_AREAS list(\
 	/area/rogue/outdoors/beach/forest, \
 	/area/rogue/outdoors/woods, \
 	/area/rogue/outdoors/bog, \
 	/area/rogue/outdoors/mountains, \
-	/area/rogue/outdoors/rtfield \
+	/area/rogue/outdoors/rtfield, \
+	/area/rogue/outdoors/desert, \
+	/area/rogue/outdoors/desertdeep \
 )
 
 /proc/is_valid_hunting_area(area/A)
@@ -1629,6 +1634,7 @@ GLOBAL_LIST_INIT(duplicate_forbidden_vars,list(
 		"Garrison" = GLOB.garrison_positions,
 		"Church" = GLOB.church_positions,
 		"Burgher" = GLOB.burgher_positions,
+		"Azurian Trading Company" = GLOB.atc_positions,
 		"Peasant" = GLOB.peasant_positions,
 		"Sidefolk" = GLOB.sidefolk_positions,
 		"Inquisition" = GLOB.inquisition_positions,

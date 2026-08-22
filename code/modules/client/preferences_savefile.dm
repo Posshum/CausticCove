@@ -153,6 +153,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["tgui_fancy"]			>> tgui_fancy
 	S["tgui_lock"]			>> tgui_lock
 	S["tgui_theme"]			>> tgui_theme
+	S["parchment_skin"]		>> parchment_skin
+	S["statbrowser_theme"]	>> statbrowser_theme
+	S["preferred_ui_language"] >> preferred_ui_language
 	S["buttons_locked"]		>> buttons_locked
 	S["windowflash"]		>> windowflashing
 	S["be_special"] 		>> be_special
@@ -172,6 +175,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["no_language_fonts"]	>> no_language_fonts
 	S["no_language_icon"]	>> no_language_icon
 	S["no_redflash"]		>> no_redflash
+	S["darkvision_accessibility"] >> darkvision_accessibility
 	S["crt"]				>> crt
 	S["grain"]				>> grain
 	S["sexable"]			>> sexable
@@ -224,10 +228,20 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["directory_ad"]		>> directory_ad
 
 	S["audio_preload"]		>> audio_preload
+	S["rp_guidance"]		>> rp_guidance
+
+	if(!rp_guidance)
+		rp_guidance = 3 //Reset it to default if it's somehow null.
 	///Caustic edit end
 	// Custom hotkeys
 	S["key_bindings"]		>> key_bindings
+	//CC + TA edit
+	var/list/L
+	S["tat_build"] >> L
 
+	if(!tat_build)
+		tat_build = new(src)
+	//CC + TA edit end
 	//try to fix any outdated data if necessary
 	if(needs_update >= 0)
 		update_preferences(needs_update, S)		//needs_update = savefile_version if we need an update (positive integer)
@@ -246,6 +260,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	tgui_fancy		= sanitize_integer(tgui_fancy, 0, 1, initial(tgui_fancy))
 	tgui_lock		= sanitize_integer(tgui_lock, 0, 1, initial(tgui_lock))
 	tgui_theme		= sanitize_text(tgui_theme, initial(tgui_theme))
+	parchment_skin	= sanitize_parchment_skin(parchment_skin)
+	statbrowser_theme = sanitize_statbrowser_theme(statbrowser_theme)
+	preferred_ui_language = sanitize_preferred_ui_language(preferred_ui_language)
 	buttons_locked	= sanitize_integer(buttons_locked, 0, 1, initial(buttons_locked))
 	windowflashing	= sanitize_integer(windowflashing, 0, 1, initial(windowflashing))
 	default_slot	= sanitize_integer(default_slot, 1, max_save_slots, initial(default_slot))
@@ -260,6 +277,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	auto_fit_viewport	= sanitize_integer(auto_fit_viewport, 0, 1, initial(auto_fit_viewport))
 	attack_blip_frequency = sanitize_integer(attack_blip_frequency, 0, 100, ATTACK_BLIP_PREF_DEFAULT)
 	widescreenpref  = sanitize_integer(widescreenpref, 0, 1, initial(widescreenpref))
+	darkvision_accessibility = sanitize_integer(darkvision_accessibility, DARKVISION_ACCESSIBILITY_MIN, DARKVISION_ACCESSIBILITY_MAX, initial(darkvision_accessibility))
 	ghost_form		= sanitize_inlist(ghost_form, GLOB.ghost_forms, initial(ghost_form))
 	ghost_orbit 	= sanitize_inlist(ghost_orbit, GLOB.ghost_orbits, initial(ghost_orbit))
 	ghost_accs		= sanitize_inlist(ghost_accs, GLOB.ghost_accs_options, GHOST_ACCS_DEFAULT_OPTION)
@@ -270,6 +288,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	pda_color		= sanitize_hexcolor(pda_color, 6, 1, initial(pda_color))
 	key_bindings 	= sanitize_islist(key_bindings, list())
 	masked_examine  = sanitize_integer(masked_examine, 0, 1, initial(masked_examine))
+	tat_build.load_from_list(sanitize_islist(L, list())) //CC + TA edit
 	//ROGUETOWN
 	parallax = PARALLAX_INSANE
 
@@ -319,6 +338,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["no_language_fonts"], no_language_fonts)
 	WRITE_FILE(S["no_language_icon"], no_language_icon)
 	WRITE_FILE(S["no_redflash"], no_redflash)
+	WRITE_FILE(S["darkvision_accessibility"], darkvision_accessibility)
 	WRITE_FILE(S["crt"], crt)
 	WRITE_FILE(S["sexable"], sexable)
 	WRITE_FILE(S["shake"], shake)
@@ -336,6 +356,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["tgui_fancy"], tgui_fancy)
 	WRITE_FILE(S["tgui_lock"], tgui_lock)
 	WRITE_FILE(S["tgui_theme"], tgui_theme)
+	WRITE_FILE(S["parchment_skin"], parchment_skin)
+	WRITE_FILE(S["statbrowser_theme"], statbrowser_theme)
+	WRITE_FILE(S["preferred_ui_language"], preferred_ui_language)
 	WRITE_FILE(S["buttons_locked"], buttons_locked)
 	WRITE_FILE(S["windowflash"], windowflashing)
 	WRITE_FILE(S["be_special"], be_special)
@@ -375,7 +398,10 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["eating_noises"], eating_noises)
 	WRITE_FILE(S["belch_noises"], belch_noises)
 	WRITE_FILE(S["audio_preload"], audio_preload)
+	WRITE_FILE(S["rp_guidance"], rp_guidance)
 	///Caustic edit end
+
+	WRITE_FILE(S["tat_build"], tat_build.export_to_list()) //CC + TA edit
 	
 	return TRUE
 
@@ -594,6 +620,20 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	else
 		combat_music = GLOB.cmode_tracks_by_type[default_cmusic_type]
 
+/datum/preferences/proc/_load_barks(S)
+	S["bark_id"] >> bark_id
+	S["bark_speed"] >> bark_speed
+	S["bark_pitch"] >> bark_pitch
+	S["bark_variance"] >> bark_variance
+	S["mute_barks"] >> mute_barks
+
+	if(!(bark_id in GLOB.bark_list))
+		bark_id = pick(GLOB.bark_random_list)
+	var/datum/bark/B = GLOB.bark_list[bark_id]
+	bark_speed = round(clamp(bark_speed, initial(B.minspeed), initial(B.maxspeed)), 1)
+	bark_pitch = clamp(bark_pitch, initial(B.minpitch), initial(B.maxpitch))
+	bark_variance = clamp(bark_variance, initial(B.minvariance), initial(B.maxvariance))
+
 /datum/preferences/proc/_load_appearence(S)
 	S["real_name"]			>> real_name
 	S["gender"]				>> gender
@@ -696,6 +736,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	_load_gear_list(S)
 
 	_load_combat_music(S)
+	_load_barks(S)
 
 	if(!S["features["mcolor"]"] || S["features["mcolor"]"] == "#000")
 		WRITE_FILE(S["features["mcolor"]"]	, "#FFF")
@@ -718,6 +759,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		selected_patron = GLOB.patronlist[patron_typepath]
 		if(!selected_patron) //failsafe
 			selected_patron = GLOB.patronlist[default_patron]
+
+	S["manor_name"] >> manor_name  //CC + TA EDIT
+	S["manor_type"] >> manor_type  //CC + TA EDIT
 
 	//Custom names
 	for(var/custom_name_id in GLOB.preferences_custom_names)
@@ -790,7 +834,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["voice_type"] >> voice_type
 	S["voice_pack"] >> voice_pack
 	S["body_size"] >> features["body_size"]
-	if (!features["body_size"])
+	if (!features["body_size"] || features["body_size"] != BODY_SIZE_NORMAL) //Caustic Edit - Since we replaced Sprite Scale with Size Scale, lets just reset this to 1.00 for everyone.
 		features["body_size"] = BODY_SIZE_NORMAL
 	
 	_load_char_directory(S) //Caustic Edit - Add call to load Character Directory info!
@@ -875,9 +919,20 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	joblessrole	= sanitize_integer(joblessrole, 1, 3, initial(joblessrole))
 	//Validate job prefs
+	S["topjob"] >> topjob
+	var/topjob_found = FALSE
 	for(var/j in job_preferences)
 		if(job_preferences[j] != JP_LOW && job_preferences[j] != JP_MEDIUM && job_preferences[j] != JP_HIGH)
 			job_preferences -= j
+		if(job_preferences[j] == JP_HIGH)
+			topjob_found = TRUE
+			var/datum/job/prefjob = SSjob.GetJob(j)
+			if(prefjob)
+				topjob = prefjob.title
+			WRITE_FILE(S["topjob"], topjob)
+	if(!topjob_found && topjob)	// Fallback in case we load a slot that had HIGH set but then it got unset / job got altered.
+		topjob = null
+		WRITE_FILE(S["topjob"], topjob)
 
 	all_quirks = SANITIZE_LIST(all_quirks)
 
@@ -934,10 +989,13 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["feature_mcolor3"]		, features["mcolor3"])
 	WRITE_FILE(S["feature_ethcolor"]	, features["ethcolor"])
 	WRITE_FILE(S["nickname"]			, nickname)
+	WRITE_FILE(S["manor_name"]		, manor_name) //CC + TA EDIT
+	WRITE_FILE(S["manor_type"]		, manor_type) //CC + TA EDIT
 	WRITE_FILE(S["highlight_color"]		, highlight_color)
 	WRITE_FILE(S["taur_type"]			, taur_type)
 	WRITE_FILE(S["taur_color"]			, taur_color)
 	WRITE_FILE(S["culinary_preferences"], culinary_preferences)
+	WRITE_FILE(S["topjob"]				, topjob)
 
 	//Custom names
 	for(var/custom_name_id in GLOB.preferences_custom_names)
@@ -959,12 +1017,28 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["selected_patron"]		, selected_patron.type)
 
 	// Organs
+	var/list/packed_hair = list()
+	for(var/datum/customizer_entry/entry as anything in customizer_entries)
+		if(!istype(entry, /datum/customizer_entry/hair))
+			continue
+		var/datum/customizer_entry/hair/hair_entry = entry
+		packed_hair += hair_entry
+		hair_pack(hair_entry)
 	WRITE_FILE(S["customizer_entries"] , customizer_entries)
+	for(var/datum/customizer_entry/hair/hair_entry as anything in packed_hair)
+		hair_unpack(hair_entry)
 	// Body markings
 	WRITE_FILE(S["body_markings"] , body_markings)
 	// Descriptor entries
 	WRITE_FILE(S["descriptor_entries"] , descriptor_entries)
 	WRITE_FILE(S["custom_descriptors"] , custom_descriptors)
+
+	//Barks
+	WRITE_FILE(S["bark_id"]					, bark_id)
+	WRITE_FILE(S["bark_speed"]				, bark_speed)
+	WRITE_FILE(S["bark_pitch"]				, bark_pitch)
+	WRITE_FILE(S["bark_variance"]			, bark_variance)
+	WRITE_FILE(S["mute_barks"]				, mute_barks)
 
 	WRITE_FILE(S["dnr"] , dnr_pref)
 	WRITE_FILE(S["update_mutant_colors"] , update_mutant_colors)

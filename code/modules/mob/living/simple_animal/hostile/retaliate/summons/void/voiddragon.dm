@@ -2,16 +2,16 @@
 /*
 Void dragons are creatures of a bygone age. It is a melee creature, that will chase down and cut most people to shreds if they are by themself.
 It will also call down lightning strikes from the sky, and fling people with it's tail, as well as fly up into the sky.*/
-
+F
 /mob/living/simple_animal/hostile/retaliate/rogue/voiddragon/Initialize()
 	. = ..()
 	ADD_TRAIT(src, TRAIT_NOFIRE, "[type]")
+	ADD_TRAIT(src, TRAIT_BLOODLOSS_IMMUNE, TRAIT_GENERIC) //CC Edit - No bleed damage.
 	ADD_TRAIT(src, TRAIT_NOBREATH, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_ANTIMAGIC, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_TOXIMMUNE, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_NOPAINSTUN, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_SHOCKIMMUNE, TRAIT_GENERIC)
-	ADD_TRAIT(src, TRAIT_GUIDANCE, TRAIT_GENERIC)	//The voiddragon rends
 	src.adjust_skillrank(/datum/skill/combat/unarmed, 6, TRUE)	//parrying the voiddragon should be hard
 
 /mob/living/simple_animal/hostile/retaliate/rogue/voiddragon/simple_add_wound(datum/wound/wound, silent = FALSE, crit_message = FALSE)	//no wounding the void dragon
@@ -282,6 +282,13 @@ It will also call down lightning strikes from the sky, and fling people with it'
 		continue
 
 /mob/living/simple_animal/hostile/retaliate/rogue/voiddragon/MeleeAction(patience = TRUE)
+	//Caustic Cove Edit
+	if (melee_cooled_down > world.time)
+		return
+
+	melee_cooled_down = world.time + melee_cooldown
+	//Caustic Cove Edit End
+
 	if(rapid_melee > 1)
 		var/datum/callback/cb = CALLBACK(src, PROC_REF(CheckAndAttack))
 		var/delay = SSnpcpool.wait / rapid_melee
@@ -653,9 +660,9 @@ It will also call down lightning strikes from the sky, and fling people with it'
 	new /obj/item/clothing/ring/dragon_ring(deathspot)
 	new /obj/item/clothing/ring/dragon_ring(deathspot)
 	new /obj/item/clothing/ring/dragon_ring(deathspot)
-	new /obj/item/book/granter/arcane_aspect/minor(deathspot)
-	new /obj/item/book/granter/arcane_aspect/minor(deathspot)
-	new /obj/item/book/granter/arcane_aspect/major(deathspot)
+	new /obj/item/book/granter/arcane_aspect/magic/minor(deathspot)
+	new /obj/item/book/granter/arcane_aspect/magic/minor(deathspot)
+	new /obj/item/book/granter/arcane_aspect/magic/major(deathspot)
 	update_icon()
 	spill_embedded_objects()
 

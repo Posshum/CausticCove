@@ -7,7 +7,7 @@
 	total_positions = 2
 	spawn_positions = 2
 	f_title = "Princess"
-	allowed_races = RACES_ALL_KINDS //Caustic edit from RACES_NO_CONSTRUCT
+	forbidden_races = list() //Caustic edit from list(RACES_CONSTRUCT RACES_DESPISED)
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_ages = list(AGE_ADULT)
 	advclass_cat_rolls = list(CTAG_HEIR = 20)
@@ -17,11 +17,11 @@
 	display_order = JDO_PRINCE
 	give_bank_account = TRUE
 	noble_income = 20
-	min_pq = 1
+	min_pq = 8 // CC Edit - You are the son/daughter of the lord, you should at least know what the rest of the town looks like.
 	max_pq = null
 	round_contrib_points = 3
 	cmode_music = 'sound/music/combat_noble.ogg'
-	job_traits = list(TRAIT_NOBLE)
+	job_traits = list(TRAIT_NOBLE, TRAIT_MANORHOLDERSMALL)
 	job_subclasses = list(
 		/datum/advclass/heir/daring,
 		/datum/advclass/heir/bookworm,
@@ -32,7 +32,7 @@
 
 /datum/outfit/job/roguetown/heir/pre_equip(mob/living/carbon/human/H)
 	..()
-	H.verbs |= /mob/living/carbon/human/proc/declarechampion
+	add_verb(H, /mob/living/carbon/human/proc/declarechampion)
 	has_loadout = TRUE
 
 /datum/outfit/job/roguetown/heir/choose_loadout(mob/living/carbon/human/H)
@@ -95,7 +95,7 @@
 	neck = /obj/item/storage/belt/rogue/pouch/coins/rich
 	backr = /obj/item/storage/backpack/rogue/satchel
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_RICH, H)
 
 /datum/outfit/job/roguetown/heir/daring/choose_loadout(mob/living/carbon/human/H)
 	. = ..()
@@ -126,13 +126,15 @@
 		STATKEY_CON = -1,
 		STATKEY_LCK = 1,
 	)
-	subclass_mage_aspects = list("mastery" = FALSE, "major" = 0, "minor" = 2, "utilities" = 4)
+	subclass_mage_aspects = list("mastery" = FALSE, "major" = 0, "minor" = 2, "utilities" = 8)
 	subclass_skills = list(
 		/datum/skill/misc/reading = SKILL_LEVEL_MASTER,
 		/datum/skill/magic/arcane = SKILL_LEVEL_NOVICE,
 		/datum/skill/craft/crafting = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/craft/alchemy = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/knives = SKILL_LEVEL_NOVICE,
+		/datum/skill/combat/staves = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/combat/arcyne = SKILL_LEVEL_APPRENTICE,
 	)
 
 /datum/outfit/job/roguetown/heir/bookworm/pre_equip(mob/living/carbon/human/H)
@@ -144,7 +146,7 @@
 	if(should_wear_femme_clothes(H))
 		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/royal/princess
 	head = /obj/item/clothing/head/roguetown/circlet
-	belt = /obj/item/storage/belt/rogue/leather/cloth/lady
+	belt = /obj/item/storage/belt/rogue/leather/cloth/upgraded/lady
 	beltr = /obj/item/storage/keyring/heir
 	beltl = /obj/item/rogueweapon/huntingknife/idagger/steel/special
 	backr = /obj/item/storage/backpack/rogue/satchel
@@ -153,11 +155,11 @@
 	mask = /obj/item/clothing/mask/rogue/spectacles
 	neck = /obj/item/storage/belt/rogue/pouch/coins/rich
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_RICH, H)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/heir_spell_bundle)
 	backpack_contents = list(
 		/obj/item/handmirror = 1,
-		/obj/item/book/spellbook = 1,
+		/obj/item/rogueweapon/spellbook = 1,
 		/obj/item/chalk = 1,
 	)
 
@@ -204,7 +206,7 @@
 		belt = /obj/item/storage/belt/rogue/leather
 		shoes = /obj/item/clothing/shoes/roguetown/boots/nobleboot
 	if(should_wear_femme_clothes(H))
-		belt = /obj/item/storage/belt/rogue/leather/cloth/lady
+		belt = /obj/item/storage/belt/rogue/leather/cloth/upgraded/lady
 		head = /obj/item/clothing/head/roguetown/hennin
 		l_hand = /obj/item/clothing/head/roguetown/circlet // So we still get one.
 		armor = /obj/item/clothing/suit/roguetown/armor/silkcoat
@@ -215,7 +217,7 @@
 		/obj/item/storage/belt/rogue/pouch/coins/rich = 1
 	)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_RICH, H)
 
 /datum/advclass/heir/inbred
 	name = "Inbred wastrel"
@@ -249,17 +251,17 @@
 	if(should_wear_masc_clothes(H))
 		pants = /obj/item/clothing/under/roguetown/tights
 		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/royal/prince
-		belt = /obj/item/storage/belt/rogue/leather/cloth/lady
+		belt = /obj/item/storage/belt/rogue/leather/cloth/upgraded/lady
 		shoes = /obj/item/clothing/shoes/roguetown/boots/nobleboot
 	if(should_wear_femme_clothes(H))
-		belt = /obj/item/storage/belt/rogue/leather/cloth/lady
+		belt = /obj/item/storage/belt/rogue/leather/cloth/upgraded/lady
 		head = /obj/item/clothing/head/roguetown/hennin
 		armor = /obj/item/clothing/suit/roguetown/armor/silkcoat
 		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/royal/princess
 		shoes = /obj/item/clothing/shoes/roguetown/shortboots
 	saiga_shoes = /obj/item/clothing/shoes/roguetown/horseshoes/gold
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_RICH, H)
 
 /datum/advclass/heir/scamp
 	name = "Nettlesome Scamp"
@@ -312,13 +314,13 @@
 		/obj/item/lockpickring/mundane = 1,
 	)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_RICH, H)
 
 
 
 /mob/living/carbon/human/proc/declarechampion()
 	set name = "Declare Champion"
-	set category = "Noble"
+	set category = "IC.Nobility"
 
 
 	if(stat)

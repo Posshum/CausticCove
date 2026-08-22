@@ -8,9 +8,8 @@
 	origin_default = /datum/virtue/origin/lirvas
 	origin = "Lirvas"
 	base_name = "Zard"
-	desc = "<b>Drakian</b><br>\
-	Mighty scaled individuals who claim to be descendants of the dragons of yore.<br>\
-	<span style='color: #6a8cb7;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;'><b>+1 STR</b></span><br>"
+	desc_title = "Drakian"
+	desc = "Mighty scaled individuals who claim to be descendants of the dragons of yore."
 	species_traits = list(EYECOLOR,LIPS,STUBBLE,MUTCOLORS)
 	///Caustic edit
 	allowed_taur_types = list(
@@ -154,6 +153,8 @@
 		/datum/descriptor_choice/prominent_two,
 		/datum/descriptor_choice/prominent_three,
 		/datum/descriptor_choice/prominent_four,
+		/datum/descriptor_choice/prominent_five,
+		/datum/descriptor_choice/prominent_six
 	)
 
 /datum/species/dracon/check_roundstart_eligible()

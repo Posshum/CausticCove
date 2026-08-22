@@ -70,7 +70,7 @@ ENABLE_LOCALHOST_RANK
 #USE_ACCOUNT_AGE_FOR_JOBS
 
 ## Unhash this to track player playtime in the database. Requires database to be enabled.
-#USE_EXP_TRACKING
+USE_EXP_TRACKING
 ## Unhash this to enable playtime requirements for head jobs.
 #USE_EXP_RESTRICTIONS_HEADS
 ## Unhash this to override head jobs' playtime requirements with this number of hours.
@@ -82,6 +82,12 @@ ENABLE_LOCALHOST_RANK
 #USE_EXP_RESTRICTIONS_OTHER
 ## Allows admins to bypass job playtime requirements.
 #USE_EXP_RESTRICTIONS_ADMIN_BYPASS
+
+## Should we log entries as JSON
+LOG_AS_JSON
+
+## Should we log entries as human readable
+LOG_AS_HUMAN_READABLE
 
 ## log OOC channel
 LOG_OOC
@@ -254,7 +260,7 @@ USEBLACKLIST
 # RULESURL https://wiki.moviesfreepremium.xyz/blackstone/rules
 
 ## Github address
-GITHUBURL https://github.com/wewman222/CC
+GITHUBURL https://github.com/CausticCove/CC
 
 ## Round specific stats address
 ## Link to round specific parsed logs; IE statbus. It is appended with the RoundID automatically by ticker/Reboot()
@@ -439,7 +445,7 @@ CLIENT_ERROR_BUILD 1421
 ## Set to 0 or comment out to disable.
 SECOND_TOPIC_LIMIT 10
 
-MINUTE_TOPIC_LIMIT 100
+MINUTE_TOPIC_LIMIT 200
 
 
 ## CLICK RATE LIMITING
@@ -515,6 +521,34 @@ RESUME_AFTER_INITIALIZATIONS
 ## Uncomment to set the number of /world/Reboot()s before the DreamDaemon restarts itself. 0 means restart every round. Requires tgstation server tools.
 ROUNDS_UNTIL_HARD_RESTART 0
 
+## Enable automatic profiling - Byond 513.1506 and newer only.
+## AUTO_PROFILE
+
+## Clear the profile buffer after each dump. Each file then contains only the activity
+## since the previous dump (window mode), at the cost of not having a single cumulative round file.
+## Comment out to revert to cumulative-round dumps.
+## PROFILE_CLEAR_ON_DUMP
+
+## Determines the interval between each saved profiler snapshot (in deciseconds).
+#PROFILER_INTERVAL 3000
+
+## Threshold (in deciseconds) for real time between ticks before we start dumping profiles
+DRIFT_DUMP_THRESHOLD 40
+
+## How long to wait (in deciseconds) after a profile dump before logging another tickdrift sourced one
+DRIFT_PROFILE_DELAY 150
+
+## Tick-dilation percentage over the last 1s above which we start the sustained-TD timer.
+## Measured as (drift growth per real second) × world.tick_lag × 100.
+## 20 means "game advancing <=80% as fast as wall-clock" — egregious by our standards.
+SUSTAINED_TD_THRESHOLD_PCT 20
+
+## How long (in deciseconds) TD% must stay above SUSTAINED_TD_THRESHOLD_PCT before we dump a profile.
+SUSTAINED_TD_DURATION 200
+
+## Minimum gap (in deciseconds) between sustained-TD profile dumps. Set long to avoid the dump itself worsening the stall.
+SUSTAINED_TD_DELAY 1200
+
 
 ##Default view size, in tiles.
 ##	By default, this is 15x15, which gets simplified to 7 by byond
@@ -527,3 +561,31 @@ DEFAULT_VIEW 15x15
 ## The alternative square viewport size if you're using a widescreen view size
 ## You probably shouldn't ever be changing this, but it's here if you want to.
 DEFAULT_VIEW_SQUARE 15x15
+
+## Uncomment to enable global ban DB using the provided URL. The API should expect to receive a ckey at the end of the URL.
+## More API details can be found here: https://centcom.melonmesa.com
+#CENTCOM_BAN_DB https://centcom.melonmesa.com/ban/search
+
+## If the server only accepts whitelisted connections
+## 0 Disables Border Control
+## 1 Puts Border Control into 'learning mode' and will have it automatically whitelist new connections
+## 2 Puts Border Control into 'enforcing mode' and will have it deny connections that are not already whitelisted.
+BORDER_CONTROL 0
+
+## Whether something with floating refs can be hard deleted
+#HARD_DELETES_ENABLED
+
+## How long in seconds after which a hard delete is treated as causing lag. This can be a float and supports a precision as low as nanoseconds.
+#HARD_DELETES_OVERRUN_THRESHOLD 0.5
+
+## Once a typepath causes overrun from hard deletes this many times, stop hard deleting it on garbage collection failures. (set to 0 to disable)
+#HARD_DELETES_OVERRUN_LIMIT 0
+
+# If configured, this allows server operators to define the persistent origin used for clientside
+# storage. This must host the same file as available in tgui/public/iframe.html. This is also hosted
+# on the GitHub Pages site for the /tg/station repository, so does not need to be configured.
+# If multiple servers use the same domain name, clientside features such as message saving
+# and chat tabs will be persistent across both.
+# If this setting is not configured, but the webroot CDN is, that will be used instead of GitHub Pages.
+# If this setting is mpty, and the webroot CDN is disabled, byondstorage will be used.
+STORAGE_CDN_IFRAME https://vorestation.github.io/byond-client-storage/iframe.html

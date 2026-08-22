@@ -6,13 +6,13 @@
 	faction = "Station"
 	total_positions = 5
 	spawn_positions = 5
-	allowed_races = RACES_ALL_KINDS
+	
 	tutorial = "Somewhere in your lyfe, you fell to the wrong side of civilization. Hounded by the consequences of your actions, you spend your daes prowling the roads for easy marks and loose purses, scraping to get by."
 	outfit = null
 	outfit_female = null
 	display_order = JDO_WRETCH
 	show_in_credits = FALSE
-	min_pq = 10
+	min_pq = 20 // CC Edit - 20 PQ as opposed to 10 PQ by default
 	max_pq = null
 
 	obsfuscated_job = TRUE

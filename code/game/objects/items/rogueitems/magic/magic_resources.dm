@@ -1,7 +1,9 @@
 #define T1SELLPRICE 2
 #define T2SELLPRICE 15
 #define T3SELLPRICE 50
-#define T4SELLPRICE 250
+#define T4SELLPRICE 120
+#define LEYLINE_SELLPRICE 30
+#define VOIDSTONE_SELLPRICE 40
 
 // Magical resources for the Ratwood ported Mage Gameplay Loop system
 // Chose to not use /natural typepath because it didn't make much sense and this
@@ -16,22 +18,32 @@
 	grid_width = 32
 	grid_height = 32
 	var/tier = 0 //used for determining potency for mob healing
+	dropshrink = 0.85
+
+/obj/item/magic/familiar
+	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
+	var/mob/living/simple_animal/pet/familiar/stored_familiar
+
+/obj/item/magic/familiar/dropped(mob/user, silent)
+	. = ..()
+	if(stored_familiar)
+		stored_familiar.reset_perspective()
 
 // vestige - needed to revive a familiar. sort of like a carbon's head, but magic-style
-/obj/item/magic/familiar_vestige
+/obj/item/magic/familiar/familiar_vestige
 	name = "Planar Vestige"
 	icon_state = "abberant"
-	var/mob/living/simple_animal/pet/familiar/stored_familiar
-	resistance_flags = INDESTRUCTIBLE // don't even want to know what would happen if you broke this while a familiar was stored inside
 	desc = "The vestige of a planar creature, departed from this plane. Likely worth a lot to the magos that summoned them!"
 
 // familiar (item form): familiars can transform into this for portability and sovl
-/obj/item/magic/familiar_spirit
+/obj/item/magic/familiar/familiar_spirit
 	name = "Familiar Spirit"
 	icon = 'icons/roguetown/mob/familiars.dmi'
-	resistance_flags = INDESTRUCTIBLE
 	slot_flags = ITEM_SLOT_HIP|ITEM_SLOT_NECK|ITEM_SLOT_RING // little pendant-esque thing
-	desc = "You should not be seeing this!"
+
+/obj/item/magic/familiar/familiar_spirit/Initialize()
+	. = ..()
+	src.filters += filter(type = "drop_shadow", x=0, y=0, size=1, offset = 2, color = GLOW_COLOR_ARCANE)
 
 // MELD
 /obj/item/magic/melded
@@ -83,6 +95,7 @@
 	name = "leyline shards"
 	icon_state = "leyline"
 	desc = "A shard of a fractured leyline, it glows with lost power."
+	sellprice = LEYLINE_SELLPRICE
 
 /obj/item/reagent_containers/food/snacks/grown/manabloom
 	name = "mana bloom"
@@ -107,6 +120,7 @@
 	icon_state = "runedartifact"
 	desc = "An old stone from age long ago, marked with glowing sigils."
 	w_class = WEIGHT_CLASS_SMALL
+	dropshrink = 0.8
 
 /obj/item/magic/artifact/Initialize()
 	.=..()
@@ -119,6 +133,7 @@
 	icon_state = "voidstone"
 	desc = "A piece of blackstone, it feels off to stare at it for long."
 	w_class = WEIGHT_CLASS_SMALL
+	sellprice = VOIDSTONE_SELLPRICE
 
 // INFERNAL
 /obj/item/magic/infernal
@@ -160,8 +175,6 @@
 //FAIRY
 /obj/item/magic/fae
 	w_class = WEIGHT_CLASS_SMALL
-	sellprice = T1SELLPRICE
-	tier = 1
 
 /obj/item/magic/fae/examine(mob/user)
 	. = ..()
@@ -235,3 +248,5 @@
 #undef T2SELLPRICE
 #undef T3SELLPRICE
 #undef T4SELLPRICE
+#undef LEYLINE_SELLPRICE
+#undef VOIDSTONE_SELLPRICE

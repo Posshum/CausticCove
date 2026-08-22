@@ -26,7 +26,7 @@
 /mob/living/proc/handle_blood()
 	if((bodytemperature <= TCRYO) || HAS_TRAIT(src, TRAIT_HUSK)) //cryosleep or husked people do not pump the blood.
 		return
-	
+
 	blood_volume = min(blood_volume, BLOOD_VOLUME_MAXIMUM)
 	//Effects of bloodloss - only run if we're not actually dead.
 	if (stat != DEAD)
@@ -80,7 +80,7 @@
 /mob/living/carbon/handle_blood()
 	if((bodytemperature <= TCRYO) || HAS_TRAIT(src, TRAIT_HUSK)) //cryosleep or husked people do not pump the blood.
 		return
-	
+
 	blood_volume = min(blood_volume, BLOOD_VOLUME_MAXIMUM)
 
 	if(dna?.species && (NOBLOOD in dna.species.species_traits))
@@ -102,7 +102,7 @@
 			adjustOxyLoss(blood_volume <= BLOOD_VOLUME_SURVIVE ? 3 : 1)
 			if(prob(40) && !HAS_TRAIT(src, TRAIT_NOBREATH))
 				if(!stat == CONSCIOUS || !stat == DEAD)
-					emote("gasp")		
+					emote("gasp")
 			return
 
 	//Blood regeneration if there is some space
@@ -221,20 +221,30 @@
 	if(!iscarbon(src) && !HAS_TRAIT(src, TRAIT_SIMPLE_WOUNDS))
 		return FALSE
 
+	if(HAS_TRAIT(src, TRAIT_CRITICAL_RESISTANCE))	// We apply the major multipliers first.
+		amt *= CRIT_RESISTANCE_EFFECTIVE_BLEEDRATE
+	else if(HAS_TRAIT(src, TRAIT_BLOOD_RESISTANCE))
+		amt *= BLOOD_RESISTANCE_EFFECTIVE_BLEEDRATE
+
 	//For each CON above 10, we bleed slower.
 	//Consequently, for each CON under 10 we bleed faster.
 	var/conbonus = 1
+
+	//CC Edit - Fix Bleed Rates
 	if(STACON >= CONSTITUTION_BLEEDRATE_CAP)
 		conbonus = CONSTITUTION_BLEEDRATE_CAP - 10
-	else if(STACON != 10)
+	else
 		conbonus = STACON - 10
-		amt -= amt * (conbonus * CONSTITUTION_BLEEDRATE_MOD)
-		if(HAS_TRAIT(src, TRAIT_CRITICAL_RESISTANCE))
-			amt = amt * CRIT_RESISTANCE_EFFECTIVE_BLEEDRATE
-		if(HAS_TRAIT(src, TRAIT_BLOOD_RESISTANCE))
-			amt *= BLOOD_RESISTANCE_EFFECTIVE_BLEEDRATE
-		if(HAS_TRAIT(src, TRAIT_CRITICAL_WEAKNESS))
-			amt = amt * 2
+
+	amt -= amt * (conbonus * CONSTITUTION_BLEEDRATE_MOD)
+	if(HAS_TRAIT(src, TRAIT_CRITICAL_RESISTANCE))
+		amt *= CRIT_RESISTANCE_EFFECTIVE_BLEEDRATE
+	if(HAS_TRAIT(src, TRAIT_BLOOD_RESISTANCE))
+		amt *= BLOOD_RESISTANCE_EFFECTIVE_BLEEDRATE
+	if(HAS_TRAIT(src, TRAIT_CRITICAL_WEAKNESS))
+		amt *= 2
+	//CC Edit - Fix Bleed Rates
+
 	if(surrendering)
 		amt = amt / 4 // Helps yield condition not be a bloodloss failure state. Approx to grabbing all of your bodyparts at once
 	blood_volume = max(blood_volume - amt, 0)
@@ -268,6 +278,12 @@
 /mob/living/carbon/human/restore_blood()
 	blood_volume = BLOOD_VOLUME_NORMAL
 	bleed_rate = 0
+
+/mob/living/proc/get_blood_color()
+	return
+
+/mob/living/carbon/human/get_blood_color()
+	return dna?.species?.blood_color || BLOOD_COLOR_RED
 
 /****************************************************
 				BLOOD TRANSFERS
@@ -401,7 +417,12 @@
 		W.water_volume = 10
 		W.update_icon()
 		return
-	new /obj/effect/decal/cleanable/blood/splatter(T)
+	var/current_blood_color = get_blood_color() || BLOOD_COLOR_RED
+	new /obj/effect/decal/cleanable/blood/splatter(T, current_blood_color)
+	for(var/obj/effect/decal/cleanable/blood/B in T)
+		if(istype(B, /obj/effect/decal/cleanable/blood/footprints))
+			continue
+		B.set_blood_color(current_blood_color)
 	T?.pollute_turf(/datum/pollutant/metallic_scent, 30)
 
 //to add splatters of blood onto nearby walls. When provided a certain force amount, also increases the range at which blood can appear on the walls.
@@ -419,7 +440,8 @@
 		T = get_turf(src)
 	for(var/turf/closed/w in orange(abs(force_distance), T))
 		var/loc = get_step(T, M)
-		new /obj/effect/decal/cleanable/blood/splatter/walls(loc)
+		var/obj/effect/decal/cleanable/blood/splatter/walls/wall_blood = new(loc)
+		wall_blood.set_blood_color(get_blood_color())
 		if(spill_amount > 0)
 			spill_amount--
 			continue
@@ -446,22 +468,29 @@
 			return
 	var/obj/effect/decal/cleanable/blood/puddle/P = locate() in T
 	if(P)
+		P.set_blood_color(get_blood_color())
 		P.blood_vol += amt
 		P.update_icon()
 	else
 		var/obj/effect/decal/cleanable/blood/drip/D = locate() in T
 		if(D)
+			D.set_blood_color(get_blood_color())
 			D.blood_vol += amt
 			D.drips++
 			D.update_icon()
 		else
-			new /obj/effect/decal/cleanable/blood/drip(T)
+			D = new(T)
+			D.set_blood_color(get_blood_color())
 
 //OV edit
 /mob/living/carbon/human/add_drip_floor(turf/T, amt)
 	if(!(NOBLOOD in dna.species.species_traits) && !(INVISBLOOD in dna.species.species_traits))
 		..()
 //OV edit end
+
+/mob/living/carbon/human/add_drip_floor(turf/T, amt)
+	if(!(NOBLOOD in dna.species.species_traits))
+		..()
 
 /mob/living/carbon/human/add_splatter_floor(turf/T, small_drip)
 	if(!(NOBLOOD in dna.species.species_traits) && !(INVISBLOOD in dna.species.species_traits)) //OV EDIT

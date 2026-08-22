@@ -83,6 +83,7 @@ GLOBAL_LIST_INIT(bitflags, list(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 204
 #define PASSBLOB		(1<<3)
 #define PASSMOB			(1<<4)
 #define PASSCLOSEDTURF	(1<<5)
+#define PASS_ALL		(PASSTABLE | PASSGLASS | PASSGRILLE | PASSBLOB | PASSMOB | PASSCLOSEDTURF)
 /// Let thrown things past us. **ONLY MEANINGFUL ON pass_flags_self!**
 #define LETPASSTHROW	(1<<6)
 
@@ -93,6 +94,9 @@ GLOBAL_LIST_INIT(bitflags, list(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 204
 #define FLOATING		(1<<3)
 /// When moving, will Bump()/Cross() everything, but won't be stopped.
 #define UNSTOPPABLE		(1<<4)
+
+#define MOVETYPES_NOT_TOUCHING_GROUND (FLOATING | FLYING)
+#define MOVETYPES_FLOATING_ANIMATION (FLOATING | FLYING)
 
 //Fire and Acid stuff, for resistance_flags
 #define LAVA_PROOF		(1<<0)
@@ -152,3 +156,8 @@ GLOBAL_LIST_INIT(bitflags, list(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 204
 //alternate appearance flags
 #define AA_TARGET_SEE_APPEARANCE (1<<0)
 #define AA_MATCH_TARGET_OVERLAYS (1<<1)
+
+// walking noise related flags
+#define STEPNOISE_ALL (1<<0)
+#define STEPNOISE_HEELS (1<<1)
+#define STEPNOISE_NONE (1<<2)

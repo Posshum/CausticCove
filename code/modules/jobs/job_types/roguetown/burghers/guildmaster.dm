@@ -7,9 +7,8 @@
 	faction = "Station"
 	total_positions = 1
 	spawn_positions = 1
-	min_pq = 0
 
-	allowed_races = ACCEPTED_RACES
+	forbidden_races = list() //Caustic Edit - Just a global tweak to remove 'races_despised' from this check everywhere
 
 	tutorial = "You are the leader of the Azure Peak Guild of Crafts. You represents the interests of all of the craftsmen underneath you - including the Tailor\
 	the Blacksmiths, the Artificers and the Architects. Other townspeople may look to you for guidance, but they are not under your control. You are an experienced smith and artificer, and can do their work easily. Protect the craftsmen's interests."
@@ -18,7 +17,7 @@
 	selection_color = JCOLOR_BURGHER
 	display_order = JDO_GUILDMASTER
 	give_bank_account = TRUE
-	min_pq = 5 // Higher PQ requirement as it is a leadership role. Not for total newbie.
+	min_pq = 10 //CC Edit - You oversee the guild and are called upon when required and should respond appropriately when people need you.
 	max_pq = null
 	round_contrib_points = 3
 	cmode_music = 'sound/music/cmode/towner/combat_retired.ogg'
@@ -102,16 +101,17 @@
 		neck = /obj/item/storage/belt/rogue/pouch/coins/rich //cc edit start
 		beltl = /obj/item/storage/magebag/starter //cc edit end
 		beltr = /obj/item/storage/keyring/guildmaster
-		ADD_TRAIT(H, TRAIT_MASTER_CARPENTER, TRAIT_GENERIC)		
-		ADD_TRAIT(H, TRAIT_MASTER_MASON, TRAIT_GENERIC)	
-		SStreasury.give_money_account(ECONOMIC_UPPER_CLASS, H, "Savings.")
+	ADD_TRAIT(H, TRAIT_MASTER_CARPENTER, TRAIT_GENERIC)
+	ADD_TRAIT(H, TRAIT_MASTER_MASON, TRAIT_GENERIC)
+	if(H.mind)
+		SStreasury.grant_savings(ECONOMIC_UPPER_CLASS, H)
 
 /datum/outfit/job/roguetown/guildmaster/choose_loadout(mob/living/carbon/human/H)
 	. = ..()
 
 /mob/living/carbon/human/proc/guild_announcement()
 	set name = "Announcement"
-	set category = "GUILDMASTER"
+	set category = "IC.Actions"
 	if(stat)
 		return
 	var/announcementinput = input("Bellow to the Peaks", "Make an Announcement") as text|null

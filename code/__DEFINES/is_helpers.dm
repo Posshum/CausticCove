@@ -103,8 +103,8 @@ GLOBAL_LIST_INIT(our_forest_sex, typecacheof(list(
 #define ismoth(A) (is_species(A, /datum/species/moth))
 #define istabaxi(A) (is_species(A, /datum/species/tabaxi))
 #define isvulp(A) (is_species(A, /datum/species/vulpkanin))
+#define isooze(A) (is_species(A, /datum/species/ooze))
 #define isgnoll(A) (is_species(A, /datum/species/gnoll))
-#define isooze(A) (is_species(A, /datum/species/ooze)) //OV ADD
 
 
 //more carbon mobs
@@ -144,6 +144,12 @@ GLOBAL_LIST_INIT(our_forest_sex, typecacheof(list(
 
 //Misc mobs
 #define isobserver(A) (istype(A, /mob/dead/observer))
+
+#define isplayerghost(A) (isobserver(A) && !isscryeye(A) && !isadminghost(A))
+
+#define isscryeye(A) (istype(A, /mob/dead/observer/eye))
+
+#define isadminghost(A) (istype(A, /mob/dead/observer/admin))
 
 #define isdead(A) (istype(A, /mob/dead))
 
@@ -204,3 +210,4 @@ GLOBAL_VAR_INIT(magic_appearance_detecting_image, new /image) // appearances are
 #define isimage(thing) (istype(thing, /image))
 #define isappearance(thing) (!isimage(thing) && !ispath(thing) && istype(GLOB.magic_appearance_detecting_image, thing))
 #define isappearance_or_image(thing) (isimage(thing) || (!ispath(thing) && istype(GLOB.magic_appearance_detecting_image, thing)))
+#define is_ooze_wound(A) (istype(A, /datum/wound/fracture) || istype(A, /datum/wound/dislocation)) //Defines what kinds of wounds cause ooze limbs to melt.

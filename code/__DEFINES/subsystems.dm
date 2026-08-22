@@ -101,6 +101,7 @@
 // Subsystems shutdown in the reverse of the order they initialize in
 // The numbers just define the ordering, they are meaningless otherwise.
 
+#define INIT_ORDER_PROFILER			101
 #define INIT_ORDER_TITLE			100
 #define INIT_ORDER_GARBAGE			99
 #define INIT_ORDER_DBCORE			95
@@ -128,7 +129,6 @@
 #define INIT_ORDER_MINOR_MAPPING	47 //CC Edit for Map Templates
 #define INIT_ORDER_NETWORKS			45
 #define INIT_ORDER_SPATIAL_GRID     43
-#define INIT_ORDER_ECONOMY			40
 #define INIT_ORDER_OUTPUTS			35
 #define INIT_ORDER_ATOMS			30
 #define INIT_ORDER_TREESETUP		27 // CC Edit for Map Template
@@ -139,18 +139,22 @@
 #define INIT_ORDER_TIMER			1
 #define INIT_ORDER_DEFAULT			0
 #define INIT_ORDER_AIR				-1
+#define INIT_ORDER_ECONOMY			-2
 #define INIT_ORDER_ASSETS			-4
 #define INIT_ORDER_ICON_SMOOTHING	-5
 #define INIT_ORDER_OVERLAY			-6
+#define INIT_ORDER_TGUI				-7
 #define INIT_ORDER_XKEYSCORE		-10
 #define INIT_ORDER_STICKY_BAN		-10
 #define INIT_ORDER_LIGHTING			-20
-#define INIT_ORDER_OUTDOOR_EFFECTS  -30 //CC Edit for Map Templates
-#define INIT_ORDER_SHUTTLE			-40 //CC Edit for Map Templates
+#define INIT_ORDER_OUTDOOR_EFFECTS  -21
+#define INIT_ORDER_SHUTTLE			-22
+#define INIT_ORDER_MERCHANT_TRADE	-23
 #define INIT_ORDER_PATH				-50
 #define INIT_ORDER_DISCORD			-60
 #define INIT_ORDER_PERSISTENCE		-95
 #define INIT_ORDER_CHAT				-100 //Should be last to ensure chat remains smooth during init.
+#define INIT_ORDER_INIT_PROFILER	-101 //Dumps the init profile, must be after everything else has initialized.
 
 //! ### SS initialization hints
 /**
@@ -213,6 +217,7 @@
 #define FIRE_PRIORITY_MOUSE_ENTERED	160
 #define FIRE_PRIORITY_TICKER		200
 #define FIRE_PRIORITY_ATMOS_ADJACENCY	300
+#define FIRE_PRIORITY_STATPANEL		390
 #define FIRE_PRIORITY_CHAT			400
 #define FIRE_PRIORITY_RUNECHAT		410
 #define FIRE_PRIORITY_OVERLAYS		500

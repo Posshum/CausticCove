@@ -50,7 +50,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 ///Mob ref is only needed for their dir to know how to rotate it and for the throw proc.
 /obj/item/proc/get_deflected(mob/deflector)
 	var/turnangle = (prob(50) ? 270 : 90)
-	if(prob(10))	
+	if(prob(10))
 		turnangle = 0 //Right back at thee
 	var/turndir = turn(deflector.dir, turnangle)
 	var/dist = rand(1, 6)
@@ -107,10 +107,13 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 	// --- behind handling + icon_states cache ---
 	if(behind)
 		var/icon_key = "[icon]"
+		var/state_key = "[icon]_[icon_state]"
 		if(!GLOB.IconStates_cache[icon_key])
-			var/list/istates = icon_states(icon)
-			GLOB.IconStates_cache[icon_key] = istates
-			GLOB.has_behind_cache[icon_key] = ("[icon_state]_behind" in istates)
+			GLOB.IconStates_cache[icon_key] = icon_states(icon)
+
+		if(isnull(GLOB.has_behind_cache[state_key]))
+			var/list/istates = GLOB.IconStates_cache[icon_key]
+			GLOB.has_behind_cache[state_key] = ("[icon_state]_behind" in istates)
 
 		if(GLOB.has_behind_cache[icon_key])
 			blended = icon(icon = icon, icon_state = "[icon_state]_behind")
@@ -336,7 +339,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 #ifdef TESTSERVER
 
 /client/verb/output_inhands()
-	set category = "INHANDS"
+	set category = "DEBUG.Inhands"
 	set name = "Output Variables"
 	set desc = ""
 
@@ -362,7 +365,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 			to_chat(mob, "[tegst.Join()]")
 
 /client/verb/inhand_xplus()
-	set category = "INHANDS"
+	set category = "DEBUG.Inhands"
 	set name = "X+1"
 
 	if(!isliving(mob))
@@ -413,7 +416,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 	LI.update_inv_back()
 
 /client/verb/inhand_xminus()
-	set category = "INHANDS"
+	set category = "DEBUG.Inhands"
 	set name = "X-1"
 
 	if(!isliving(mob))
@@ -464,7 +467,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 	LI.update_inv_back()
 
 /client/verb/inhand_yplus()
-	set category = "INHANDS"
+	set category = "DEBUG.Inhands"
 	set name = "Y+1"
 
 	if(!isliving(mob))
@@ -515,7 +518,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 	LI.update_inv_back()
 
 /client/verb/inhand_yminus()
-	set category = "INHANDS"
+	set category = "DEBUG.Inhands"
 	set name = "Y-1"
 
 	if(!isliving(mob))
@@ -566,7 +569,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 	LI.update_inv_back()
 
 /client/verb/inhand_flip()
-	set category = "INHANDS"
+	set category = "DEBUG.Inhands"
 	set name = "FLIP"
 
 	if(!isliving(mob))
@@ -630,7 +633,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 	LI.update_inv_back()
 
 /client/verb/inhand_turnplus()
-	set category = "INHANDS"
+	set category = "DEBUG.Inhands"
 	set name = "Turn +1"
 
 	if(!isliving(mob))
@@ -683,7 +686,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 	LI.update_inv_back()
 
 /client/verb/inhand_turnminus()
-	set category = "INHANDS"
+	set category = "DEBUG.Inhands"
 	set name = "Turn -1"
 
 	if(!isliving(mob))
@@ -736,7 +739,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 	LI.update_inv_back()
 
 /client/verb/inhand_scaleplus()
-	set category = "INHANDS"
+	set category = "DEBUG.Inhands"
 	set name = "Shrink+0.1"
 
 	if(!isliving(mob))
@@ -774,7 +777,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 	LI.update_inv_back()
 
 /client/verb/inhand_scaleminus()
-	set category = "INHANDS"
+	set category = "DEBUG.Inhands"
 	set name = "Shrink-0.1"
 
 	if(!isliving(mob))
@@ -811,7 +814,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 	LI.update_inv_back()
 
 /client/verb/give_me_money()
-	set category = "DEBUGTEST"
+	set category = "DEBUG.Testing"
 	set name = "GiveMeMoney"
 	if(mob)
 		var/turf/T = get_turf(mob)
@@ -819,7 +822,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 			new /obj/item/coin/gold/pile(T)
 /*
 /client/verb/wwolf()
-	set category = "DEBUGTEST"
+	set category = "DEBUG.Testing"
 	set name = "Werewolf"
 	if(mob.mind)
 		if(mob.mind.has_antag_datum(/datum/antagonist/werewolf, TRUE))
@@ -830,7 +833,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 */
 
 /client/verb/zoomtest()
-	set category = "DEBUGTEST"
+	set category = "DEBUG.Testing"
 	set name = "ZoomTest"
 	if(mob)
 		if(iscarbon(mob))
@@ -844,7 +847,7 @@ GLOBAL_LIST_INIT(has_behind_cache, list()) // cheaty hack to avoid repeated list
 				animate(transform = -newmatrix, time = 5, easing = QUAD_EASING)
 
 /client/verb/zoomteststop()
-	set category = "DEBUGTEST"
+	set category = "DEBUG.Testing"
 	set name = "ZoomTestEnd"
 	if(mob)
 		if(iscarbon(mob))

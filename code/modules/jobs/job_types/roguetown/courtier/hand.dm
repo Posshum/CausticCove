@@ -6,7 +6,7 @@
 	total_positions = 1
 	spawn_positions = 1
 
-	allowed_races = RACES_ALL_KINDS //Caustic edit from RACES_NO_CONSTRUCT
+	forbidden_races = list() //Caustic edit from list(RACES_CONSTRUCT RACES_DESPISED)
 	allowed_sexes = list(MALE, FEMALE)
 	outfit = /datum/outfit/job/roguetown/hand
 	advclass_cat_rolls = list(CTAG_HAND = 20)
@@ -20,7 +20,7 @@
 	max_pq = null
 	round_contrib_points = 3
 	cmode_music = 'sound/music/cmode/nobility/combat_spymaster.ogg'
-	job_traits = list(TRAIT_NOBLE, TRAIT_EXPERT_HUNTER)
+	job_traits = list(TRAIT_NOBLE, TRAIT_EXPERT_HUNTER, TRAIT_MANORHOLDERBIG)
 	vice_restrictions = list(/datum/charflaw/mute, /datum/charflaw/unintelligible) //Needs to use the throat - sometimes
 	job_subclasses = list(
 		/datum/advclass/hand/blademaster,
@@ -34,12 +34,13 @@
 	shirt = /obj/item/clothing/suit/roguetown/armor/chainmail/light //regular
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/hand
 	belt = /obj/item/storage/belt/rogue/leather/steel
+	neck = /obj/item/storage/belt/rogue/pouch/coins/mid
 	id = /obj/item/scomstone/garrison/hand
 	job_bitflag = BITFLAG_ROYALTY
 
 /datum/outfit/job/roguetown/hand/pre_equip(mob/living/carbon/human/H)
 	H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/convertrole/agent)
-	H.verbs |= /datum/job/roguetown/hand/proc/remember_agents
+	add_verb(H, /datum/job/roguetown/hand/proc/remember_agents)
 
 /datum/job/roguetown/hand/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
 	. = ..()
@@ -48,7 +49,6 @@
 		if(ishuman(L))
 			var/mob/living/carbon/human/H = L
 			GLOB.court_spymaster += H.real_name
-			..()
 
 ///////////
 //CLASSES//
@@ -101,7 +101,7 @@
 		/obj/item/hunting_map/white_stag = 1,
 	)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_RICH, H)
 
 
 //Spymaster start
@@ -162,7 +162,7 @@
 		backr = /obj/item/storage/backpack/rogue/satchel/black
 		pants = /obj/item/clothing/under/roguetown/tights/black
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_RICH, H)
 
 //Advisor Start
 /datum/advclass/hand/advisor
@@ -180,12 +180,13 @@
 		STATKEY_LCK = 2,
 	)
 	age_mod = /datum/class_age_mod/hand_advisor
-	subclass_mage_aspects = list("mastery" = FALSE, "major" = 1, "minor" = 1, "utilities" = 2, "ward" = TRUE)
+	subclass_mage_aspects = list("mastery" = FALSE, "major" = 1, "minor" = 1, "utilities" = 4, "ward" = TRUE)
 	subclass_skills = list(
 		/datum/skill/combat/crossbows = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/swords = SKILL_LEVEL_JOURNEYMAN, //they get the whole cane sword, they should use the whole cane sword
 		/datum/skill/combat/staves = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/combat/arcyne = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/swimming = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/athletics = SKILL_LEVEL_JOURNEYMAN,
@@ -215,10 +216,10 @@
 		/obj/item/roguekey/skeleton = 1,
 		/obj/item/lockpickring/mundane = 1,
 		/obj/item/reagent_containers/glass/bottle/rogue/poison = 1,//starts with a vial of poison, like all wizened evil advisors do!
-		/obj/item/book/spellbook = 1,
+		/obj/item/rogueweapon/spellbook = 1,
 	)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Savings.")
+		SStreasury.grant_savings(ECONOMIC_RICH, H)
 
 ////////////////////
 ///SPELLS & VERBS///
@@ -234,7 +235,7 @@
 
 /datum/job/roguetown/hand/proc/remember_agents()
 	set name = "Remember Agents"
-	set category = "Voice of Command"
+	set category = "IC.Court Agent"
 
 	to_chat(usr, span_boldnotice("I have these agents present:"))
 	for(var/name in GLOB.court_agents)
@@ -256,4 +257,4 @@
 	if(!.)
 		return
 	GLOB.court_agents += recruit.real_name
-	recruit.verbs |= /datum/job/roguetown/adventurer/courtagent/proc/remember_employer
+	add_verb(recruit, /datum/job/roguetown/adventurer/courtagent/proc/remember_employer)

@@ -169,6 +169,7 @@
 #define HIDETAIL		(1<<14)
 #define HIDESNOUT		(1<<15)
 #define HIDEWINGS		(1<<16)
+#define HIDECROTCHFRONT (1<<17) //Caustic Edit - Add in a flag specifically for only hiding the front of the crotch! Shows ASS still!
 
 //blocking_behavior var on clothing items
 #define BLOCKBOOTS		(1<<0)
@@ -179,6 +180,7 @@
 #define BLOCKPANTS		(1<<5)
 #define BLOCKCLOAK		(1<<6)
 #define BULKYBLOCKS		(1<<7)
+#define SAMEWEAR		(1<<8)
 
 //bitflags for clothing coverage - also used for limbs
 #define HEAD		(1<<0)

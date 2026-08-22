@@ -23,6 +23,10 @@
 #define MODE_WHISPER "whisper"
 #define MODE_WHISPER_CRIT "whispercrit"
 
+//Caustic Edit - Add Absorbed Psay mode
+#define MODE_PSAY "absorbed"
+//Caustic Edit End
+
 #define MODE_SING "%"
 
 #define MODE_DEPARTMENT "department"
@@ -53,7 +57,6 @@
 #define SPAN_SANS "sans"
 #define SPAN_PAPYRUS "papyrus"
 #define SPAN_REALLYBIG "reallybig"
-#define SPAN_COMMAND "command_headset"
 #define SPAN_CLOWN "clown"
 #define SPAN_SINGING "singing"
 

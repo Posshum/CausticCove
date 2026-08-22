@@ -174,12 +174,60 @@
 /turf/open/floor/rogue/rooftop/green/west
 	dir = 8
 
-/turf/open/floor/rogue/rooftop/green/corner1
-	icon_state = "roofgc1-arw"
+// Caustic Edit start
+// Proper roofg directionals
 
+/turf/open/floor/rogue/rooftop/green/northeast
+	dir = 5
+
+/turf/open/floor/rogue/rooftop/green/northwest
+	dir = 9
+
+/turf/open/floor/rogue/rooftop/green/southeast
+	dir = 6
+
+/turf/open/floor/rogue/rooftop/green/southwest
+	dir = 10
+
+/turf/open/floor/rogue/rooftop/green/alt
+	icon_state = "roofgalt-arw"
+
+/turf/open/floor/rogue/rooftop/green/alt/Initialize()
+	. = ..()
+	icon_state = "roofgalt"
+
+/turf/open/floor/rogue/rooftop/green/alt/north
+	dir = 1
+
+/turf/open/floor/rogue/rooftop/green/alt/east
+	dir = 4
+
+/turf/open/floor/rogue/rooftop/green/alt/west
+	dir = 8
+
+/turf/open/floor/rogue/rooftop/green/alt/northeast
+	dir = 5
+
+/turf/open/floor/rogue/rooftop/green/alt/northwest
+	dir = 9
+
+/turf/open/floor/rogue/rooftop/green/alt/southeast
+	dir = 6
+
+/turf/open/floor/rogue/rooftop/green/alt/southwest
+	dir = 10
+
+// Old directionals to not break mapping
+//TODO: Mapping, change out all the corner turf subtypes for the directional ones above.
+
+/turf/open/floor/rogue/rooftop/green/corner1
+	// icon_state = "roofgc1-arw" // Caustic Edit
+
+/*
 /turf/open/floor/rogue/rooftop/green/corner1/Initialize()
 	. = ..()
 	icon_state = "roofgc1"
+*/
 
 /turf/open/floor/rogue/rooftop/green/corner1/dirone
 	dir = 1
@@ -205,6 +253,7 @@
 /turf/open/floor/rogue/rooftop/green/corner1/dirten
 	dir = 10
 
+// Caustic Edit end - old directionals end
 
 /turf/open/floor/rogue/AzureSand
 	name = "sand"
@@ -520,6 +569,30 @@
 		else
 			qdel(I)
 	.=..()
+
+/turf/open/floor/rogue/dirt/MiddleClick(mob/user, params)
+	. = ..()
+	if(!isliving(user))
+		return
+	
+	var/mob/living/L = user
+	if(L.stat != CONSCIOUS)
+		return
+	
+	// Check if the user is holding a shovel
+	var/obj/item/rogueweapon/shovel/S = L.get_active_held_item()
+	if(!istype(S))
+		return
+	
+	// Check if in scoop intent
+	if(L.used_intent.type != /datum/intent/shovelscoop)
+		return
+	
+	// Call the shovel's autodig proc
+	if(S.start_autodig(L, src))
+		return TRUE
+	
+	return FALSE
 
 /turf/open/floor/rogue/dirt/Destroy()
 	if(holie)
@@ -1250,6 +1323,9 @@
 
 /turf/open/floor/rogue/cobblerock/cardinal_smooth(adjacencies)
 	roguesmooth(adjacencies)
+
+/turf/open/floor/rogue/cobblerock/no_smooth
+	smooth = SMOOTH_FALSE
 
 /obj/effect/decal/cobbleedge
 	name = "old cobble path"

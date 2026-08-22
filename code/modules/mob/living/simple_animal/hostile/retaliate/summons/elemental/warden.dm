@@ -23,8 +23,9 @@
 	mob_biotypes = MOB_ORGANIC|MOB_BEAST
 	health = 340
 	maxHealth = 340
-	melee_damage_lower = 15
-	melee_damage_upper = 17
+	threat_point = 30
+	melee_damage_lower = 25
+	melee_damage_upper = 30
 	vision_range = 7
 	aggro_vision_range = 9
 	environment_smash = ENVIRONMENT_SMASH_STRUCTURES
@@ -55,20 +56,18 @@
 	src.adjust_skillrank(/datum/skill/combat/unarmed, 3, TRUE)
 	. = ..()
 
+///Caustic edit
 /mob/living/simple_animal/hostile/retaliate/rogue/elemental/warden/death(gibbed)
 	..()
-	var/turf/deathspot = get_turf(src)
-	new /obj/item/magic/elemental/shard(deathspot)
-	new /obj/item/magic/elemental/shard(deathspot)
-	new /obj/item/magic/elemental/shard(deathspot)
-	new /obj/item/magic/elemental/shard(deathspot)
-	new /obj/item/magic/elemental/mote(deathspot)
-	new /obj/item/magic/elemental/mote(deathspot)
-	new /obj/item/magic/elemental/mote(deathspot)
-	new /obj/item/magic/elemental/mote(deathspot)
+	var/turf/deathspot = get_turf(src) ///Caustic edit
+	for(var/i =1 to 6)
+		new /obj/item/magic/elemental/shard(deathspot)
+	for(var/i =1 to 4)
+		new /obj/item/magic/elemental/mote(deathspot) ///Caustic edit end
 	update_icon()
 	spill_embedded_objects()
 	qdel(src)
+///Caustic edit End
 
 /mob/living/simple_animal/hostile/retaliate/rogue/elemental/warden/AttackingTarget(atom/movable/target)
 	if(SEND_SIGNAL(src, COMSIG_HOSTILE_PRE_ATTACKINGTARGET, target) & COMPONENT_HOSTILE_NO_PREATTACK)

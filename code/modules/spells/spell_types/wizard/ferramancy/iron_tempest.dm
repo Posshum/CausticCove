@@ -28,15 +28,16 @@
 	charge_required = TRUE
 	weapon_cast_penalized = TRUE
 	charge_time = CHARGETIME_MAJOR
-	charge_drain = 1
+	hold_drain = 1
 	charge_slowdown = CHARGING_SLOWDOWN_MEDIUM
 	charge_sound = 'sound/magic/charging.ogg'
 	cooldown_time = 20 SECONDS
+	self_cast_possible = TRUE
 
 	associated_skill = /datum/skill/magic/arcane
 	spell_tier = 2
 	spell_impact_intensity = SPELL_IMPACT_MEDIUM
-	spell_requirements = SPELL_REQUIRES_NO_ANTIMAGIC | SPELL_REQUIRES_SAME_Z // Projectile that spawns persistent AOE - same-Z to prevent cross-floor cheese
+	spell_requirements = SPELL_REQUIRES_NO_ANTIMAGIC | SPELL_REQUIRES_HUMAN | SPELL_REQUIRES_SAME_Z // Projectile that spawns persistent AOE - same-Z to prevent cross-floor cheese
 
 	/// How long the tempest persists
 	var/tempest_duration = 10 SECONDS
@@ -68,6 +69,8 @@
 
 /obj/projectile/magic/iron_tempest_seed/on_hit(atom/target)
 	. = ..()
+	if(out_of_effective_range())
+		return
 	var/turf/impact = get_turf(target)
 	if(impact)
 		new /obj/effect/iron_tempest(impact, firer, spell_ref)
@@ -192,6 +195,3 @@
 	. = ..()
 	if(start_spin)
 		SpinAnimation(5, -1, pick(TRUE, FALSE))
-
-/obj/effect/temp_visual/spinning_dagger/proc/start_spinning()
-	SpinAnimation(5, -1, pick(TRUE, FALSE))

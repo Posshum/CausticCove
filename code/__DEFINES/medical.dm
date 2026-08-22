@@ -32,6 +32,7 @@
 #define READABLE_ZONE_LEGS		"Legs"
 #define READABLE_ZONE_L_LEG		"Left leg"
 #define READABLE_ZONE_R_LEG		"Right leg"
+#define READABLE_ZONE_TAUR		"Tauric half"
 
 #define READABLE_ZONE_SKULL		"Skull"
 #define READABLE_ZONE_NOSE		"Nose"
@@ -138,3 +139,10 @@
 #define WOUND_SEVERITY_FATAL 5
 /// This wound has a zombie or werewolf infection
 #define WOUND_SEVERITY_BIOHAZARD 6
+
+/// Wound severity is determined by bleed rate (default)
+#define SEVERITY_TYPE_BLEED "bleed"
+/// Wound severity is determined by the wound's hp (alternative)
+#define SEVERITY_TYPE_WHP "whp"
+/// Wound severity is determined by how burnt the host limb is (burn_dam as a percent of max_damage)
+#define SEVERITY_TYPE_BURN "burn"

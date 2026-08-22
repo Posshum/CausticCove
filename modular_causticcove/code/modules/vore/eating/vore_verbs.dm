@@ -28,7 +28,7 @@
 	if(!istype(G))
 		to_chat(src,span_warning("You have to have a very strong grip on someone first!"))
 		return FALSE
-	if(G.grab_state != GRAB_NECK)
+	if(G.grab_state != GRAB_AGGRESSIVE)
 		to_chat(src,span_warning("You must have a tighter grip to severely damage this creature!"))
 		return FALSE
 
@@ -52,7 +52,7 @@
 /mob/living/verb/shred_limb()
 	set name = "Damage/Remove Prey's Organ"
 	set desc = "Severely damages prey's organ. If the limb is already severely damaged, it will be torn off."
-	set category = "VORE"
+	set category = "VORE.Actions"
 
 	//can_shred() will return a mob we can shred, if we can shred any.
 	var/mob/living/carbon/human/T = can_shred()
@@ -128,12 +128,12 @@
 /mob/living/proc/shred_limb_temp()
 	set name = "Damage/Remove Prey's Organ (beartrap)"
 	set desc = "Severely damages prey's organ. If the limb is already severely damaged, it will be torn off."
-	set category = "VORE"
+	set category = "VORE.Actions"
 	shred_limb()
 
 /mob/verb/toggle_vore_health_bars()
 	set name = "Toggle Auto Healthbars"
-	set category = "VORE"
+	set category = "VORE.Prefs"
 
 	if(client?.prefs)
 		client.prefs.vore_health_bars = !client.prefs.vore_health_bars
@@ -141,24 +141,45 @@
 
 /mob/verb/toggle_digest_noises()
 	set name = "Toggle Digest Noises"
-	set category = "VORE"
+	set category = "VORE.Prefs"
 
 	if(client?.prefs)
-		client.prefs.digestion_noises = !client.prefs.digestion_noises
+		client.prefs.toggles ^= SOUND_VORE_DIGESTION
+		client.prefs.save_preferences()
+
+		if(client.prefs.toggles & SOUND_VORE_DIGESTION)
+			client.prefs.digestion_noises = TRUE
+		else
+			client.prefs.digestion_noises = FALSE
+
 		to_chat(src, span_notice("You [client.prefs.digestion_noises ? "will" : "will not"] hear digestion noises."))
 
 /mob/verb/toggle_eating_noises()
 	set name = "Toggle Eating Noises"
-	set category = "VORE"
+	set category = "VORE.Prefs"
 
 	if(client?.prefs)
-		client.prefs.eating_noises = !client.prefs.eating_noises
+		client.prefs.toggles ^= SOUND_VORE_EATING
+		client.prefs.save_preferences()
+
+		if(client.prefs.toggles & SOUND_VORE_EATING)
+			client.prefs.eating_noises = TRUE
+		else
+			client.prefs.eating_noises = FALSE
+
 		to_chat(src, span_notice("You [client.prefs.eating_noises ? "will" : "will not"] hear eating noises."))
 
 /mob/verb/toggle_belch_noises()
 	set name = "Toggle Belch Noises"
-	set category = "VORE"
+	set category = "VORE.Prefs"
 
 	if(client?.prefs)
-		client.prefs.belch_noises = !client.prefs.belch_noises
+		client.prefs.toggles ^= SOUND_VORE_BELCH
+		client.prefs.save_preferences()
+
+		if(client.prefs.toggles & SOUND_VORE_BELCH)
+			client.prefs.belch_noises = TRUE
+		else
+			client.prefs.belch_noises = FALSE
+
 		to_chat(src, span_notice("You [client.prefs.belch_noises ? "will" : "will not"] hear burps and belches."))

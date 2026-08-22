@@ -33,6 +33,7 @@
 	var/humanity = 7
 
 	var/potence_weapon_buff = 0
+	var/last_telepathy_use = 0
 
 	/// List of covens this mob possesses
 	var/list/datum/coven/covens
@@ -277,15 +278,16 @@
 	// Coffin regeneration
 	var/total_damage = getBruteLoss() + getFireLoss()
 	var/obj/structure/closet/crate/coffin/coffin = loc
-	if(istype(coffin) && total_damage && (src in coffin.contents))
+	if(total_damage && ((istype(coffin) && (src in coffin.contents)) || isbelly(loc))) //Caustic Edit - Add a isbelly check so vamps in belly can opt to snooze.
 		if(!HAS_TRAIT(src, TRAIT_DEATHCOMA))
 			to_chat(src, span_notice("You enter the horrible slumber of deathless Torpor. You will heal until you are renewed."))
 			ADD_TRAIT(src, TRAIT_DEATHCOMA, TRAIT_VAMPIRE)
-		heal_overall_damage(5, 5)
+		heal_overall_damage(10, 10)
 		adjust_bloodpool(10)
 	if(HAS_TRAIT(src, TRAIT_DEATHCOMA) && (total_damage <= 0 || (!istype(coffin) || !(src in coffin.contents))))
 		REMOVE_TRAIT(src, TRAIT_DEATHCOMA, TRAIT_VAMPIRE)
 		to_chat(src, span_warning("You have recovered from Torpor."))
+		playsound(get_turf(src), 'sound/misc/vampirespell.ogg', 80, FALSE, pressure_affected = FALSE) //Que since it takes a bit you might go AFK briefly
 
 /mob/living/carbon/human/proc/handle_bloodpool_effects()
 	// Apply thirst effects based on bloodpool levels

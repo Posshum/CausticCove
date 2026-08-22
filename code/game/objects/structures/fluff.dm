@@ -139,6 +139,10 @@
 		dest = src.loc
 	if(!dest)
 		return
+	if(dest.is_blocked_turf(source_atom = A))
+		if(ismob(A))
+			to_chat(A, span_warning("Something is blocking the way."))
+		return
 	. = A.forceMove(dest)
 
 /obj/structure/fluff/railing/Initialize()
@@ -277,6 +281,13 @@
 	desc = ""
 	icon_state = "border"
 	pass_crawl = FALSE
+
+// Caustic edit - These were mapped in as var-edited decals before
+/obj/structure/fluff/railing/plat_edge
+	name = "platform edge"
+	icon = 'icons/turf/roguefloor.dmi'
+	icon_state = "borderfall"
+// Caustic Edit end
 
 /obj/structure/fluff/railing/fence
 	name = "palisade"
@@ -693,7 +704,7 @@
 
 /obj/structure/fluff/signage
 	name = "sign"
-	desc = ""
+	desc = "It's a sign! It seems to be pointing somewhere."
 	icon = 'icons/roguetown/misc/structure.dmi'
 	icon_state = "shitsign"
 	density = TRUE
@@ -705,41 +716,16 @@
 	destroy_sound = 'sound/combat/hits/onwood/destroyfurniture.ogg'
 	attacked_sound = list('sound/combat/hits/onwood/woodimpact (1).ogg','sound/combat/hits/onwood/woodimpact (2).ogg')
 
-/obj/structure/fluff/signage/examine(mob/user)
-	. = ..()
-	if(!user.is_literate())
-		. += "I have no idea what it says."
-	else
-		. += "It says \"AZURE PEAK\""
-
-/obj/structure/fluff/buysign
+/obj/structure/fluff/sign
 	icon_state = "signwrote"
 	name = "sign"
-	desc = ""
+	desc = "It's a sign! These usually have words carved into them."
 	icon = 'icons/roguetown/misc/structure.dmi'
-/obj/structure/fluff/buysign/examine(mob/user)
-	. = ..()
-	if(!user.is_literate())
-		. += "I have no idea what it says."
-	else
-		. += "It says \"IMPORTS\""
-
-/obj/structure/fluff/sellsign
-	icon_state = "signwrote"
-	name = "sign"
-	desc = ""
-	icon = 'icons/roguetown/misc/structure.dmi'
-/obj/structure/fluff/sellsign/examine(mob/user)
-	. = ..()
-	if(!user.is_literate())
-		. += "I have no idea what it says."
-	else
-		. += "It says \"EXPORTS\""
-
 
 /obj/structure/fluff/customsign
 	name = "sign"
-	desc = ""
+	desc = "It's a sign! It looks like it'd be quite easy to carve your \
+	own message into this one, were you so inclined."
 	icon_state = "sign"
 	var/wrotesign
 	max_integrity = 500
@@ -753,6 +739,10 @@
 			. += "I have no idea what it says."
 		else
 			. += "It says \"[wrotesign]\"."
+
+/obj/structure/fluff/customsign/get_mechanics_examine(mob/user)
+	. = ..()
+	. += span_info("Left clicking on the sign with a dagger on STAB intent allows you to carve a message into it!")
 
 /obj/structure/fluff/customsign/attackby(obj/item/W, mob/user, params)
 	if(!user.cmode)
@@ -1087,8 +1077,13 @@
 		/obj/item/rogueweapon/greatsword/psygsword,
 		/obj/item/clothing/head/roguetown/circlet,
 		/obj/item/carvedgem,  //Some of these aren't particularly worth much, but it'd be REALLY unintuitive for "valuables" to not actually be offerings
-		/obj/item/rogueweapon/huntingknife/stoneknife/kukri,
-		/obj/item/rogueweapon/huntingknife/stoneknife/opalknife,
+		/obj/item/rogueweapon/huntingknife/combat/jadekukri,
+		/obj/item/rogueweapon/huntingknife/combat/opalknife,
+		/obj/item/rogueweapon/spear/turq,
+		/obj/item/rogueweapon/stoneaxe/battle/coral,
+		/obj/item/rogueweapon/sword/amber,
+		/obj/item/rogueweapon/sword/short/messer/onyxa,
+		/obj/item/rogueweapon/huntingknife/idagger/steel/rondel/rose,
 		/obj/item/rogueweapon/mace/cudgel/shellrungu,
 		/obj/item/clothing/mask/rogue/facemask/carved,
 		/obj/item/clothing/neck/roguetown/carved,
@@ -1623,3 +1618,20 @@
 	stake.forceMove(drop_location())
 	stake = null
 	qdel(src)
+
+/obj/structure/bars/passage/shutter/bookcase
+	name = "Empty Bookcase"
+	desc = "Refuge for few, an irrelevance to most."
+	icon_state = "decoybookcase0"
+
+/obj/structure/bars/passage/shutter/bookcase/redstone_triggered()
+	if(obj_broken)
+		return
+	if(density)
+		icon_state = "decoybookcase1"
+		density = FALSE
+		opacity = FALSE
+	else
+		icon_state = "decoybookcase0"
+		density = TRUE
+		opacity = TRUE

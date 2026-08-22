@@ -2,7 +2,7 @@
 	name = "Shrine Guardian"
 	tutorial = "You were once a guardian of your shrine in Kazengun. Something has forced you out, if it be maurauding ronin, or too many beasts for you to handle. You are skilled in polearms and bows, using an awkward battle style for hit and run tactics."
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = NON_DWARVEN_RACE_TYPES //no dwarf sprites
+	forbidden_races = list(RACES_SMALL) //no dwarf sprites
 	outfit = /datum/outfit/job/roguetown/mercenary/shrine_guardian
 	subclass_languages = list(/datum/language/kazengunese)
 	class_select_category = CLASS_CAT_KAZENGUN
@@ -61,6 +61,7 @@
 				beltr = /obj/item/quiver/arrows
 			if("Naginata + Recurve Bow")
 				H.adjust_skillrank_up_to(/datum/skill/combat/bows, 4, TRUE)
-				backr = /obj/item/rogueweapon/spear/naginata
-				r_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
+				backr = /obj/item/rogueweapon/scabbard/gwstrap //Caustic Edit - Gave a GWStrap instead on the back and moved the Naginata to the hand
+				r_hand = /obj/item/rogueweapon/spear/naginata
+				l_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
 				beltr = /obj/item/quiver/arrows

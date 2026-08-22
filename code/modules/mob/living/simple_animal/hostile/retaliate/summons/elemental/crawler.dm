@@ -19,6 +19,7 @@
 	mob_biotypes = MOB_ORGANIC|MOB_BEAST
 	health = 120
 	maxHealth = 120
+	threat_point = 15
 	melee_damage_lower = 15
 	melee_damage_upper = 17
 	vision_range = 8
@@ -54,13 +55,9 @@
 
 /mob/living/simple_animal/hostile/retaliate/rogue/elemental/crawler/death(gibbed)
 	..()
-	var/turf/deathspot = get_turf(src)
-	new /obj/item/magic/elemental/mote(deathspot)
-	new /obj/item/magic/elemental/mote(deathspot)
-	new /obj/item/magic/elemental/mote(deathspot)
-	new /obj/item/magic/elemental/mote(deathspot)
-	new /obj/item/magic/elemental/mote(deathspot)
-	new /obj/item/magic/elemental/mote(deathspot)
+	var/turf/deathspot = get_turf(src) ///Caustic edit
+	for(var/i =1 to 6)
+		new /obj/item/magic/elemental/mote(deathspot) ///Caustic edit end
 	update_icon()
-	sleep(1)
-	qdel(src)
+	spawn(1)
+		qdel(src)

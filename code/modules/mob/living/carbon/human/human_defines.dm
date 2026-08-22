@@ -11,6 +11,7 @@
 	can_buckle = TRUE
 	buckle_lying = FALSE
 	mob_biotypes = MOB_ORGANIC|MOB_HUMANOID
+	var/taints_loot = FALSE
 
 	ambushable = 1
 
@@ -82,7 +83,6 @@
 	var/static/list/can_ride_typecache = typecacheof(list(/mob/living/carbon/human))
 	var/lastpuke = 0
 	var/last_fire_update
-	var/account_id
 
 	canparry = TRUE
 	candodge = TRUE

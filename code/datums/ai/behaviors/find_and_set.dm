@@ -82,6 +82,10 @@ GLOBAL_LIST_INIT(find_and_set_interested_atoms, typecacheof(list(/obj/item, /mob
 	return TRUE
 
 /datum/ai_behavior/find_and_set/in_list/search_tactic(datum/ai_controller/controller, locate_paths, search_range)
+	//Caustic Edit - Somehow this is being sent a null locate_paths? I'm not entirely sure _why_ that's happening, but this hopefully fixes the runtimes... The AI might recover quicker if it's able to properly cancel out of this action instead of runtiming.
+	if(!locate_paths)
+		return null
+	//Caustic Edit End
 	var/list/found = typecache_filter_list(oview(search_range, controller.pawn), locate_paths)
 	if(length(found))
 		return pick(found)
@@ -288,42 +292,6 @@ GLOBAL_LIST_INIT(find_and_set_interested_atoms, typecacheof(list(/obj/item, /mob
 // 	if(valid_homes.len)
 // 		return pick(valid_homes)
 
-/datum/ai_behavior/find_and_set/better_weapon
-	vision_range = 7
-
-/datum/ai_behavior/find_and_set/better_weapon/atom_allowed(atom/movable/checking, locate_path, atom/pawn)
-	if(checking == pawn)
-		return FALSE
-	var/mob/living/carbon/living_pawn = pawn
-	var/datum/ai_controller/controller = living_pawn.ai_controller
-	if(!istype(checking, controller.blackboard[BB_WEAPON_TYPE]))
-		return FALSE
-	var/obj/item/held_item = living_pawn.get_active_held_item()
-	if(istype(held_item, /obj/item/rogueweapon/shield))
-		held_item = living_pawn.get_inactive_held_item()
-	if(held_item)
-		var/obj/item/rogueweapon/candidate = checking
-		if(held_item.force >= candidate.force)
-			return FALSE
-	return TRUE
-
-/datum/ai_behavior/find_and_set/better_weapon/search_tactic(datum/ai_controller/controller, locate_path, search_range)
-	var/mob/living/carbon/living_pawn = controller.pawn
-	var/obj/item/held_item = living_pawn.get_active_held_item()
-	if(istype(held_item, /obj/item/rogueweapon/shield))
-		living_pawn.swap_hand()
-		held_item = living_pawn.get_active_held_item()
-	var/list/weapons = list()
-	for(var/obj/item/rogueweapon/local_candidate in oview(search_range, controller.pawn))
-		if(!istype(local_candidate, controller.blackboard[BB_WEAPON_TYPE]))
-			continue
-		if(held_item)
-			if(held_item.force >= local_candidate.force)
-				continue
-		weapons += local_candidate
-	if(weapons.len)
-		return pick(weapons)
-
 /datum/ai_behavior/find_and_set/human_beg
 	vision_range = 6
 
@@ -529,6 +497,11 @@ GLOBAL_LIST_INIT(find_and_set_interested_atoms, typecacheof(list(/obj/item, /mob
 	controller.set_blackboard_key(BB_FIND_TARGETS_FIELD(type), detection_field)
 
 /datum/ai_behavior/find_and_set/proc/new_turf_found(turf/found, datum/ai_controller/controller)
+	//Caustic Edit - This was sometimes null apparently? Probably an ambush mob being deleted?
+	if(!controller)
+		return
+	//Caustic Edit End
+
 	var/valid_found = FALSE
 	var/atom/pawn = controller.pawn
 	for(var/maybe_item as anything in found)
@@ -553,6 +526,11 @@ GLOBAL_LIST_INIT(find_and_set_interested_atoms, typecacheof(list(/obj/item, /mob
 	controller.modify_cooldown(src, world.time)
 
 /datum/ai_behavior/find_and_set/proc/new_atoms_found(list/atom/movable/found, datum/ai_controller/controller)
+	//Caustic Edit - This was sometimes null apparently?
+	if(!controller)
+		return FALSE
+	//Caustic Edit End
+
 	var/atom/pawn = controller.pawn
 	var/list/accepted_items = list()
 
