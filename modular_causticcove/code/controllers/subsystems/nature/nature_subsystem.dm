@@ -55,14 +55,14 @@ SUBSYSTEM_DEF(nature)
 
 	else if(SSgamemode.selected_storyteller in BAD_PLANT_GODS)
 		point_multiplier = BAD_NATURE_COST
-	
+
 	else
 		point_multiplier = NORMAL_NATURE_COST //Should always remain as 1 point.
 
 	if(cur_points <= MIN_NATURE_POINTS)
 		return //Negative/Zero points, don't continue.
 
-	//Handles normal growth of plants in the world, along with handling different animals/objects spawning on tree branches.
+	//Handles normal growth of plants in the world, along with handling different atoms spawning on tree branches.
 	handle_growth()
 
 	//Handle plant upgrades, such as grass growing into flowers, or bushes becoming taller bushes, etc.
@@ -90,7 +90,7 @@ SUBSYSTEM_DEF(nature)
 		cur_points--
 
 		//Handle Plants at a rate equal to nature's happiness, the angrier, or happier, nature is, the more often it will grow plants.
-		if(can_plants && prob((abs(nature_happiness)))) 
+		if(can_plants && prob((abs(nature_happiness))))
 			//Pick a random turf from our affected turfs list.
 			var/turf/T = pick(turfs_affected)
 
@@ -98,7 +98,7 @@ SUBSYSTEM_DEF(nature)
 			for(var/obj/O in T.contents)
 				if(!O.Enter())
 					continue //Object with density located; lets skip it boys.
-			
+
 			//Pick our plant. Checks happiness first before we choose what to spawn and makes a choice based on happiness.
 			var/chosen_plant
 			//Angy >:(
@@ -107,7 +107,7 @@ SUBSYSTEM_DEF(nature)
 			//Hapi <:)
 			else
 				chosen_plant = pick(PLANT_OBJECTS)
-			
+
 			//Actually spawn the plant now.
 			new chosen_plant(T)
 
@@ -115,7 +115,7 @@ SUBSYSTEM_DEF(nature)
 		else if(can_branches && prob(abs(nature_happiness)))
 			//Pick a random branch from our affected branches list.
 			var/obj/structure/flora/newbranch/B = pick(branches_affected)
-			
+
 			//Pick our object. Checks happiness first before we choose what to spawn and makes a choice based on happiness.
 			var/chosen_object
 			//Angy >:(
@@ -124,7 +124,7 @@ SUBSYSTEM_DEF(nature)
 			//Hapi <:)
 			else
 				chosen_object = pick(BRANCH_OBJECTS)
-			
+
 			//Actually spawn the object now.
 			var/branch_object = new chosen_object(get_turf(B))
 			AddComponent(/datum/component/branch_object_tracker, branch_object)
@@ -145,7 +145,7 @@ SUBSYSTEM_DEF(nature)
 		//The more bored the forest is, the less we wanna upgrade. If Happiness is 10 - 100, 90 prob to return.
 		if(prob((abs(nature_happiness) - MAX_NATURE_HAPPINESS)))
 			return
-			
+
 		if(i < length(plants_affected))
 			var/obj/structure/flora/cur_plant = plants_affected[rand(length(plants_affected))]
 			cur_plant.attempt_upgrade()
@@ -156,7 +156,7 @@ SUBSYSTEM_DEF(nature)
 	if(T.type in ALLOWED_TURFS)
 		turfs_affected += T
 
-//Component used for handling object tracking. Does nothing else otherwise. 
+//Component used for handling object tracking. Does nothing else otherwise.
 /datum/component/branch_object_tracker/proc/remove_self()
 	SSnature.how_many_objects_exist--
 

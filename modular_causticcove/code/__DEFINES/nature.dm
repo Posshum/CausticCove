@@ -5,7 +5,7 @@
 #define MAX_NATURE_POINTS 1000
 #define MIN_NATURE_POINTS 0
 
-//The Round Start value. By default this is 100.
+//The Round Start value. By default this is -10.
 #define ROUND_START_NATURE_HAPPINESS -10
 
 //A scale between 100, and -100. When Nature is happy, it will grow happy plants. If nature is unhappy, it will grow evil plants. (More Maneaters, etc.)
@@ -75,7 +75,8 @@
 #define PLANT_OBJECTS list(/obj/structure/flora/roguegrass = 50, /obj/structure/flora/roguegrass/bush = 50)
 
 //The plants that are capable of being chose to spawn in the world, associated by weight. This is an evil variant of plants however.
-#define EVIL_PLANT_OBJECTS list(/obj/structure/flora/roguegrass/maneater = 3, /obj/structure/flora/roguegrass/maneater = 1)
+#define EVIL_PLANT_OBJECTS list(/obj/structure/zizo_bane = 3, \
+	/obj/structure/flora/roguegrass/maneater = 1)
 
 //The objects that can spawn on trees in the world, associated by weight.
 #define BRANCH_OBJECTS list(/obj/item/reagent_containers/food/snacks/crow = 19, /obj/structure/fluff/nest = 1)

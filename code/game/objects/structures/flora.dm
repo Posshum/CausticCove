@@ -21,9 +21,9 @@
 	. = ..()
 	SSnature.how_many_plants_exist--
 
-	//We destroyed a plant... How vile... Every plant by default is 0.25 happiness point.
+	//We destroyed a plant... How vile... Every plant by default is 0.05 happiness point.
 	SSnature.nature_happiness -= natural_happiness
-	
+
 	//Check if we're here to begin with before removing us.
 	if(src in SSnature.plants_affected)
 		SSnature.plants_affected -= src
