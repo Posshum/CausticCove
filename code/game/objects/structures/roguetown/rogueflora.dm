@@ -425,6 +425,13 @@
 					user.put_in_hands(B)
 					user.visible_message(span_notice("[user] finds [B] in [src]."))
 					return
+			//CC Edit - Very Rare random gem drop to make people smile. Higher FOR = Higher chances!
+			else if(user.goodluck(0.1)) //Xylix smiles upon his disciples!
+				var/obj/item/B = new /obj/effect/spawner/lootdrop/roguegem/random
+				user.put_in_hands(B)
+				user.visible_message(span_bignotice("[user] finds [B] in [src]!? What luck!"))
+				return
+			//CC Edit End
 			user.visible_message(span_warning("[user] searches through [src]."))
 			if(looty.len)
 				attack_hand(user)
@@ -949,7 +956,7 @@
 	var/mushroom_type = pickweight(mushroom_types)
 	new mushroom_type(loc)
 	qdel(src) */
-//CC Edit End - For future reference, loot drops are way more efficient than deleting a whole mushroom object. 
+//CC Edit End - For future reference, loot drops are way more efficient than deleting a whole mushroom object.
 
 /obj/structure/flora/rogueshroom/happy/New(loc)
 	..()
