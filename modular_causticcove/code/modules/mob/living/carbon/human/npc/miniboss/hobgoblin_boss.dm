@@ -1,6 +1,7 @@
 /mob/living/carbon/human/species/hobgoblin/boss
 	hobgob_outfit = /datum/outfit/job/roguetown/npc/hobby_boss
 	threat_point = 65
+	ai_controller = /datum/ai_controller/human_npc
 
 
 //Some slight RNG to keep things a little surprising and mixed up when loadouts are applied.
