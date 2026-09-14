@@ -710,10 +710,10 @@
 	/obj/structure/flora/roguegrass/herb/wild/poppy)
 
 //Caustic Edit - Desert Town Flora Spawn lists
-/obj/structure/flora/roguegrass/herb/wild/random/desertsands 
+/obj/structure/flora/roguegrass/herb/wild/random/desertsands
 	name = "random wild desertsand plant"
 	icon_state = "wild_plant_desertsand"
-	plant_types = list( 
+	plant_types = list(
 	/obj/structure/flora/roguegrass/herb/wild/eggplant,
 	/obj/structure/flora/roguegrass/herb/wild/potato,
 	/obj/structure/flora/roguegrass/herb/wild/poppy,
@@ -761,31 +761,31 @@
 // Bog
 
 /datum/mapGeneratorModule/bog/place()
-	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/bog = 4)
+	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/bog = 1)
 	. = ..()
 
 /datum/mapGeneratorModule/boggrass/place()
-	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/bog = 4)
+	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/bog = 1)
 	. = ..()
 
 // Grove / Forest
 
 /datum/mapGeneratorModule/forest/place()
-	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/grove = 4)
+	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/grove = 1)
 	. = ..()
 
 /datum/mapGeneratorModule/forestgrass/place()
-	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/grove = 4)
+	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/grove = 1)
 	. = ..()
 
 // Basin / Near town
 
 /datum/mapGeneratorModule/roguetownfield/place()
-	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/basin = 5)
+	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/basin = 2)
 	. = ..()
 
 /datum/mapGeneratorModule/roguetowngrass/place()
-	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/basin = 5)
+	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/basin = 2)
 	. = ..()
 
 // Coast
@@ -800,11 +800,11 @@
 // Mount Decap
 
 /datum/mapGeneratorModule/decapsnow/place()
-	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/decap = 7)
+	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/decap = 5)
 	. = ..()
 
 /datum/mapGeneratorModule/decapgrass/place()
-	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/decap = 7)
+	spawnableAtoms |= list(/obj/structure/flora/roguegrass/herb/wild/random/decap = 5)
 	. = ..()
 
 //Caustic Edit - Desert Town Mapgen stuffs
