@@ -930,6 +930,10 @@
 /obj/item/rogueweapon/sword/long/exe,
 /turf/open/floor/rogue/dirt/road,
 /area/rogue/indoors)
+"yY" = (
+/obj/structure/mob_spawner/rous,
+/turf/open/floor/rogue/cobblerock,
+/area/rogue/outdoors)
 "zb" = (
 /obj/structure/fluff/railing/corner/south_east,
 /turf/open/floor/rogue/tile/harem,
@@ -3263,7 +3267,7 @@ Ew
 AX
 Va
 yK
-yK
+yY
 rT
 rb
 rT
@@ -3368,7 +3372,7 @@ xy
 xy
 yK
 yK
-yK
+yY
 UV
 Vm
 rT
@@ -3472,7 +3476,7 @@ xy
 xy
 rT
 rT
-yK
+yY
 yK
 rT
 rT

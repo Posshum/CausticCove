@@ -109,6 +109,11 @@ GLOBAL_LIST_EMPTY(last_words)
 	GLOB.alive_mob_list -= src
 	if(!gibbed && !was_dead_before)
 		GLOB.dead_mob_list += src
+	//CC Edit
+	if(associated_mob_spawner)
+		var/obj/structure/mob_spawner/MS = associated_mob_spawner
+		MS.mob_amount -= 1
+	//CC Edit End
 
 //	stop_all_loops()
 	SSdroning.kill_rain(src.client)

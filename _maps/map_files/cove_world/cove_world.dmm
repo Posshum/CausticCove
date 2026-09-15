@@ -7791,6 +7791,14 @@
 /mob/living/carbon/human/species/npc/deadite,
 /turf/open/floor/rogue/cobble,
 /area/rogue/under/cave/his_vault)
+"byL" = (
+/obj/effect/decal/cobbleedge{
+	dir = 1;
+	icon_state = "borderfall"
+	},
+/obj/structure/mob_spawner/rous,
+/turf/open/floor/rogue/blocks/green,
+/area/rogue/under/town/sewer)
 "byP" = (
 /obj/structure/chair/wood/rogue/chair3,
 /turf/open/floor/rogue/cobble,
@@ -40887,6 +40895,10 @@
 	},
 /turf/open/floor/rogue/metal/barograte,
 /area/rogue/under/underdark/north)
+"hIX" = (
+/obj/structure/mob_spawner/rous,
+/turf/open/floor/rogue/blocks/green,
+/area/rogue/under/town/sewer)
 "hJh" = (
 /obj/structure/mineral_door/wood/violet{
 	locked = 1
@@ -116254,6 +116266,11 @@
 /obj/machinery/light/rogue/candle/l,
 /turf/open/floor/rogue/ruinedwood/spiral,
 /area/rogue/indoors/town)
+"vHn" = (
+/obj/item/reagent_containers/food/snacks/smallrat,
+/obj/structure/mob_spawner/rous,
+/turf/open/floor/rogue/blocks/green,
+/area/rogue/under/town/sewer)
 "vHq" = (
 /turf/closed/wall/mineral/rogue/stonebrick,
 /area/rogue/under/cavewet/bogcaves/south)
@@ -124065,8 +124082,8 @@
 /turf/open/floor/rogue/concrete,
 /area/rogue/indoors/town/church/chapel)
 "xcs" = (
-/mob/living/simple_animal/hostile/retaliate/rogue/bigrat,
 /obj/effect/decal/cleanable/blood/tracks,
+/obj/structure/mob_spawner/rous,
 /turf/open/floor/rogue/blocks/green,
 /area/rogue/under/town/sewer)
 "xct" = (
@@ -149859,7 +149876,7 @@ coD
 cqm
 cqm
 mMx
-ylh
+hIX
 cqm
 ogs
 ogs
@@ -153920,7 +153937,7 @@ aki
 ylh
 ylh
 dlK
-wUW
+vHn
 ylh
 urZ
 gau
@@ -155271,7 +155288,7 @@ rtn
 ylh
 ylh
 ylh
-ylh
+hIX
 ylh
 ylh
 ylh
@@ -159775,10 +159792,10 @@ ixP
 ixP
 fMS
 ixP
-dxA
+ylh
 ylh
 arS
-ylh
+hIX
 dlK
 ehs
 eMU
@@ -159801,7 +159818,7 @@ qBy
 qBy
 qBy
 dNN
-ylh
+hIX
 mMx
 urZ
 cqm
@@ -170199,7 +170216,7 @@ qBy
 vNx
 qBy
 ljZ
-ylh
+hIX
 ylh
 ylh
 ylh
@@ -172929,7 +172946,7 @@ cHC
 rpx
 daP
 cqm
-ylh
+hIX
 mMx
 ylh
 ltb
@@ -175175,7 +175192,7 @@ cHC
 xVg
 jpu
 ylh
-wUW
+vHn
 cqm
 gzE
 hTq
@@ -176084,7 +176101,7 @@ dNN
 hTq
 oPb
 tsJ
-ckX
+byL
 mMx
 mMx
 cqm
@@ -177020,8 +177037,8 @@ mMx
 fjd
 xmx
 ylh
-dxA
 ylh
+hIX
 mMx
 ylh
 xNL
@@ -179224,7 +179241,7 @@ ylh
 ylh
 tuP
 ylh
-ylh
+hIX
 ylh
 ylh
 mMx
@@ -179261,7 +179278,7 @@ sIr
 ylh
 ylh
 ylh
-ylh
+hIX
 ylh
 mMx
 urZ
@@ -180177,7 +180194,7 @@ leX
 ylh
 ylh
 ylh
-dxA
+hIX
 ylh
 jpu
 hZX
